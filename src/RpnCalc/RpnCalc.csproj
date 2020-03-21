@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
+		<UseWPF>true</UseWPF>
+		<Description>RPN Calc Windows Desktop Application</Description>
+		<ApplicationIcon>Images\Icons\Logo.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RpnCalcLib\RpnCalcLib.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+		</Compile>
+		<None Include="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Images\Buttons\1OverX.png" />
+	  <Resource Include="Images\Buttons\AOverB.png" />
+	  <Resource Include="Images\Buttons\BackArrow.png" />
+	  <Resource Include="Images\Buttons\CommonFraction.png" />
+	  <Resource Include="Images\Buttons\MixedFraction.png" />
+	  <Resource Include="Images\Buttons\Negative1Power.png" />
+	  <Resource Include="Images\Buttons\Pi.png" />
+	  <Resource Include="Images\Buttons\PlusMinus.png" />
+	  <Resource Include="Images\Buttons\Sigma.png" />
+	  <Resource Include="Images\Buttons\Space.png" />
+	  <Resource Include="Images\Buttons\SquareRoot.png" />
+	  <Resource Include="Images\Buttons\XPower.png" />
+	  <Resource Include="Images\Buttons\XRootOfY.png" />
+	  <Resource Include="Images\Icons\Logo.ico" />
+	  <Resource Include="Images\MenuItems\AppendToEntryLine.png" />
+	  <Resource Include="Images\MenuItems\ClearHistory.png" />
+	  <Resource Include="Images\MenuItems\CopyHS.png" />
+	  <Resource Include="Images\MenuItems\CutHS.png" />
+	  <Resource Include="Images\MenuItems\DeleteHS.png" />
+	  <Resource Include="Images\MenuItems\Down.png" />
+	  <Resource Include="Images\MenuItems\Edit_UndoHS.png" />
+	  <Resource Include="Images\MenuItems\PasteHS.png" />
+	  <Resource Include="Images\MenuItems\Pick.png" />
+	  <Resource Include="Images\MenuItems\SortHS.png" />
+	  <Resource Include="Images\MenuItems\Up.png" />
+	</ItemGroup>
+
+</Project>

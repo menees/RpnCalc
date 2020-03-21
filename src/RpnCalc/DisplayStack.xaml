@@ -1,0 +1,132 @@
+﻿<m:ExtendedUserControl x:Class="Menees.RpnCalc.DisplayStack"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:m="http://menees.com/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+	<ListBox Name="m_listBox" Margin="2" MouseRightButtonDown="ListBox_MouseRightButtonDown" KeyDown="ListBox_KeyDown">
+		<ListBox.ItemContainerStyle>
+			<Style TargetType="ListBoxItem">
+				<Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+			</Style>
+		</ListBox.ItemContainerStyle>
+		<ListBox.ItemTemplate>
+			<DataTemplate>
+				<DockPanel LastChildFill="False">
+					<!--MinWidth is sized to correctly right-align the position column for the first 99 items.
+                    If there are 100 or more items, then the width will grow as necessary.  Since this will
+                    almost always be sufficient, I'm not going to do anything complex like binding Width to
+                    a property that calculates the require width based on the number of items.-->
+					<TextBlock Foreground="Green" Text="{Binding Path=StackPosition}" MinWidth="24" TextAlignment="Right" />
+					<TextBlock Foreground="Blue" Text="{Binding Path=ValueText}" DockPanel.Dock="Right"
+                        ToolTipService.Placement="Top">
+                        <ToolTipService.ToolTip>
+                            <!-- I want a non-focusable grid, so I don't want to use a DataGrid.
+                            But I'm not sure how to handle a dynamic number of rows in a
+                            Grid.  So I'm just supporting a fixed number of formats for now,
+                            and I'm depending on the Grid to collapse the empty ones. -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <!--Currently, no value class uses more than 4 display formats,
+                                    and only BinaryValue uses that many. Any rows with empty values
+                                    will collapse and not be displayed.-->
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+								<Grid.Resources>
+									<!-- Without this style, the tooltip would always show all four grid rows.
+									http://stackoverflow.com/questions/5573864/how-to-hide-the-empty-textblock -->
+									<Style TargetType="TextBlock"> 
+										<Style.Triggers> 
+											<Trigger Property="Text" Value=""> 
+												<Setter Property="Visibility" Value="Collapsed"/> 
+											</Trigger>
+											<Trigger Property="Text" Value="{x:Null}">
+												<Setter Property="Visibility" Value="Collapsed" />
+											</Trigger>
+										</Style.Triggers> 
+									</Style> 
+								</Grid.Resources>
+                                <!--The DisplayFormats property is hardcoded to return a list with
+                                exactly four entries.  DataBinding would eat the OutOfRangeExceptions
+                                if it had fewer items, but I didn't like seeing them pop up in the debugger.-->
+                                <TextBlock Text="{Binding Path=DisplayFormats[0].FormatName}" />
+                                <TextBlock Text="{Binding Path=DisplayFormats[0].DisplayValue}" Grid.Column="1" TextAlignment="Right" />
+                                <TextBlock Text="{Binding Path=DisplayFormats[1].FormatName}" Grid.Row="1"/>
+                                <TextBlock Text="{Binding Path=DisplayFormats[1].DisplayValue}" Grid.Row="1" Grid.Column="1" TextAlignment="Right" />
+                                <TextBlock Text="{Binding Path=DisplayFormats[2].FormatName}" Grid.Row="2"/>
+                                <TextBlock Text="{Binding Path=DisplayFormats[2].DisplayValue}" Grid.Row="2" Grid.Column="1" TextAlignment="Right" />
+                                <TextBlock Text="{Binding Path=DisplayFormats[3].FormatName}" Grid.Row="3"/>
+                                <TextBlock Text="{Binding Path=DisplayFormats[3].DisplayValue}" Grid.Row="3" Grid.Column="1" TextAlignment="Right" />
+                            </Grid>
+                        </ToolTipService.ToolTip>
+                    </TextBlock>
+				</DockPanel>
+			</DataTemplate>
+		</ListBox.ItemTemplate>
+		<ListBox.ItemsPanel>
+			<ItemsPanelTemplate>
+				<!-- Using Recycling mode per Adam Nathan's recommendation in WPF 4.5 pg 259. -->
+				<VirtualizingStackPanel VerticalAlignment="Bottom" VirtualizationMode="Recycling"/>
+			</ItemsPanelTemplate>
+		</ListBox.ItemsPanel>
+		<ContextMenuService.ContextMenu>
+			<ContextMenu Name="m_listBoxContextMenu" Opened="ContextMenu_Opened">
+				<MenuItem Header="Copy To Clipboard" Tag="CopyToClipboard" Click="IndexCommand_Click">
+					<MenuItem.Icon>
+						<Image Source="Images/MenuItems/CopyHS.png" />
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="Append To Entry Line" Tag="AppendToEntryLine" Click="IndexCommand_Click">
+					<MenuItem.Icon>
+						<Image Source="Images/MenuItems/AppendToEntryLine.png" />
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="Remove" Tag="Remove" Click="IndexCommand_Click">
+					<MenuItem.Icon>
+						<Image Source="Images/MenuItems/DeleteHS.png" />
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="Pick" Tag="Pick" Click="IndexCommand_Click">
+					<MenuItem.Icon>
+						<Image Source="Images/MenuItems/Pick.png" />
+					</MenuItem.Icon>
+				</MenuItem>
+				<Separator />
+				<MenuItem Header="Roll Up" Tag="RollUpN" Click="CountCommand_Click">
+					<MenuItem.Icon>
+						<Image Source="Images/MenuItems/Up.png" />
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="Roll Down" Tag="RollDownN" Click="CountCommand_Click">
+					<MenuItem.Icon>
+						<Image Source="Images/MenuItems/Down.png" />
+					</MenuItem.Icon>
+				</MenuItem>
+				<Separator />
+				<MenuItem Header="Drop From Here Down" Tag="DropN" Click="CountCommand_Click" />
+				<MenuItem Header="Duplicate From Here Down" Tag="DupN" Click="CountCommand_Click" />
+				<MenuItem Header="Keep From Here Down" Tag="KeepN" Click="CountCommand_Click" />
+				<MenuItem Header="Sort From Here Down" Tag="SortN" Click="CountCommand_Click">
+					<MenuItem.Icon>
+						<Image Source="Images/MenuItems/SortHS.png" />
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="Sum From Here Down" Tag="SigmaN" Click="CountCommand_Click">
+					<MenuItem.Icon>
+						<!-- The Sigma button image isn't 16x16.  Without Stretch="None" MenuItem tries to stretch it. -->
+						<Image Source="Images/Buttons/Sigma.png" Stretch="None" />
+					</MenuItem.Icon>
+				</MenuItem>
+			</ContextMenu>
+		</ContextMenuService.ContextMenu>
+	</ListBox>
+</m:ExtendedUserControl>

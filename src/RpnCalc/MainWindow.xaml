@@ -1,0 +1,740 @@
+﻿<m:ExtendedWindow x:Class="Menees.RpnCalc.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:m="http://menees.com/xaml"
+		xmlns:cmn="clr-namespace:Menees;assembly=Menees.Common"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
+		xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
+		xmlns:local="clr-namespace:Menees.RpnCalc"
+		xmlns:rpn="clr-namespace:Menees.RpnCalc;assembly=RpnCalcLib"		
+		Height="{Binding MinHeight, RelativeSource={RelativeSource Self}}"
+		Width="{Binding MinWidth, RelativeSource={RelativeSource Self}}"
+		MinHeight="470" MinWidth="460"
+		Title="{x:Static cmn:ApplicationInfo.ApplicationName}"
+		TextOptions.TextFormattingMode="Display"
+		KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" PreviewKeyDown="Window_PreviewKeyDown" Loaded="Window_Loaded">
+	<m:ExtendedWindow.Resources>
+		<ResourceDictionary>
+			<rpn:Calculator x:Key="m_calc" x:Name="m_calc" />
+			<m:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="Styles.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</m:ExtendedWindow.Resources>
+	<Grid>
+		<DockPanel LastChildFill="True">
+			<TabControl DockPanel.Dock="Top" Padding="1" MinHeight="92">
+				<TabItem Header="Home">
+					<local:Ribbon HorizontalAlignment="Left" Width="448">
+						<local:Ribbon.Resources>
+							<rpn:EnumToBoolConverter x:Key="RadioButtonConverter" />
+						</local:Ribbon.Resources>
+						<local:RibbonSection Header="Angle">
+							<StackPanel>
+								<RadioButton Content="Deg" IsChecked="{Binding Path=AngleMode, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Degrees}" />
+								<RadioButton Content="Rad"  IsChecked="{Binding Path=AngleMode, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Radians}" />
+							</StackPanel>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Base">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<RadioButton Content="2" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Binary}" />
+									<RadioButton Content="8" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Octal}" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<RadioButton Content="10" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Decimal}" />
+									<RadioButton Content="16" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Hexadecimal}" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Complex">
+							<StackPanel>
+								<RadioButton Content="Rect" IsChecked="{Binding Path=ComplexFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Rectangular}" />
+								<RadioButton Content="Polar" IsChecked="{Binding Path=ComplexFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Polar}" />
+							</StackPanel>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Decimal">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<RadioButton Content="Std" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Standard}" />
+									<RadioButton Content="Sci" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Scientific}" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<RadioButton Content="Fix" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Fixed}" />
+									<ComboBox SelectedValue="{Binding Source={StaticResource m_calc}, Path=FixedDecimalDigits, Mode=TwoWay}"
+											  Style="{StaticResource SettingsComboBox}">
+										<ComboBox.ItemsSource>
+											<Int32Collection>0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15</Int32Collection>
+										</ComboBox.ItemsSource>
+									</ComboBox>
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Fraction">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="17" />
+									<RowDefinition />
+								</Grid.RowDefinitions>
+								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Mixed}" GroupName="FractionOptions" Height="20" VerticalAlignment="Top"
+                                             TabIndex="0">
+									<RadioButton.Content>
+										<Image Source="Images/Buttons/MixedFraction.png" />
+									</RadioButton.Content>
+								</RadioButton>
+								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Decimal}" Content="Decimal" GroupName="FractionOptions"
+                                             Grid.Row="1" Grid.ColumnSpan="3" TabIndex="1"/>
+								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Common}" GroupName="FractionOptions"
+                                             Grid.Column="2" TabIndex="2">
+									<RadioButton.Content>
+										<Image Source="Images/Buttons/CommonFraction.png" />
+									</RadioButton.Content>
+								</RadioButton>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Help" x:Name="m_updateRibbonSection">
+							<StackPanel>
+								<m:HyperlinkButton Content="About" Click="About_Click" ToolTipService.ToolTip="Shows information about this version of RPN Calc." />
+							</StackPanel>
+						</local:RibbonSection>
+					</local:Ribbon>
+				</TabItem>
+				<TabItem Header="Binary">
+					<local:Ribbon>
+						<local:RibbonSection Header="Combine">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="And" Tag="And" Click="Command_Click" />
+									<m:HyperlinkButton Content="Or" Tag="Or" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Xor" Tag="Xor" Click="Command_Click" />
+									<m:HyperlinkButton Content="Not" Tag="Not" Click="Command_Click" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Convert">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Bin ⇒ Int" Tag="BtoI" Click="Command_Click" ToolTipService.ToolTip="Binary To Integer" />
+									<m:HyperlinkButton Content="Int ⇒ Bin" Tag="ItoB" Click="Command_Click" ToolTipService.ToolTip="Integer To Binary" />
+								</StackPanel>
+								<Grid Grid.Column="2" VerticalAlignment="Top">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition />
+										<ColumnDefinition />
+									</Grid.ColumnDefinitions>
+									<Label Content="Word Size:" />
+									<ComboBox Grid.Column="1" SelectedValue="{Binding Source={StaticResource m_calc}, Path=BinaryWordSize, Mode=TwoWay}"
+											  Style="{StaticResource SettingsComboBox}">
+										<ComboBox.ItemsSource>
+											<Int32Collection>8 16 24 32 40 48 56 64</Int32Collection>
+										</ComboBox.ItemsSource>
+									</ComboBox>
+								</Grid>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Move">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Shift Left" Tag="ShiftLeft" Click="Command_Click" />
+									<m:HyperlinkButton Content="Shift Right" Tag="ShiftRight" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Rotate Left" Tag="RotateLeft" Click="Command_Click" />
+									<m:HyperlinkButton Content="Rotate Right" Tag="RotateRight" Click="Command_Click" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+					</local:Ribbon>
+				</TabItem>
+				<TabItem Header="Constants">
+					<local:Ribbon>
+						<local:RibbonSection Header="Data Types">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Min Double" Tag="MinDouble" Click="Command_Click" />
+									<m:HyperlinkButton Content="Max Double" Tag="MaxDouble" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Min Integer" Tag="MinInteger" Click="Command_Click" />
+									<m:HyperlinkButton Content="Max Integer" Tag="MaxInteger" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="4">
+									<m:HyperlinkButton Content="Min Long" Tag="MinLong" Click="Command_Click" />
+									<m:HyperlinkButton Content="Max Long" Tag="MaxLong" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="6">
+									<m:HyperlinkButton Content="Min Date" Tag="MinDate" Click="Command_Click" />
+									<m:HyperlinkButton Content="Max Date" Tag="MaxDate" Click="Command_Click" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Named">
+							<StackPanel>
+								<m:HyperlinkButton Content="e" Tag="E" Click="Command_Click" />
+								<m:HyperlinkButton Content="i" Tag="I" Click="Command_Click" />
+							</StackPanel>
+						</local:RibbonSection>
+					</local:Ribbon>
+				</TabItem>
+				<TabItem Header="Date/Time">
+					<local:Ribbon>
+						<local:RibbonSection Header="Current">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Date" Tag="Date" Click="Command_Click" />
+									<m:HyperlinkButton Content="Time" Tag="Time" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Now" Tag="Now" Click="Command_Click" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Parts">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Date Part" Tag="DatePart" Click="Command_Click" />
+									<m:HyperlinkButton Content="Time Part" Tag="TimePart" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Weekday" Tag="Weekday" Click="Command_Click" />
+									<m:HyperlinkButton Content="Day Of Year" Tag="DayOfYear" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="4">
+									<m:HyperlinkButton Content="Age Today" Tag="AgeToday" Click="Command_Click" />
+									<m:HyperlinkButton Content="Age On" Tag="AgeOn" Click="Command_Click" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Convert">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Hr ⇒ T" Tag="FromHr" Click="Command_Click" ToolTipService.ToolTip="Converts hours to a timespan." />
+									<m:HyperlinkButton Content="T ⇒ Hr" Tag="ToHr" Click="Command_Click"  ToolTipService.ToolTip="Converts a timespan to hours." />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Min ⇒ T" Tag="FromMin" Click="Command_Click"  ToolTipService.ToolTip="Converts minutes to a timespan." />
+									<m:HyperlinkButton Content="T ⇒ Min" Tag="ToMin" Click="Command_Click" ToolTipService.ToolTip="Converts a timespan to minutes." />
+								</StackPanel>
+								<StackPanel Grid.Column="4">
+									<m:HyperlinkButton Content="Sec ⇒ T" Tag="FromSec" Click="Command_Click"  ToolTipService.ToolTip="Converts seconds to a timespan." />
+									<m:HyperlinkButton Content="T ⇒ Sec" Tag="ToSec" Click="Command_Click" ToolTipService.ToolTip="Converts a timespan to seconds." />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+					</local:Ribbon>
+				</TabItem>
+				<TabItem Header="Math">
+					<local:Ribbon>
+						<local:RibbonSection Header="Complex">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="a, b ⇒ z" Tag="RtoC" Click="Command_Click" ToolTipService.ToolTip="Makes a complex value from real and imaginary parts." />
+									<m:HyperlinkButton Content="z ⇒ a, b" Tag="CtoR" Click="Command_Click" ToolTipService.ToolTip="Splits a complex value into its real and imaginary parts." />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Real" Tag="Real" Click="Command_Click" ToolTipService.ToolTip="Real Part" />
+									<m:HyperlinkButton Content="Imag" Tag="Imag" Click="Command_Click" ToolTipService.ToolTip="Imaginary Part" />
+								</StackPanel>
+								<StackPanel Grid.Column="4">
+									<m:HyperlinkButton Content="Conj" Tag="Conj" Click="Command_Click" ToolTipService.ToolTip="Conjugate" />
+									<m:HyperlinkButton Content="Phase" Tag="Phase" Click="Command_Click" ToolTipService.ToolTip="Polar Angle" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Trigonometry">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="D ⇒ R" Tag="DtoR" Click="Command_Click" ToolTipService.ToolTip="Degrees To Radians" />
+									<m:HyperlinkButton Content="R ⇒ D" Tag="RtoD" Click="Command_Click" ToolTipService.ToolTip="Radians To Degrees" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="SinH" Tag="SinH" Click="Command_Click" ToolTipService.ToolTip="Hyperbolic Sine" />
+									<m:HyperlinkButton Content="CosH" Tag="CosH" Click="Command_Click" ToolTipService.ToolTip="Hyperbolic Cosine" />
+								</StackPanel>
+								<StackPanel Grid.Column="4">
+									<m:HyperlinkButton Content="TanH" Tag="TanH" Click="Command_Click" ToolTipService.ToolTip="Hyperbolic Tangent" />
+									<m:HyperlinkButton Content="Hypot" Tag="Hyp" Click="Command_Click" ToolTipService.ToolTip="Hypotenuse" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Probability">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Comb" Tag="Comb" Click="Command_Click" ToolTipService.ToolTip="Combinations" />
+									<m:HyperlinkButton Content="Perm" Tag="Perm" Click="Command_Click" ToolTipService.ToolTip="Permutations" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Ran# Betw" Tag="RandomBetween" Click="Command_Click" ToolTipService.ToolTip="Generates a random number between two values." />
+									<m:HyperlinkButton Content="Ran# Seed" Tag="SetRandomSeed" Click="Command_Click" ToolTipService.ToolTip="Sets the random number generator seed.&#10;Use 0 for a time-based seed." />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+					</local:Ribbon>
+				</TabItem>
+				<TabItem Header="Parts">
+					<local:Ribbon>
+						<local:RibbonSection Header="Parts">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Ceiling" Tag="Ceil" Click="Command_Click" />
+									<m:HyperlinkButton Content="Floor" Tag="Floor" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Int Part" Tag="Int" Click="Command_Click" ToolTipService.ToolTip="Integer Part" />
+									<m:HyperlinkButton Content="Frac Part" Tag="Frac" Click="Command_Click" ToolTipService.ToolTip="Fractional Part" />
+								</StackPanel>
+								<StackPanel Grid.Column="4">
+									<m:HyperlinkButton Content="Sign" Tag="Sign" Click="Command_Click" />
+									<m:HyperlinkButton Content="Abs" Tag="Abs" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="6">
+									<m:HyperlinkButton Content="Round" Tag="Round" Click="Command_Click" ToolTipService.ToolTip="Round To N Places" />
+									<m:HyperlinkButton Content="Trunc" Tag="Trunc" Click="Command_Click" ToolTipService.ToolTip="Truncate To N Places" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Pairs">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="GCD" Tag="Gcd" Click="Command_Click" ToolTipService.ToolTip="Greatest Common Divisor" />
+									<m:HyperlinkButton Content="LCM" Tag="Lcm" Click="Command_Click" ToolTipService.ToolTip="Least Common Multiple" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Min" Tag="Min" Click="Command_Click" ToolTipService.ToolTip="Minimum" />
+									<m:HyperlinkButton Content="Max" Tag="Max" Click="Command_Click" ToolTipService.ToolTip="Maximum" />
+								</StackPanel>
+								<StackPanel Grid.Column="4">
+									<m:HyperlinkButton Content="% Chg" Tag="PercentChange" Click="Command_Click" ToolTipService.ToolTip="Change from level 2 to level 1 as a percentage of level 2." />
+									<m:HyperlinkButton Content="% Tot" Tag="PercentTotal" Click="Command_Click" ToolTipService.ToolTip="Percentage of the total level 2 represented by level 1." />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Fractions">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="a, b ⇒ a/b" Tag="RtoF" Click="Command_Click" ToolTipService.ToolTip="Makes a fraction from numerator and denominator parts." />
+									<m:HyperlinkButton Content="a/b ⇒ a, b" Tag="FtoR" Click="Command_Click" ToolTipService.ToolTip="Splits a fraction into its numerator and denominator parts." />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+					</local:Ribbon>
+				</TabItem>
+				<TabItem Header="Stack">
+					<local:Ribbon>
+						<local:RibbonSection Header="Insert/Delete">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Drop 2" Tag="Drop2" Click="Command_Click" />
+									<m:HyperlinkButton Content="Drop N" Tag="DropN" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Duplicate 2" Tag="Dup2" Click="Command_Click" />
+									<m:HyperlinkButton Content="Duplicate N" Tag="DupN" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="4">
+									<m:HyperlinkButton Content="Keep N" Tag="KeepN" Click="Command_Click" />
+									<m:HyperlinkButton Content="Pick Item N" Tag="Pick" Click="Command_Click" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+						<local:RibbonSection Header="Reorder">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition />
+									<ColumnDefinition Width="{StaticResource HyperlinkGap}" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<StackPanel>
+									<m:HyperlinkButton Content="Roll Up N" Tag="RollUpN" Click="Command_Click" />
+									<m:HyperlinkButton Content="Roll Down N" Tag="RollDownN" Click="Command_Click" />
+								</StackPanel>
+								<StackPanel Grid.Column="2">
+									<m:HyperlinkButton Content="Roll Up 3" Tag="RollUp3" Click="Command_Click" />
+									<m:HyperlinkButton Content="Sort N" Tag="SortN" Click="Command_Click" />
+								</StackPanel>
+							</Grid>
+						</local:RibbonSection>
+					</local:Ribbon>
+				</TabItem>
+			</TabControl>
+			<StackPanel DockPanel.Dock="Right">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+						<RowDefinition />
+					</Grid.RowDefinitions>
+					<Button Style="{StaticResource KeypadButton}" Grid.Row="0" Tag="Pi" Click="Command_Click">
+						<Button.Content>
+							<Image Source="Images/Buttons/Pi.png" />
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="0" Grid.Column="1" Style="{StaticResource KeypadButton}" Tag="SigmaN" Click="Command_Click" ToolTipService.ToolTip="Sum N Items">
+						<Button.Content>
+							<!--Content="∑"-->
+							<Image Source="Images/Buttons/Sigma.png" />
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="0" Grid.Column="2" Style="{StaticResource KeypadButton}" Tag="FtoD" Click="Command_Click" ToolTipService.ToolTip="Converts a fraction to a floating-point value.">
+						<Button.Content>
+							<StackPanel Orientation="Horizontal">
+								<Image Source="Images/Buttons/AOverB.png" />
+								<TextBlock>→</TextBlock>
+							</StackPanel>
+						</Button.Content>
+					</Button>
+					<Button Content="Ran#" Grid.Row="0" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Random" Click="Command_Click" ToolTipService.ToolTip="Generates a random number." />
+					<Button Content="Mod" Grid.Row="1" Style="{StaticResource KeypadButton}" Tag="Mod" Click="Command_Click" />
+					<Button Content="x!" Grid.Row="1" Grid.Column="1" Style="{StaticResource KeypadButton}" Tag="Fact" Click="Command_Click" />
+					<Button Grid.Row="1" Grid.Column="2" Style="{StaticResource KeypadButton}" Tag="DtoF" Click="Command_Click" ToolTipService.ToolTip="Converts a floating-point value to a fraction.">
+						<Button.Content>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock>→</TextBlock>
+								<Image Source="Images/Buttons/AOverB.png" />
+							</StackPanel>
+						</Button.Content>
+					</Button>
+					<Button Content="% Of" Grid.Row="1" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Percent" Click="Command_Click" ToolTipService.ToolTip="Level 2 percentage of level 1." />
+					<Button Grid.Row="2"  Content="x²" Style="{StaticResource KeypadButton}" Tag="Square" Click="Command_Click" />
+					<Button Grid.Row="2" Grid.Column="1" Style="{StaticResource KeypadButton}" Tag="Power" Click="Command_Click" ToolTipService.ToolTip="Power&#10;Ctrl+Shift+R">
+						<Button.Content>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock>y</TextBlock>
+								<Image Source="Images/Buttons/XPower.png" />
+							</StackPanel>
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="2" Grid.Column="2" Style="{StaticResource KeypadButton}" Tag="ALog" Click="Command_Click">
+						<Button.Content>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock>10</TextBlock>
+								<Image Source="Images/Buttons/XPower.png" />
+							</StackPanel>
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="2" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Exp" Click="Command_Click">
+						<Button.Content>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock>e</TextBlock>
+								<Image Source="Images/Buttons/XPower.png" />
+							</StackPanel>
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="3" Style="{StaticResource KeypadButton}" Tag="Sqrt" Click="Command_Click" ToolTipService.ToolTip="Square Root&#10;Ctrl+Shift+U">
+						<Button.Content>
+							<Image Source="Images/Buttons/SquareRoot.png" />
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="3" Grid.Column="1" Style="{StaticResource KeypadButton}" Tag="XRoot" Click="Command_Click">
+						<Button.Content>
+							<Image Source="Images/Buttons/XRootOfY.png" />
+						</Button.Content>
+					</Button>
+					<Button Content="Log" Grid.Row="3" Grid.Column="2" Style="{StaticResource KeypadButton}" Tag="Log" Click="Command_Click" />
+					<Button Content="Ln" Grid.Row="3" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Ln" Click="Command_Click" />
+					<Button Grid.Row="4" Style="{StaticResource KeypadButton}" Tag="ASin" Click="Command_Click">
+						<Button.Content>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock>Sin</TextBlock>
+								<Image Source="Images/Buttons/Negative1Power.png" />
+							</StackPanel>
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="4" Grid.Column="1" Style="{StaticResource KeypadButton}" Tag="ACos" Click="Command_Click">
+						<Button.Content>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock>Cos</TextBlock>
+								<Image Source="Images/Buttons/Negative1Power.png" />
+							</StackPanel>
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="4" Grid.Column="2" Style="{StaticResource KeypadButton}" Tag="ATan" Click="Command_Click">
+						<Button.Content>
+							<StackPanel Orientation="Horizontal">
+								<TextBlock>Tan</TextBlock>
+								<Image Source="Images/Buttons/Negative1Power.png" />
+							</StackPanel>
+						</Button.Content>
+					</Button>
+					<Button Grid.Row="4" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Invert" Click="Command_Click">
+						<Button.Content>
+							<Image Source="Images/Buttons/1OverX.png" />
+						</Button.Content>
+					</Button>
+					<Button Content="Sin" Grid.Row="5" Style="{StaticResource KeypadButton}" Tag="Sin" Click="Command_Click" />
+					<Button Content="Cos" Grid.Row="5" Grid.Column="1" Style="{StaticResource KeypadButton}" Tag="Cos" Click="Command_Click" />
+					<Button Content="Tan" Grid.Row="5" Grid.Column="2" Style="{StaticResource KeypadButton}" Tag="Tan" Click="Command_Click" />
+					<Button Grid.Row="5" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Negate" Click="Negate_Click" ToolTipService.ToolTip="Negate&#10;Ctrl+-">
+						<Button.Content>
+						<!--Content="±"-->
+						<Image Source="Images/Buttons/PlusMinus.png" />
+						</Button.Content>
+					</Button>
+					<Button Content="Edit" Grid.Row="6" Style="{StaticResource KeypadButton}" Tag="Edit" Click="Command_Click" />
+					<Button Content="Clear" Grid.Row="6" Grid.Column="1" Style="{StaticResource KeypadButton}" Tag="Clear" Click="Command_Click" />
+					<Button Content="Swap" Grid.Row="6" Grid.Column="2" Style="{StaticResource KeypadButton}" Tag="Swap" Click="Command_Click" ToolTipService.ToolTip="Swap&#10;Ctrl+Shift+W"/>
+					<Button Content="Drop" Grid.Row="6" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Drop" Click="Command_Click" />
+					<Button Content="Enter" Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource KeypadDoubleWidthButton}" Click="Enter_Click" />
+					<Button Content="Last" Grid.Row="7" Grid.Column="2" Style="{StaticResource KeypadButton}" Tag="Last" Click="Command_Click" />
+					<Button Grid.Row="7" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Back" Click="Back_Click">
+						<Button.Content>
+							<Image Source="Images/Buttons/BackArrow.png" />
+						</Button.Content>
+					</Button>
+					<StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="8">
+						<Button Content="(" Style="{StaticResource KeypadHalfWidthButton}" Click="DisplayChar_Click" ToolTipService.ToolTip="Begins a complex number." />
+						<Button Content=")" Style="{StaticResource KeypadHalfWidthButton}" Click="DisplayChar_Click" HorizontalAlignment="Left" ToolTipService.ToolTip="Ends a complex number." />
+					</StackPanel>
+					<StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="8">
+					<!--I thought about using Unicode character "∠" (2220, Angle) or "∡" (2221, Measured Angle).
+					However, they looked bad on screen, and they're not on anyone's keyboard, which would
+					make polar entry harder.-->
+						<Button Content="@" Style="{StaticResource KeypadHalfWidthButton}" Click="DisplayChar_Click" ToolTipService.ToolTip="The prefix for the phase angle in a polar complex number." />
+						<Button Content="#" Style="{StaticResource KeypadHalfWidthButton}" Click="DisplayChar_Click" ToolTipService.ToolTip="The prefix for binary, octal, decimal, and hexadecimal values." />
+					</StackPanel>
+					<StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="8">
+						<Button Content="_" Style="{StaticResource KeypadHalfWidthButton}" Click="DisplayChar_Click" ToolTipService.ToolTip="Separates the parts of a fraction during entry." />
+						<Button Content=":" Style="{StaticResource KeypadHalfWidthButton}" Click="DisplayChar_Click" ToolTipService.ToolTip="Separates the hour, minute, and second parts in times and timespans." />
+					</StackPanel>
+					<StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="8">
+						<Button Content="&quot;" Style="{StaticResource KeypadHalfWidthButton}" Tag="&quot;" Click="DisplayChar_Click" ToolTipService.ToolTip="Begins and ends a date/time value." HorizontalAlignment="Left" />
+						<Button Content="/" Style="{StaticResource KeypadHalfWidthButton}" Click="DisplayChar_Click" HorizontalAlignment="Left" ToolTipService.ToolTip="Separates the month, day, and year parts in a date value.&#10;Ctrl+Shift+/" />
+					</StackPanel>
+					<Button Content="7" Grid.Row="9" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="8" Grid.Row="9" Grid.Column="1" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="9" Grid.Row="9" Grid.Column="2" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="÷" Grid.Row="9" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Divide" Click="Command_Click" ToolTipService.ToolTip="Divide&#10;/"/>
+					<Button Content="4" Grid.Row="10" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="5" Grid.Row="10" Grid.Column="1" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="6" Grid.Row="10" Grid.Column="2" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="×" Grid.Row="10" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Multiply" Click="Command_Click" ToolTipService.ToolTip="Multiply&#10;*"/>
+					<Button Content="1" Grid.Row="11" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="2" Grid.Row="11" Grid.Column="1" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="3" Grid.Row="11" Grid.Column="2" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="–" Grid.Row="11" Grid.Column="3" Style="{StaticResource KeypadButton}" Click="Subtract_Click" ToolTipService.ToolTip="Subtract&#10;-&#10;(Ctrl+Shift+- inserts a minus sign.)" />
+					<Button Content="0" Grid.Row="12" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="." Grid.Row="12" Grid.Column="1" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="," Grid.Row="12" Grid.Column="2" Style="{StaticResource KeypadButton}" Click="DisplayChar_Click" />
+					<Button Content="+" Grid.Row="12" Grid.Column="3" Style="{StaticResource KeypadButton}" Tag="Add" Click="Command_Click" ToolTipService.ToolTip="Add&#10;+"/>
+				</Grid>
+			</StackPanel>
+			<DockPanel DockPanel.Dock="Bottom">
+				<ComboBox Name="m_entryLine" DockPanel.Dock="Bottom" Margin="2" Text="{Binding Path=EntryLine, Mode=TwoWay, Source={StaticResource m_calc}}"
+						  TabIndex="0" IsEditable="True" ItemsSource="{Binding EntryLineHistory, Source={StaticResource m_calc}}" IsTextSearchEnabled="False">
+					<ComboBox.ContextMenu>
+						<ContextMenu Name="m_entryLineContextMenu" Opened="ContextMenu_Opened">
+							<MenuItem Header="Undo" Tag="Undo" Click="EntryLineUndo_Click">
+								<MenuItem.Icon>
+									<Image Source="Images/MenuItems/Edit_UndoHS.png"/>
+								</MenuItem.Icon>
+							</MenuItem>
+							<Separator />
+							<MenuItem Header="Cut" Tag="Cut" Click="EntryLineCut_Click">
+								<MenuItem.Icon>
+									<Image Source="Images/MenuItems/CutHS.png" />
+								</MenuItem.Icon>
+							</MenuItem>
+							<MenuItem Header="Copy" Tag="Copy" Click="EntryLineCopy_Click">
+								<MenuItem.Icon>
+									<Image Source="Images/MenuItems/CopyHS.png" />
+								</MenuItem.Icon>
+							</MenuItem>
+							<MenuItem Header="Paste" Tag="Paste" Click="EntryLinePaste_Click">
+								<MenuItem.Icon>
+									<Image Source="Images/MenuItems/PasteHS.png" />
+								</MenuItem.Icon>
+							</MenuItem>
+							<MenuItem Header="Delete" Tag="Delete" Click="EntryLineDelete_Click">
+								<MenuItem.Icon>
+									<Image Source="Images/MenuItems/DeleteHS.png" />
+								</MenuItem.Icon>
+							</MenuItem>
+							<Separator />
+							<MenuItem Header="Select All" Tag="SelectAll" Click="EntryLineSelectAll_Click"/>
+							<Separator />
+							<MenuItem Header="Clear History" Tag="ClearHistory" Click="ClearHistory_Click">
+								<MenuItem.Icon>
+									<Image Source="Images/MenuItems/ClearHistory.png" />
+								</MenuItem.Icon>
+							</MenuItem>
+						</ContextMenu>
+					</ComboBox.ContextMenu>
+				</ComboBox>
+			</DockPanel>
+			<Border DockPanel.Dock="Top" BorderThickness="1" BorderBrush="Black" Background="#FFFFFFE1" CornerRadius="5" Padding="4" Visibility="{Binding Source={StaticResource m_calc}, Path=ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+				<Border.Effect>
+					<DropShadowEffect ShadowDepth="2" Opacity="0.5" />
+				</Border.Effect>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+					<Grid VerticalAlignment="Center">
+						<Polygon Stroke="White" StrokeThickness="2" Fill="Red" Points="4.5,0 10.5,0 15,4.5 15,10.5 10.5,15 4.5,15 0,10.5 0,4.5" Margin="2">
+							<Polygon.Effect>
+								<DropShadowEffect Opacity="0.5" ShadowDepth="2" />
+							</Polygon.Effect>
+						</Polygon>
+						<!--<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock FontSize="5" Foreground="White">STOP</TextBlock>
+                        </StackPanel>-->
+					</Grid>
+					<TextBlock Grid.Column="1" FontWeight="Bold" TextWrapping="Wrap" VerticalAlignment="Center" Margin="2,0,0,0" Text="{Binding Source={StaticResource m_calc}, Path=ErrorMessage}">
+                        <TextBlock.ContextMenu>
+                            <ContextMenu Name="m_errorMessageContextMenu">
+                                <MenuItem Header="Copy Error Message" Click="ErrorCopy_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="Images/MenuItems/CopyHS.png" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </TextBlock.ContextMenu>
+					</TextBlock>
+					<StackPanel VerticalAlignment="Top" Grid.Column="2" Margin="2" Orientation="Horizontal">
+						<Button Click="ErrorInfoButton_Click" TabIndex="4">
+							<Button.Content>
+								<Grid Margin="2,2,1,1">
+									<Line X1="0" Y1="0" X2="6" Y2="6" Stroke="Black" StrokeThickness="2" />
+									<Line X1="0" Y1="6" X2="6" Y2="0" Stroke="Black" StrokeThickness="2" />
+								</Grid>
+							</Button.Content>
+						</Button>
+					</StackPanel>
+				</Grid>
+			</Border>
+			<local:DisplayStack x:Name="m_displayStack" Calculator="{StaticResource m_calc}" TabIndex="1" ExecutedCommand="DisplayStack_ExecutedCommand" />
+		</DockPanel>
+		<Grid.Background>
+			<LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+				<GradientStop Color="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionColorKey}}" Offset="0" />
+				<GradientStop Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}" Offset="0.15" />
+				<GradientStop Color="{DynamicResource {x:Static SystemColors.GradientActiveCaptionColorKey}}" Offset="1" />
+			</LinearGradientBrush>
+		</Grid.Background>
+	</Grid>
+</m:ExtendedWindow>

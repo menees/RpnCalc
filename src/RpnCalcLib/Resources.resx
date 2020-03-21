@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Calculator_ArgumentException" xml:space="preserve">
+    <value>Value does not fall within the expected range.</value>
+  </data>
+  <data name="Calculator_ArgumentNullException" xml:space="preserve">
+    <value>Value cannot be null.</value>
+  </data>
+  <data name="Calculator_ArgumentOutOfRangeException" xml:space="preserve">
+    <value>Specified argument was out of the range of valid values.</value>
+  </data>
+  <data name="Calculator_ArithmeticException" xml:space="preserve">
+    <value>Overflow or underflow in the arithmetic operation.</value>
+  </data>
+  <data name="Calculator_DivideByZeroException" xml:space="preserve">
+    <value>Attempted to divide by zero.</value>
+  </data>
+  <data name="Calculator_NotFiniteNumberException" xml:space="preserve">
+    <value>Number encountered was not a finite value.</value>
+  </data>
+  <data name="Calculator_OverflowException" xml:space="preserve">
+    <value>Arithmetic operation resulted in an overflow.</value>
+  </data>
+  <data name="Calculator_PrefixedErrorFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Calculator_UnknownCommand" xml:space="preserve">
+    <value>Unknown command.</value>
+  </data>
+  <data name="Commands_0ArgumentsAreRequired" xml:space="preserve">
+    <value>{0} arguments are required.</value>
+  </data>
+  <data name="Commands_AnArgumentIsRequired" xml:space="preserve">
+    <value>An argument is required.</value>
+  </data>
+  <data name="Commands_CountMustBeNonNegative" xml:space="preserve">
+    <value>The argument count must be non-negative.</value>
+  </data>
+  <data name="Commands_Item0MustBeAScalarNumber" xml:space="preserve">
+    <value>Item {0} must be a scalar numeric value.</value>
+  </data>
+  <data name="Commands_Item0MustBeAScalarOrComplex" xml:space="preserve">
+    <value>Item {0} must be a scalar or complex numeric value.</value>
+  </data>
+  <data name="Commands_Item0MustHaveType1" xml:space="preserve">
+    <value>Item {0} must be of type {1}.</value>
+  </data>
+  <data name="Commands_Items0And1MustHaveTheSameType" xml:space="preserve">
+    <value>Items {0} and {1} must be of the same type.</value>
+  </data>
+  <data name="Commands_JoiningOr" xml:space="preserve">
+    <value> or </value>
+  </data>
+  <data name="Commands_PositionMustBePositive" xml:space="preserve">
+    <value>The position argument must be a positive integer.</value>
+  </data>
+  <data name="Commands_TwoArgumentsAreRequired" xml:space="preserve">
+    <value>Two arguments are required.</value>
+  </data>
+  <data name="ComplexValue_CannotCastToScalar" xml:space="preserve">
+    <value>A complex value with a non-zero imaginary part cannot be converted into a scalar value.</value>
+  </data>
+  <data name="DisplayFormat_Algebraic" xml:space="preserve">
+    <value>Algebraic</value>
+  </data>
+  <data name="DisplayFormat_Binary" xml:space="preserve">
+    <value>Binary</value>
+  </data>
+  <data name="DisplayFormat_Common" xml:space="preserve">
+    <value>Common</value>
+  </data>
+  <data name="DisplayFormat_Decimal" xml:space="preserve">
+    <value>Decimal</value>
+  </data>
+  <data name="DisplayFormat_Fixed" xml:space="preserve">
+    <value>Fixed</value>
+  </data>
+  <data name="DisplayFormat_Formatted" xml:space="preserve">
+    <value>Formatted</value>
+  </data>
+  <data name="DisplayFormat_Hexadecimal" xml:space="preserve">
+    <value>Hexadecimal</value>
+  </data>
+  <data name="DisplayFormat_LongDateTime" xml:space="preserve">
+    <value>Long Date/Time</value>
+  </data>
+  <data name="DisplayFormat_Mixed" xml:space="preserve">
+    <value>Mixed</value>
+  </data>
+  <data name="DisplayFormat_NameValueFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="DisplayFormat_Octal" xml:space="preserve">
+    <value>Octal</value>
+  </data>
+  <data name="DisplayFormat_Polar" xml:space="preserve">
+    <value>Polar</value>
+  </data>
+  <data name="DisplayFormat_Rectangular" xml:space="preserve">
+    <value>Rectangular</value>
+  </data>
+  <data name="DisplayFormat_Scientific" xml:space="preserve">
+    <value>Scientific</value>
+  </data>
+  <data name="DisplayFormat_ShortDateTime" xml:space="preserve">
+    <value>Short Date/Time</value>
+  </data>
+  <data name="DisplayFormat_Standard" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="EntryLineParser_InvalidSyntax" xml:space="preserve">
+    <value>Invalid syntax.</value>
+  </data>
+  <data name="MathCommands_IntegerIsRequired" xml:space="preserve">
+    <value>An integer value is required.</value>
+  </data>
+  <data name="NumericValue_Gcd" xml:space="preserve">
+    <value>Greatest Common Divisor</value>
+  </data>
+  <data name="NumericValue_Invert" xml:space="preserve">
+    <value>Invert</value>
+  </data>
+  <data name="NumericValue_Modulus" xml:space="preserve">
+    <value>Modulus</value>
+  </data>
+  <data name="NumericValue_Power" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="NumericValue_UnableToChangeType" xml:space="preserve">
+    <value>Unable to change numeric value from {0} to {1}.</value>
+  </data>
+  <data name="StackCommands_UnableToCompare" xml:space="preserve">
+    <value>Unable to compare all values in the specified range.</value>
+  </data>
+  <data name="Value_Abs" xml:space="preserve">
+    <value>Absolute Value</value>
+  </data>
+  <data name="Value_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Value_BinaryOperationNotSupported" xml:space="preserve">
+    <value>{0} is not supported between arguments of type {1} and {2}.</value>
+  </data>
+  <data name="Value_Divide" xml:space="preserve">
+    <value>Divide</value>
+  </data>
+  <data name="Value_Multiply" xml:space="preserve">
+    <value>Multiply</value>
+  </data>
+  <data name="Value_Negate" xml:space="preserve">
+    <value>Negate</value>
+  </data>
+  <data name="Value_Sign" xml:space="preserve">
+    <value>Sign</value>
+  </data>
+  <data name="Value_Subtract" xml:space="preserve">
+    <value>Subtract</value>
+  </data>
+  <data name="Value_UnableToCompare" xml:space="preserve">
+    <value>Unable to compare {0} and {1}.</value>
+  </data>
+  <data name="Value_UnaryOperationNotSupported" xml:space="preserve">
+    <value>{0} not supported for an argument of type {1}.</value>
+  </data>
+</root>
