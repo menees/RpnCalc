@@ -19,13 +19,13 @@ namespace Menees.RpnCalc
 		// This overload is provided for CLS compliance.
 		public BinaryValue(long value)
 		{
-			m_value = unchecked((ulong)value);
+			this.m_value = unchecked((ulong)value);
 		}
 
 		[CLSCompliant(false)]
 		public BinaryValue(ulong value)
 		{
-			m_value = value;
+			this.m_value = value;
 		}
 
 		#endregion
@@ -46,14 +46,14 @@ namespace Menees.RpnCalc
 
 		public override string ToString()
 		{
-			return GetDecimalFormat(m_value);
+			return GetDecimalFormat(this.m_value);
 		}
 
 		public override string ToString(Calculator calc)
 		{
 			string result;
 
-			ulong maskedValue = GetMaskedWordSizeValue(calc);
+			ulong maskedValue = this.GetMaskedWordSizeValue(calc);
 
 			switch (calc.BinaryFormat)
 			{
@@ -78,7 +78,7 @@ namespace Menees.RpnCalc
 		{
 			List<DisplayFormat> result = new List<DisplayFormat>(4);
 
-			ulong maskedValue = GetMaskedWordSizeValue(calc);
+			ulong maskedValue = this.GetMaskedWordSizeValue(calc);
 
 			result.Add(new DisplayFormat(Resources.DisplayFormat_Binary, GetBinaryFormat(maskedValue)));
 			result.Add(new DisplayFormat(Resources.DisplayFormat_Octal, GetOctalFormat(maskedValue)));
@@ -135,12 +135,12 @@ namespace Menees.RpnCalc
 
 		public override double ToDouble()
 		{
-			return (double)m_value;
+			return (double)this.m_value;
 		}
 
 		public override BigInteger ToInteger()
 		{
-			return (BigInteger)m_value;
+			return (BigInteger)this.m_value;
 		}
 
 		public static BinaryValue And(BinaryValue x, BinaryValue y)
@@ -248,7 +248,7 @@ namespace Menees.RpnCalc
 		public int Sign(Calculator calc)
 		{
 			int result = 0;
-			if (m_value != 0)
+			if (this.m_value != 0)
 			{
 				// Negate does two's complement, so we'll say we're negative if the
 				// most significant bit is set.  However, this is inconsistent with the
@@ -259,7 +259,7 @@ namespace Menees.RpnCalc
 				// a binary value using two's complement, but it's other commands
 				// always treat a binary value as non-negative.  And it doesn't
 				// support the SIGN command for binary values.
-				bool msbSet = (m_value & unchecked((ulong)(1L << (calc.BinaryWordSize - 1)))) != 0;
+				bool msbSet = (this.m_value & unchecked((ulong)(1L << (calc.BinaryWordSize - 1)))) != 0;
 				result = msbSet ? -1 : 1;
 			}
 
@@ -274,7 +274,7 @@ namespace Menees.RpnCalc
 
 		public override int GetHashCode()
 		{
-			return m_value.GetHashCode();
+			return this.m_value.GetHashCode();
 		}
 
 		public static int Compare(BinaryValue x, BinaryValue y)
@@ -284,6 +284,7 @@ namespace Menees.RpnCalc
 			{
 				result = x.m_value.CompareTo(y.m_value);
 			}
+
 			return result;
 		}
 
@@ -342,7 +343,7 @@ namespace Menees.RpnCalc
 
 		private ulong GetMaskedWordSizeValue(Calculator calc)
 		{
-			return GetMaskedWordSizeValue(calc, m_value);
+			return GetMaskedWordSizeValue(calc, this.m_value);
 		}
 
 		private static ulong GetMaskedWordSizeValue(Calculator calc, ulong value)
@@ -394,6 +395,7 @@ namespace Menees.RpnCalc
 			{
 				digits = Convert.ToString(unchecked((long)value), (int)toBase).ToUpper(CultureInfo.CurrentCulture);
 			}
+
 			sb.Append(digits);
 
 			sb.Append(suffix);

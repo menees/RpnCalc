@@ -16,16 +16,16 @@ using System.Windows.Shapes;
 
 namespace Menees.RpnCalc
 {
-    public class Ribbon : ItemsControl
-    {
-        #region Constructors
+	public class Ribbon : ItemsControl
+	{
+		#region Constructors
 
-        public Ribbon()
-        {
-            DefaultStyleKey = typeof(Ribbon);
-            IsTabStop = false;
-        }
+		public Ribbon()
+		{
+			this.DefaultStyleKey = typeof(Ribbon);
+			this.IsTabStop = false;
+		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

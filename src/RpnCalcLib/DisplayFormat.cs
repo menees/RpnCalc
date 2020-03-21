@@ -7,39 +7,41 @@ using System.Globalization;
 
 namespace Menees.RpnCalc
 {
-    public class DisplayFormat
-    {
-        #region Constructors
+	public class DisplayFormat
+	{
+		#region Constructors
 
-        public DisplayFormat(string displayValue)
-            : this(Resources.DisplayFormat_Standard, displayValue)
-        {
-        }
+		public DisplayFormat(string displayValue)
+			: this(Resources.DisplayFormat_Standard, displayValue)
+		{
+		}
 
-        public DisplayFormat(string formatName, string displayValue)
-        {
-            FormatName = formatName;
-            DisplayValue = displayValue;
-        }
+		public DisplayFormat(string formatName, string displayValue)
+		{
+			this.FormatName = formatName;
+			this.DisplayValue = displayValue;
+		}
 
-        #endregion
+		#endregion
 
-        #region Public Properties
+		#region Public Properties
 
-        public string FormatName { get; private set; }
-        public string DisplayValue { get; private set; }
+		public string FormatName { get; private set; }
 
-        #endregion
+		public string DisplayValue { get; private set; }
 
-        #region Public Methods
+		#endregion
 
-        public override string ToString()
-        {
-            string result = string.Format(CultureInfo.CurrentCulture,
-                Resources.DisplayFormat_NameValueFormat, FormatName, DisplayValue);
-            return result;
-        }
+		#region Public Methods
 
-        #endregion
-    }
+		public override string ToString()
+		{
+			string result = string.Format(
+				CultureInfo.CurrentCulture,
+				Resources.DisplayFormat_NameValueFormat, this.FormatName, this.DisplayValue);
+			return result;
+		}
+
+		#endregion
+	}
 }

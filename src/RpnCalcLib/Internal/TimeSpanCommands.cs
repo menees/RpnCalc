@@ -10,81 +10,81 @@ using System.Linq;
 
 namespace Menees.RpnCalc.Internal
 {
-    internal class TimeSpanCommands : Commands
-    {
-        #region Constructors
+	internal class TimeSpanCommands : Commands
+	{
+		#region Constructors
 
-        public TimeSpanCommands(Calculator calc)
-            : base(calc)
-        {
-        }
+		public TimeSpanCommands(Calculator calc)
+			: base(calc)
+		{
+		}
 
-        #endregion
+		#endregion
 
-        #region Public Methods
+		#region Public Methods
 
-        public void FromHr(Command cmd)
-        {
-            double value = UseTopDouble(cmd);
-            TimeSpanValue result = new TimeSpanValue(TimeSpan.FromHours(value));
-            cmd.Commit(result);
-        }
+		public void FromHr(Command cmd)
+		{
+			double value = this.UseTopDouble(cmd);
+			TimeSpanValue result = new TimeSpanValue(TimeSpan.FromHours(value));
+			cmd.Commit(result);
+		}
 
-        public void ToHr(Command cmd)
-        {
-            TimeSpan value = UseTopTimeSpan(cmd);
-            DoubleValue result = new DoubleValue(value.TotalHours);
-            cmd.Commit(result);
-        }
+		public void ToHr(Command cmd)
+		{
+			TimeSpan value = this.UseTopTimeSpan(cmd);
+			DoubleValue result = new DoubleValue(value.TotalHours);
+			cmd.Commit(result);
+		}
 
-        public void FromMin(Command cmd)
-        {
-            double value = UseTopDouble(cmd);
-            TimeSpanValue result = new TimeSpanValue(TimeSpan.FromMinutes(value));
-            cmd.Commit(result);
-        }
+		public void FromMin(Command cmd)
+		{
+			double value = this.UseTopDouble(cmd);
+			TimeSpanValue result = new TimeSpanValue(TimeSpan.FromMinutes(value));
+			cmd.Commit(result);
+		}
 
-        public void ToMin(Command cmd)
-        {
-            TimeSpan value = UseTopTimeSpan(cmd);
-            DoubleValue result = new DoubleValue(value.TotalMinutes);
-            cmd.Commit(result);
-        }
+		public void ToMin(Command cmd)
+		{
+			TimeSpan value = this.UseTopTimeSpan(cmd);
+			DoubleValue result = new DoubleValue(value.TotalMinutes);
+			cmd.Commit(result);
+		}
 
-        public void FromSec(Command cmd)
-        {
-            double value = UseTopDouble(cmd);
-            TimeSpanValue result = new TimeSpanValue(TimeSpan.FromSeconds(value));
-            cmd.Commit(result);
-        }
+		public void FromSec(Command cmd)
+		{
+			double value = this.UseTopDouble(cmd);
+			TimeSpanValue result = new TimeSpanValue(TimeSpan.FromSeconds(value));
+			cmd.Commit(result);
+		}
 
-        public void ToSec(Command cmd)
-        {
-            TimeSpan value = UseTopTimeSpan(cmd);
-            DoubleValue result = new DoubleValue(value.TotalSeconds);
-            cmd.Commit(result);
-        }
+		public void ToSec(Command cmd)
+		{
+			TimeSpan value = this.UseTopTimeSpan(cmd);
+			DoubleValue result = new DoubleValue(value.TotalSeconds);
+			cmd.Commit(result);
+		}
 
-        #endregion
+		#endregion
 
-        #region Private Methods
+		#region Private Methods
 
-        private double UseTopDouble(Command cmd)
-        {
-            RequireArgs(1);
-            RequireScalarNumericType(0);
-            var value = (NumericValue)cmd.UseTopValue();
-            return value.ToDouble();
-        }
+		private double UseTopDouble(Command cmd)
+		{
+			this.RequireArgs(1);
+			this.RequireScalarNumericType(0);
+			var value = (NumericValue)cmd.UseTopValue();
+			return value.ToDouble();
+		}
 
-        private TimeSpan UseTopTimeSpan(Command cmd)
-        {
-            RequireArgs(1);
-            RequireType(0, ValueType.TimeSpan);
-            var result = (TimeSpanValue)cmd.UseTopValue();
-            return result.AsTimeSpan;
-        }
+		private TimeSpan UseTopTimeSpan(Command cmd)
+		{
+			this.RequireArgs(1);
+			this.RequireType(0, ValueType.TimeSpan);
+			var result = (TimeSpanValue)cmd.UseTopValue();
+			return result.AsTimeSpan;
+		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

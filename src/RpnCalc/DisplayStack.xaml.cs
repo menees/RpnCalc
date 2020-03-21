@@ -48,7 +48,7 @@
 
 		private void ListBox_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
 		{
-			HitTestResult result = VisualTreeHelper.HitTest(m_listBox, e.GetPosition(null));
+			HitTestResult result = VisualTreeHelper.HitTest(this.m_listBox, e.GetPosition(null));
 			ListBoxItem item = result.VisualHit as ListBoxItem;
 			if (item != null)
 			{

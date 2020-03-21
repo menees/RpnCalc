@@ -11,258 +11,257 @@ using System.Linq;
 
 namespace Menees.RpnCalc
 {
-    public sealed class ValueStack : IEnumerable<Value>, ICollection, INotifyCollectionChanged
-    {
-        #region Constructors
+	public sealed class ValueStack : IEnumerable<Value>, ICollection, INotifyCollectionChanged
+	{
+		#region Constructors
 
-        public ValueStack()
-        {
-            m_storage.CollectionChanged += Storage_CollectionChanged;
-        }
+		public ValueStack()
+		{
+			this.m_storage.CollectionChanged += this.Storage_CollectionChanged;
+		}
 
-        #endregion
+		#endregion
 
-        #region Public Methods
+		#region Public Methods
 
-        public void Push(Value value)
-        {
-            m_storage.Add(value);
-        }
+		public void Push(Value value)
+		{
+			this.m_storage.Add(value);
+		}
 
-        public void PushRange(IEnumerable<Value> values)
-        {
-            foreach (Value value in values)
-            {
-                m_storage.Add(value);
-            }
-        }
+		public void PushRange(IEnumerable<Value> values)
+		{
+			foreach (Value value in values)
+			{
+				this.m_storage.Add(value);
+			}
+		}
 
-        public Value Pop()
-        {
-            Value result = Peek();
-            m_storage.RemoveAt(TopIndex);
-            return result;
-        }
+		public Value Pop()
+		{
+			Value result = this.Peek();
+			this.m_storage.RemoveAt(this.TopIndex);
+			return result;
+		}
 
-        public IList<Value> PopRange(int count)
-        {
-            IList<Value> result = PeekRange(count);
-            for (int i = 0; i < count; i++)
-            {
-                m_storage.RemoveAt(TopIndex);
-            }
-            return result;
-        }
+		public IList<Value> PopRange(int count)
+		{
+			IList<Value> result = this.PeekRange(count);
+			for (int i = 0; i < count; i++)
+			{
+				this.m_storage.RemoveAt(this.TopIndex);
+			}
 
-        public Value Peek()
-        {
-            Value result = m_storage[TopIndex];
-            return result;
-        }
+			return result;
+		}
 
-        public IList<Value> PeekRange(int count)
-        {
-            IList<Value> result = new List<Value>(count);
-            int topIndex = TopIndex;
-            for (int i = 0; i < count; i++)
-            {
-                result.Add(m_storage[topIndex - i]);
-            }
-            return result;
-        }
+		public Value Peek()
+		{
+			Value result = this.m_storage[this.TopIndex];
+			return result;
+		}
 
-        public Value PeekAt(int offsetFromTop)
-        {
-            Value result = m_storage[TopIndex - offsetFromTop];
-            return result;
-        }
+		public IList<Value> PeekRange(int count)
+		{
+			IList<Value> result = new List<Value>(count);
+			int topIndex = this.TopIndex;
+			for (int i = 0; i < count; i++)
+			{
+				result.Add(this.m_storage[topIndex - i]);
+			}
 
-        #endregion
+			return result;
+		}
 
-        #region IEnumerable<Value> and ICollection Members
+		public Value PeekAt(int offsetFromTop)
+		{
+			Value result = this.m_storage[this.TopIndex - offsetFromTop];
+			return result;
+		}
 
-        public IEnumerator<Value> GetEnumerator()
-        {
-            //Return the values in reverse order, from top to bottom.
-            //That's what Stack<T> does, and it kind of makes sense.
-            for (int i = TopIndex; i >= 0; i--)
-            {
-                Value result = m_storage[i];
-                yield return result;
-            }
-        }
+		#endregion
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+		#region IEnumerable<Value> and ICollection Members
 
-        public void CopyTo(Value[] array, int index)
-        {
-            ICollection storageColl = m_storage;
-            storageColl.CopyTo(array, index);
-            //Return the values in reverse order like GetEnumerator does.
-            Array.Reverse(array, index, Count);
-        }
+		public IEnumerator<Value> GetEnumerator()
+		{
+			// Return the values in reverse order, from top to bottom.
+			// That's what Stack<T> does, and it kind of makes sense.
+			for (int i = this.TopIndex; i >= 0; i--)
+			{
+				Value result = this.m_storage[i];
+				yield return result;
+			}
+		}
 
-        void ICollection.CopyTo(Array array, int index)
-        {
-            CopyTo((Value[])array, index);
-        }
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return this.GetEnumerator();
+		}
 
-        public int Count
-        {
-            get
-            {
-                return m_storage.Count;
-            }
-        }
+		public void CopyTo(Value[] array, int index)
+		{
+			ICollection storageColl = this.m_storage;
+			storageColl.CopyTo(array, index);
 
-        public bool IsSynchronized
-        {
-            get
-            {
-                return false;
-            }
-        }
+			// Return the values in reverse order like GetEnumerator does.
+			Array.Reverse(array, index, this.Count);
+		}
 
-        public object SyncRoot
-        {
-            get
-            {
-                return this;
-            }
-        }
+		void ICollection.CopyTo(Array array, int index)
+		{
+			this.CopyTo((Value[])array, index);
+		}
 
-        #endregion
+		public int Count
+		{
+			get
+			{
+				return this.m_storage.Count;
+			}
+		}
 
-        #region INotifyCollectionChanged Members
+		public bool IsSynchronized
+		{
+			get
+			{
+				return false;
+			}
+		}
 
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
+		public object SyncRoot
+		{
+			get
+			{
+				return this;
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region Internal Methods
+		#region INotifyCollectionChanged Members
 
-        internal void Load(INode stackNode, Calculator calc)
-        {
-            BeginReset();
-            try
-            {
-                m_storage.Clear();
+		public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-                if (stackNode != null)
-                {
-                    //Save saved the values out in the order we need to
-                    //re-push them, so this part is easy.  Just parse and push.
-                    foreach (INode valueNode in stackNode.GetNodes())
-                    {
-                        //This will return null if one of the values can't be reloaded.
-                        //That can happen if a regional formatting change was made
-                        //so that a previously saved value can no longer be parsed.
-                        //Or a user could edit the saved file in isolated storage to
-                        //put crapola in a value.
-                        Value val = Value.Load(valueNode, calc);
-                        if (val != null)
-                        {
-                            Push(val);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                EndReset();
-            }
-        }
+		#endregion
 
-        internal void Save(INode stackNode, Calculator calc)
-        {
-            //Save the items out in reverse order.  That way they'll be
-            //saved in the order that we need to re-push them during
-            //Load, and they'll be in saved in the same order that the
-            //display showed them.
-            var values = PeekRange(Count).Reverse();
-			int index = Count;
-            foreach (Value val in values)
-            {
+		#region Internal Methods
+
+		internal void Load(INode stackNode, Calculator calc)
+		{
+			this.BeginReset();
+			try
+			{
+				this.m_storage.Clear();
+
+				if (stackNode != null)
+				{
+					// Save saved the values out in the order we need to
+					// re-push them, so this part is easy.  Just parse and push.
+					foreach (INode valueNode in stackNode.GetNodes())
+					{
+						// This will return null if one of the values can't be reloaded.
+						// That can happen if a regional formatting change was made
+						// so that a previously saved value can no longer be parsed.
+						// Or a user could edit the saved file in isolated storage to
+						// put crapola in a value.
+						Value val = Value.Load(valueNode, calc);
+						if (val != null)
+						{
+							this.Push(val);
+						}
+					}
+				}
+			}
+			finally
+			{
+				this.EndReset();
+			}
+		}
+
+		internal void Save(INode stackNode, Calculator calc)
+		{
+			// Save the items out in reverse order.  That way they'll be
+			// saved in the order that we need to re-push them during
+			// Load, and they'll be in saved in the same order that the
+			// display showed them.
+			var values = this.PeekRange(this.Count).Reverse();
+			int index = this.Count;
+			foreach (Value val in values)
+			{
 				INode valueNode = stackNode.GetNode("Value" + index--, true);
 				val.Save(valueNode, calc);
-            }
-        }
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region Private Properties
+		#region Private Properties
 
-        private int TopIndex
-        {
-            get
-            {
-                return Count - 1;
-            }
-        }
+		private int TopIndex
+		{
+			get
+			{
+				return this.Count - 1;
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region Private Methods
+		#region Private Methods
 
-        private void Storage_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            //Only send notifications if we're not in the middle of a reset operation.
-            if (m_resetLevel == 0)
-            {
-                var eh = CollectionChanged;
-                if (eh != null)
-                {
-                    //Always report the changed index as 0 since they can only modify the top.
-                    const int c_index = 0;
-                    var newItem = e.NewItems != null && e.NewItems.Count > 0 ? e.NewItems[0] : null;
-                    var oldItem = e.OldItems != null && e.OldItems.Count > 0 ? e.OldItems[0] : null;
-                    switch (e.Action)
-                    {
-                        case NotifyCollectionChangedAction.Add:
-                            eh(this, new NotifyCollectionChangedEventArgs(e.Action, newItem, c_index));
-                            break;
-                        case NotifyCollectionChangedAction.Remove:
-                            eh(this, new NotifyCollectionChangedEventArgs(e.Action, oldItem, c_index));
-                            break;
-                        case NotifyCollectionChangedAction.Replace:
-                            eh(this, new NotifyCollectionChangedEventArgs(e.Action, newItem, oldItem, c_index));
-                            break;
-                        case NotifyCollectionChangedAction.Reset:
-                            eh(this, new NotifyCollectionChangedEventArgs(e.Action));
-                            break;
-                    }
-                }
-            }
-        }
+		private void Storage_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			// Only send notifications if we're not in the middle of a reset operation.
+			if (this.m_resetLevel == 0)
+			{
+				var eh = this.CollectionChanged;
+				if (eh != null)
+				{
+					// Always report the changed index as 0 since they can only modify the top.
+					const int c_index = 0;
+					var newItem = e.NewItems != null && e.NewItems.Count > 0 ? e.NewItems[0] : null;
+					var oldItem = e.OldItems != null && e.OldItems.Count > 0 ? e.OldItems[0] : null;
+					switch (e.Action)
+					{
+						case NotifyCollectionChangedAction.Add:
+							eh(this, new NotifyCollectionChangedEventArgs(e.Action, newItem, c_index));
+							break;
+						case NotifyCollectionChangedAction.Remove:
+							eh(this, new NotifyCollectionChangedEventArgs(e.Action, oldItem, c_index));
+							break;
+						case NotifyCollectionChangedAction.Replace:
+							eh(this, new NotifyCollectionChangedEventArgs(e.Action, newItem, oldItem, c_index));
+							break;
+						case NotifyCollectionChangedAction.Reset:
+							eh(this, new NotifyCollectionChangedEventArgs(e.Action));
+							break;
+					}
+				}
+			}
+		}
 
-        private void BeginReset()
-        {
-            m_resetLevel++;
-        }
+		private void BeginReset()
+		{
+			this.m_resetLevel++;
+		}
 
-        private void EndReset()
-        {
-            m_resetLevel--;
-            if (m_resetLevel == 0)
-            {
-                var eh = CollectionChanged;
-                if (eh != null)
-                {
-                    eh(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                }
-            }
-        }
+		private void EndReset()
+		{
+			this.m_resetLevel--;
+			if (this.m_resetLevel == 0)
+			{
+				this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region Private Data Members
+		#region Private Data Members
 
-        private ObservableCollection<Value> m_storage = new ObservableCollection<Value>();
-        private int m_resetLevel;
+		private ObservableCollection<Value> m_storage = new ObservableCollection<Value>();
+		private int m_resetLevel;
 
-        #endregion
-    }
+		#endregion
+	}
 }

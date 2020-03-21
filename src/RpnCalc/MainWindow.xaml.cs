@@ -34,11 +34,11 @@
 		public MainWindow()
 		{
 			this.InitializeComponent();
-			m_calc = (Calculator)this.FindResource("m_calc");
+			this.m_calc = (Calculator)this.FindResource("m_calc");
 
 			this.saver = new WindowSaver(this);
-			this.saver.LoadSettings += Saver_LoadSettings;
-			this.saver.SaveSettings += Saver_SaveSettings;
+			this.saver.LoadSettings += this.Saver_LoadSettings;
+			this.saver.SaveSettings += this.Saver_SaveSettings;
 		}
 
 		#endregion
@@ -81,6 +81,7 @@
 					{
 						result = Key.Add;
 					}
+
 					break;
 
 				case Key.OemQuestion:
@@ -94,7 +95,7 @@
 
 		private bool CanEntryLineUndo()
 		{
-			return GetEntryLineTextBox().CanUndo;
+			return this.GetEntryLineTextBox().CanUndo;
 		}
 
 		private TextBox GetEntryLineTextBox()
@@ -104,19 +105,19 @@
 			// so it should be reliable and stable between WPF versions.
 			// http://stackoverflow.com/questions/3169328/how-to-get-combobox-selectedtext-in-wpf
 			// http://msdn.microsoft.com/en-us/library/system.windows.controls.combobox.aspx
-			TextBox result = (TextBox)m_entryLine.Template.FindName("PART_EditableTextBox", m_entryLine);
+			TextBox result = (TextBox)this.m_entryLine.Template.FindName("PART_EditableTextBox", this.m_entryLine);
 			return result;
 		}
 
 		private BindingExpression GetEntryLineBindingExpression()
 		{
-			return m_entryLine.GetBindingExpression(ComboBox.TextProperty);
+			return this.m_entryLine.GetBindingExpression(ComboBox.TextProperty);
 		}
 
 		private void ExecuteWhenIdle(Action whenIdle)
 		{
 			// Let the system pump any pending messages first.
-			Dispatcher.BeginInvoke((Action)(() => whenIdle()), DispatcherPriority.ApplicationIdle);
+			this.Dispatcher.BeginInvoke((Action)(() => whenIdle()), DispatcherPriority.ApplicationIdle);
 		}
 
 		#endregion
@@ -126,11 +127,11 @@
 		private void Saver_LoadSettings(object sender, SettingsEventArgs e)
 		{
 			INode calcNode = GetCalcNode(e, false);
-			m_calc.Load(calcNode);
+			this.m_calc.Load(calcNode);
 
-			GetEntryLineTextBox().ContextMenu = m_entryLine.ContextMenu;
+			this.GetEntryLineTextBox().ContextMenu = this.m_entryLine.ContextMenu;
 
-			//Put the caret at the end of the entry line.
+			// Put the caret at the end of the entry line.
 			this.FinishCommandUI();
 		}
 
@@ -138,7 +139,7 @@
 		{
 			// Ensure the current entry line value is pushed into the calculator before we save the state.
 			// Unfortunately, clicking the app's Close button won't update the source automatically.
-			UpdateEntryLineBindingSource();
+			this.UpdateEntryLineBindingSource();
 
 			// Note: This is technically also a problem for our other input boxes (e.g., fixed decimal size
 			// and binary word size), but they are rarely edited compared to the entry line.  Also, if they're
@@ -147,7 +148,7 @@
 			// Close.  That's rare enough that I'm willing to live with it and not add the overhead of forcing
 			// those controls to update their source every time we close the app.
 			INode calcNode = GetCalcNode(e, true);
-			m_calc.Save(calcNode);
+			this.m_calc.Save(calcNode);
 		}
 
 		private void About_Click(object sender, RoutedEventArgs e)
@@ -157,7 +158,7 @@
 
 		private void EntryLineUndo_Click(object sender, RoutedEventArgs e)
 		{
-			GetEntryLineTextBox().Undo();
+			this.GetEntryLineTextBox().Undo();
 		}
 
 		private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -194,7 +195,7 @@
 			// have the focus (e.g., the stack) because we use Window_KeyDown for normal processing.
 			if (e.Key == Key.Back && Keyboard.Modifiers == ModifierKeys.None)
 			{
-				Window_KeyDown(sender, e);
+				this.Window_KeyDown(sender, e);
 				e.Handled = true;
 			}
 		}

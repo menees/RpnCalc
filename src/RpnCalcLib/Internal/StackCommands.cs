@@ -12,390 +12,403 @@ using System.Security;
 
 namespace Menees.RpnCalc.Internal
 {
-    internal class StackCommands : Commands
-    {
-        #region Constructors
+	internal class StackCommands : Commands
+	{
+		#region Constructors
 
-        public StackCommands(Calculator calc)
-            : base(calc)
-        {
-        }
+		public StackCommands(Calculator calc)
+			: base(calc)
+		{
+		}
 
-        #endregion
+		#endregion
 
-        #region Public Methods
+		#region Public Methods
 
-        public void Clear(Command cmd)
-        {
-            int count = Stack.Count;
-            if (count > 0)
-            {
-                cmd.UseTopValues(count);
-                cmd.Commit();
-            }
-            else
-            {
-                //Don't report an error if the user clicks Clear
-                //on an empty stack, AND don't clear the previous
-                //command because we might as well keep its
-                //LastArgs.
-                cmd.Cancel();
-            }
-        }
+		public void Clear(Command cmd)
+		{
+			int count = this.Stack.Count;
+			if (count > 0)
+			{
+				cmd.UseTopValues(count);
+				cmd.Commit();
+			}
+			else
+			{
+				// Don't report an error if the user clicks Clear
+				// on an empty stack, AND don't clear the previous
+				// command because we might as well keep its
+				// LastArgs.
+				cmd.Cancel();
+			}
+		}
 
-        public void CopyToClipboard(Command cmd, int offsetFromTop)
-        {
-            Value value = Stack.PeekAt(offsetFromTop);
-            string valueText = value.ToString(Calc);
-            try
-            {
-                Utility.SetClipboardText(valueText);
-            }
-            catch (SecurityException)
-            {
-                //One of two things happened.  We either invoked this method
-                //from outside a user-initiated context (e.g., not in response to
-                //a Control.Click event), or the Clipboard access user dialog box
-                //was not confirmed.  The first case is unlikely if I programmed
-                //things right, so I'm assuming we're in the second case.  If the
-                //user said don't allow access immediately after they selected the
-                //"Copy To Clipboard" command, then we might as well eat the
-                //exception.
-            }
+		public void CopyToClipboard(Command cmd, int offsetFromTop)
+		{
+			Value value = this.Stack.PeekAt(offsetFromTop);
+			string valueText = value.ToString(this.Calc);
+			try
+			{
+				Utility.SetClipboardText(valueText);
+			}
+			catch (SecurityException)
+			{
+				// One of two things happened.  We either invoked this method
+				// from outside a user-initiated context (e.g., not in response to
+				// a Control.Click event), or the Clipboard access user dialog box
+				// was not confirmed.  The first case is unlikely if I programmed
+				// things right, so I'm assuming we're in the second case.  If the
+				// user said don't allow access immediately after they selected the
+				// "Copy To Clipboard" command, then we might as well eat the
+				// exception.
+			}
 
-            //Since this command didn't pop or push or change anything,
-            //we might as well cancel it, so we preserve the LastArgs from
-            //the previous command.
-            cmd.Cancel();
-        }
+			// Since this command didn't pop or push or change anything,
+			// we might as well cancel it, so we preserve the LastArgs from
+			// the previous command.
+			cmd.Cancel();
+		}
 
-        public void Drop(Command cmd)
-        {
-            if (Stack.Count > 0)
-            {
-                DropN(cmd, 1);
-            }
-            else
-            {
-                //Ignore it if the user hits Drop on an empty stack.
-                //I do it a lot, and I hated that error on the HP48.
-                //This will also preserve the previous LastArgs.
-                cmd.Cancel();
-            }
-        }
+		public void Drop(Command cmd)
+		{
+			if (this.Stack.Count > 0)
+			{
+				this.DropN(cmd, 1);
+			}
+			else
+			{
+				// Ignore it if the user hits Drop on an empty stack.
+				// I do it a lot, and I hated that error on the HP48.
+				// This will also preserve the previous LastArgs.
+				cmd.Cancel();
+			}
+		}
 
-        public void Drop2(Command cmd)
-        {
-            DropN(cmd, 2);
-        }
+		public void Drop2(Command cmd)
+		{
+			this.DropN(cmd, 2);
+		}
 
-        public void DropN(Command cmd)
-        {
-            int count = GetTopItemAsCount();
-            //Pass N+1 since we have to remove the count arg too.
-            DropN(cmd, count + 1);
-        }
+		public void DropN(Command cmd)
+		{
+			int count = this.GetTopItemAsCount();
 
-        public void DropN(Command cmd, int count)
-        {
-            RequireArgs(count);
-            cmd.UseTopValues(count);
-            cmd.Commit();
-        }
+			// Pass N+1 since we have to remove the count arg too.
+			this.DropN(cmd, count + 1);
+		}
 
-        public void Dup(Command cmd)
-        {
-            if (Stack.Count > 0)
-            {
-                DupN(cmd, 1);
-            }
-            else
-            {
-                //Don't throw an error if the stack is empty.  I hated it when the
-                //HP48 did that.  Just cancel because we don't want to blow away
-                //the LastArgs from the previous command.
-                cmd.Cancel();
-            }
-        }
+		public void DropN(Command cmd, int count)
+		{
+			this.RequireArgs(count);
+			cmd.UseTopValues(count);
+			cmd.Commit();
+		}
 
-        public void Dup2(Command cmd)
-        {
-            DupN(cmd, 2);
-        }
+		public void Dup(Command cmd)
+		{
+			if (this.Stack.Count > 0)
+			{
+				this.DupN(cmd, 1);
+			}
+			else
+			{
+				// Don't throw an error if the stack is empty.  I hated it when the
+				// HP48 did that.  Just cancel because we don't want to blow away
+				// the LastArgs from the previous command.
+				cmd.Cancel();
+			}
+		}
 
-        public void DupN(Command cmd)
-        {
-            int count = GetTopItemAsCount();
-            //Require N+1 items, but skip duplicating the first item.
-            DupN(cmd, count + 1, 1);
-        }
+		public void Dup2(Command cmd)
+		{
+			this.DupN(cmd, 2);
+		}
 
-        public void DupN(Command cmd, int count)
-        {
-            RequireArgs(count);
-            DupN(cmd, count, 0);
-        }
+		public void DupN(Command cmd)
+		{
+			int count = this.GetTopItemAsCount();
 
-        public void KeepN(Command cmd)
-        {
-            int count = GetTopItemAsCount();
-            //Require N+1 items, but skip keeping the first item.
-            KeepN(cmd, count + 1, 1);
-        }
+			// Require N+1 items, but skip duplicating the first item.
+			this.DupN(cmd, count + 1, 1);
+		}
 
-        public void KeepN(Command cmd, int count)
-        {
-            KeepN(cmd, count, 0);
-        }
+		public void DupN(Command cmd, int count)
+		{
+			this.RequireArgs(count);
+			this.DupN(cmd, count, 0);
+		}
 
-        public void Pick(Command cmd)
-        {
-            RequireArgs(1);
-            int displayStackPosition = GetTopItemAsInteger();
-            RequirePositiveStackPosition(displayStackPosition);
-            RequireArgs(displayStackPosition + 1);
-            cmd.UseTopValues(1);
-            //Stack is 0-based, and displayStackPosition is 1-based.
-            //But the stack currently includes the offset item, so this
-            //works out.
-            var value = Stack.PeekAt(displayStackPosition);
-            cmd.Commit(value);
-        }
+		public void KeepN(Command cmd)
+		{
+			int count = this.GetTopItemAsCount();
 
-        public void Pick(Command cmd, int offsetFromTop)
-        {
-            RequireArgs(offsetFromTop + 1);
-            var value = Stack.PeekAt(offsetFromTop);
-            cmd.Commit(value);
-        }
+			// Require N+1 items, but skip keeping the first item.
+			this.KeepN(cmd, count + 1, 1);
+		}
 
-        public void Remove(Command cmd, int offsetFromTop)
-        {
-            if (offsetFromTop == 0)
-            {
-                Drop(cmd);
-            }
-            else
-            {
-                RequireArgs(offsetFromTop + 1);
-                //Internally, pop the values we want to keep.
-                var valuesToKeep = Stack.PopRange(offsetFromTop);
-                //Then call UseTopValues, so the command will pop the
-                //item we want to remove and store it in LastArgs.
-                cmd.UseTopValues(1);
-                //Then re-push the values we want to keep.
-                cmd.Commit(valuesToKeep.Reverse().ToArray());
-            }
-        }
+		public void KeepN(Command cmd, int count)
+		{
+			this.KeepN(cmd, count, 0);
+		}
 
-        public void RollDownN(Command cmd)
-        {
-            int count = GetTopItemAsCount();
-            //Require N+1 items, but skip the first item.
-            RollN(cmd, count + 1, 1, false);
-        }
+		public void Pick(Command cmd)
+		{
+			this.RequireArgs(1);
+			int displayStackPosition = this.GetTopItemAsInteger();
+			RequirePositiveStackPosition(displayStackPosition);
+			this.RequireArgs(displayStackPosition + 1);
+			cmd.UseTopValues(1);
 
-        public void RollDownN(Command cmd, int count)
-        {
-            RollN(cmd, count, 0, false);
-        }
+			// Stack is 0-based, and displayStackPosition is 1-based.
+			// But the stack currently includes the offset item, so this
+			// works out.
+			var value = this.Stack.PeekAt(displayStackPosition);
+			cmd.Commit(value);
+		}
 
-        public void RollUp3(Command cmd)
-        {
-            RollN(cmd, 3, 0, true);
-        }
+		public void Pick(Command cmd, int offsetFromTop)
+		{
+			this.RequireArgs(offsetFromTop + 1);
+			var value = this.Stack.PeekAt(offsetFromTop);
+			cmd.Commit(value);
+		}
 
-        public void RollUpN(Command cmd)
-        {
-            int count = GetTopItemAsCount();
-            //Require N+1 items, but skip the first item.
-            RollN(cmd, count + 1, 1, true);
-        }
+		public void Remove(Command cmd, int offsetFromTop)
+		{
+			if (offsetFromTop == 0)
+			{
+				this.Drop(cmd);
+			}
+			else
+			{
+				this.RequireArgs(offsetFromTop + 1);
 
-        public void RollUpN(Command cmd, int count)
-        {
-            RollN(cmd, count, 0, true);
-        }
+				// Internally, pop the values we want to keep.
+				var valuesToKeep = this.Stack.PopRange(offsetFromTop);
 
-        public void SigmaN(Command cmd)
-        {
-            int count = GetTopItemAsCount();
-            SigmaN(cmd, count + 1, 1);
-        }
+				// Then call UseTopValues, so the command will pop the
+				// item we want to remove and store it in LastArgs.
+				cmd.UseTopValues(1);
 
-        public void SigmaN(Command cmd, int count)
-        {
-            SigmaN(cmd, count, 0);
-        }
+				// Then re-push the values we want to keep.
+				cmd.Commit(valuesToKeep.Reverse().ToArray());
+			}
+		}
 
-        public void SortN(Command cmd)
-        {
-            int count = GetTopItemAsCount();
-            SortN(cmd, count + 1, 1);
-        }
+		public void RollDownN(Command cmd)
+		{
+			int count = this.GetTopItemAsCount();
 
-        public void SortN(Command cmd, int count)
-        {
-            SortN(cmd, count, 0);
-        }
+			// Require N+1 items, but skip the first item.
+			this.RollN(cmd, count + 1, 1, false);
+		}
 
-        public void Swap(Command cmd)
-        {
-            RequireArgs(2);
-            var args = cmd.UseTopValues(2);
-            cmd.Commit(args[0], args[1]);
-        }
+		public void RollDownN(Command cmd, int count)
+		{
+			this.RollN(cmd, count, 0, false);
+		}
 
-        #endregion
+		public void RollUp3(Command cmd)
+		{
+			this.RollN(cmd, 3, 0, true);
+		}
 
-        #region Private Methods
+		public void RollUpN(Command cmd)
+		{
+			int count = this.GetTopItemAsCount();
 
-        private int GetTopItemAsInteger()
-        {
-            RequireType(0, ValueType.Integer);
-            IntegerValue countValue = (IntegerValue)Stack.PeekAt(0);
-            int result = (int)countValue.AsInteger;
-            return result;
-        }
+			// Require N+1 items, but skip the first item.
+			this.RollN(cmd, count + 1, 1, true);
+		}
 
-        private int GetTopItemAsCount()
-        {
-            RequireArgs(1);
-            int result = GetTopItemAsInteger();
-            RequireNonNegativeCount(result);
-            return result;
-        }
+		public void RollUpN(Command cmd, int count)
+		{
+			this.RollN(cmd, count, 0, true);
+		}
 
-        private void DupN(Command cmd, int dupCount, int skipCount)
-        {
-            RequireArgs(dupCount);
+		public void SigmaN(Command cmd)
+		{
+			int count = this.GetTopItemAsCount();
+			this.SigmaN(cmd, count + 1, 1);
+		}
 
-            //Just peek at everything, so all the values won't get popped.
-            var lastArgs = Stack.PeekRange(dupCount);
+		public void SigmaN(Command cmd, int count)
+		{
+			this.SigmaN(cmd, count, 0);
+		}
 
-            //Call UseTopValues so that Commit will pop the number
-            //we're supposed to skip.
-            cmd.UseTopValues(skipCount);
+		public void SortN(Command cmd)
+		{
+			int count = this.GetTopItemAsCount();
+			this.SortN(cmd, count + 1, 1);
+		}
 
-            var values = lastArgs.Skip(skipCount).ToArray();
-            Array.Reverse(values);
+		public void SortN(Command cmd, int count)
+		{
+			this.SortN(cmd, count, 0);
+		}
 
-            //Pop the items we said to skip (just the item count if any),
-            //and then push the values we're supposed to duplicate.
-            cmd.Commit(values);
+		public void Swap(Command cmd)
+		{
+			this.RequireArgs(2);
+			var args = cmd.UseTopValues(2);
+			cmd.Commit(args[0], args[1]);
+		}
 
-            //Manually set the last args to include everything we used.
-            cmd.SetLastArgs(lastArgs);
-        }
+		#endregion
 
-        private void KeepN(Command cmd, int keepCount, int skipCount)
-        {
-            RequireArgs(keepCount);
+		#region Private Methods
 
-            //Use all the values on the stack, so they'll all be popped by Commit.
-            var allValues = cmd.UseTopValues(Stack.Count);
-            //We'll re-push the first N, so get them in reverse order.
-            var keepValues = allValues.Take(keepCount).Skip(skipCount).Reverse().ToArray();
-            //We'll set the LastArgs to the stack arg count (if any) plus the removed values.
-            var lastArgValues = allValues.Take(skipCount).Concat(allValues.Skip(keepCount)).ToList();
+		private int GetTopItemAsInteger()
+		{
+			this.RequireType(0, ValueType.Integer);
+			IntegerValue countValue = (IntegerValue)this.Stack.PeekAt(0);
+			int result = (int)countValue.AsInteger;
+			return result;
+		}
 
-            cmd.Commit(keepValues);
-            cmd.SetLastArgs(lastArgValues);
-        }
+		private int GetTopItemAsCount()
+		{
+			this.RequireArgs(1);
+			int result = this.GetTopItemAsInteger();
+			RequireNonNegativeCount(result);
+			return result;
+		}
 
-        private void RollN(Command cmd, int rollCount, int skipCount, bool rollUp)
-        {
-            RequireArgs(rollCount);
+		private void DupN(Command cmd, int dupCount, int skipCount)
+		{
+			this.RequireArgs(dupCount);
 
-            //If the count came from the stack, then that's all we need to store for LastArgs.
-            var lastArgs = Stack.PeekRange(skipCount);
+			// Just peek at everything, so all the values won't get popped.
+			var lastArgs = this.Stack.PeekRange(dupCount);
 
-            //Call UseTopValues so that Commit will pop the correct number
-            //of values, then skip the count arg if necessary.
-            var values = cmd.UseTopValues(rollCount).Skip(skipCount).ToList();
+			// Call UseTopValues so that Commit will pop the number
+			// we're supposed to skip.
+			cmd.UseTopValues(skipCount);
 
-            //A user may have said N = 0, so make sure we have values to roll.
-            if (values.Count > 0)
-            {
-                //Roll the specified item.
-                int insertAt, removeAt;
-                if (rollUp)
-                {
-                    insertAt = 0;
-                    removeAt = values.Count - 1;
-                }
-                else
-                {
-                    insertAt = values.Count - 1;
-                    removeAt = 0;
-                }
-                var rolledValue = values[removeAt];
-                values.RemoveAt(removeAt);
-                values.Insert(insertAt, rolledValue);
-                values.Reverse();
-            }
+			var values = lastArgs.Skip(skipCount).ToArray();
+			Array.Reverse(values);
 
-            cmd.Commit(values.ToArray());
+			// Pop the items we said to skip (just the item count if any),
+			// and then push the values we're supposed to duplicate.
+			cmd.Commit(values);
 
-            cmd.SetLastArgs(lastArgs);
-        }
+			// Manually set the last args to include everything we used.
+			cmd.SetLastArgs(lastArgs);
+		}
 
-        private void SortN(Command cmd, int requiredArgCount, int skipCount)
-        {
-            RequireArgs(requiredArgCount);
+		private void KeepN(Command cmd, int keepCount, int skipCount)
+		{
+			this.RequireArgs(keepCount);
 
-            //If the count came from the stack, then that's all we need to store for LastArgs.
-            var lastArgs = Stack.PeekRange(skipCount);
+			// Use all the values on the stack, so they'll all be popped by Commit.
+			var allValues = cmd.UseTopValues(this.Stack.Count);
 
-            //Call UseTopValues so that Commit will pop the correct number
-            //of values, then skip the count arg if necessary.
-            var values = cmd.UseTopValues(requiredArgCount).Skip(skipCount).ToList();
+			// We'll re-push the first N, so get them in reverse order.
+			var keepValues = allValues.Take(keepCount).Skip(skipCount).Reverse().ToArray();
 
-            try
-            {
-                //This can fail if all the args aren't implicitly convertible
-                //to compatible types.  For example, this will fail if an
-                //Integer and a TimeSpan are in the list.
-                values.Sort((x, y) => Value.Compare(x, y, Calc));
-            }
-            catch (InvalidOperationException ex)
-            {
-                //If the SL Dev Runtime isn't installed, then the original exception won't
-                //contain an error message because the standard (non-dev) SL runtime
-                //doesn't include all of the exception message resources.  So we have to
-                //wrap the original exception with our own, so we can always display a
-                //message to the user if the sort fails.
-                //See Calculator.SetError(Exception) for more info.
-                //http://www.microsoft.com/GetSilverlight/resources/readme.aspx?v=2.0+target
-                throw new InvalidOperationException(Resources.StackCommands_UnableToCompare, ex);
-            }
+			// We'll set the LastArgs to the stack arg count (if any) plus the removed values.
+			var lastArgValues = allValues.Take(skipCount).Concat(allValues.Skip(keepCount)).ToList();
 
-            cmd.Commit(values.ToArray());
+			cmd.Commit(keepValues);
+			cmd.SetLastArgs(lastArgValues);
+		}
 
-            cmd.SetLastArgs(lastArgs);
-        }
+		private void RollN(Command cmd, int rollCount, int skipCount, bool rollUp)
+		{
+			this.RequireArgs(rollCount);
 
-        private void SigmaN(Command cmd, int requiredArgCount, int skipCount)
-        {
-            RequireArgs(requiredArgCount);
-            var values = cmd.UseTopValues(requiredArgCount).Skip(skipCount).ToList();
-            Value result;
-            int count = values.Count;
-            if (count >= 1)
-            {
-                result = values[0];
-                for (int i = 1; i < count; i++)
-                {
-                    result = Value.Add(result, values[i], Calc);
-                }
-            }
-            else
-            {
-                result = new IntegerValue(0);
-            }
-            cmd.Commit(result);
-        }
+			// If the count came from the stack, then that's all we need to store for LastArgs.
+			var lastArgs = this.Stack.PeekRange(skipCount);
 
-        #endregion
-    }
+			// Call UseTopValues so that Commit will pop the correct number
+			// of values, then skip the count arg if necessary.
+			var values = cmd.UseTopValues(rollCount).Skip(skipCount).ToList();
+
+			// A user may have said N = 0, so make sure we have values to roll.
+			if (values.Count > 0)
+			{
+				// Roll the specified item.
+				int insertAt, removeAt;
+				if (rollUp)
+				{
+					insertAt = 0;
+					removeAt = values.Count - 1;
+				}
+				else
+				{
+					insertAt = values.Count - 1;
+					removeAt = 0;
+				}
+
+				var rolledValue = values[removeAt];
+				values.RemoveAt(removeAt);
+				values.Insert(insertAt, rolledValue);
+				values.Reverse();
+			}
+
+			cmd.Commit(values.ToArray());
+
+			cmd.SetLastArgs(lastArgs);
+		}
+
+		private void SortN(Command cmd, int requiredArgCount, int skipCount)
+		{
+			this.RequireArgs(requiredArgCount);
+
+			// If the count came from the stack, then that's all we need to store for LastArgs.
+			var lastArgs = this.Stack.PeekRange(skipCount);
+
+			// Call UseTopValues so that Commit will pop the correct number
+			// of values, then skip the count arg if necessary.
+			var values = cmd.UseTopValues(requiredArgCount).Skip(skipCount).ToList();
+
+			try
+			{
+				// This can fail if all the args aren't implicitly convertible
+				// to compatible types.  For example, this will fail if an
+				// Integer and a TimeSpan are in the list.
+				values.Sort((x, y) => Value.Compare(x, y, this.Calc));
+			}
+			catch (InvalidOperationException ex)
+			{
+				// If the SL Dev Runtime isn't installed, then the original exception won't
+				// contain an error message because the standard (non-dev) SL runtime
+				// doesn't include all of the exception message resources.  So we have to
+				// wrap the original exception with our own, so we can always display a
+				// message to the user if the sort fails.
+				// See Calculator.SetError(Exception) for more info.
+				// http://www.microsoft.com/GetSilverlight/resources/readme.aspx?v=2.0+target
+				throw new InvalidOperationException(Resources.StackCommands_UnableToCompare, ex);
+			}
+
+			cmd.Commit(values.ToArray());
+
+			cmd.SetLastArgs(lastArgs);
+		}
+
+		private void SigmaN(Command cmd, int requiredArgCount, int skipCount)
+		{
+			this.RequireArgs(requiredArgCount);
+			var values = cmd.UseTopValues(requiredArgCount).Skip(skipCount).ToList();
+			Value result;
+			int count = values.Count;
+			if (count >= 1)
+			{
+				result = values[0];
+				for (int i = 1; i < count; i++)
+				{
+					result = Value.Add(result, values[i], this.Calc);
+				}
+			}
+			else
+			{
+				result = new IntegerValue(0);
+			}
+
+			cmd.Commit(result);
+		}
+
+		#endregion
+	}
 }

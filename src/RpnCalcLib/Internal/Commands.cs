@@ -12,211 +12,217 @@ using System.Globalization;
 
 namespace Menees.RpnCalc.Internal
 {
-    internal abstract class Commands
-    {
-        #region Constructors
+	internal abstract class Commands
+	{
+		#region Constructors
 
-        protected Commands(Calculator calc)
-        {
-            m_calc = calc;
-        }
+		protected Commands(Calculator calc)
+		{
+			this.m_calc = calc;
+		}
 
-        #endregion
+		#endregion
 
-        #region Public Methods
+		#region Public Methods
 
-        public Func<Command, object> FindCommand(string commandName)
-        {
-            Func<Command, object> result = FindCommand(commandName, c_commandType, null);
-            return result;
-        }
+		public Func<Command, object> FindCommand(string commandName)
+		{
+			Func<Command, object> result = this.FindCommand(commandName, c_commandType, null);
+			return result;
+		}
 
-        public Func<Command, object> FindCommand(string commandName, int commandParameter)
-        {
-            Func<Command, object> result = FindCommand(commandName, c_commandAndIntTypes, commandParameter);
-            return result;
-        }
+		public Func<Command, object> FindCommand(string commandName, int commandParameter)
+		{
+			Func<Command, object> result = this.FindCommand(commandName, c_commandAndIntTypes, commandParameter);
+			return result;
+		}
 
-        #endregion
+		#endregion
 
-        #region Protected Properties
+		#region Protected Properties
 
-        protected Calculator Calc
-        {
-            get
-            {
-                return m_calc;
-            }
-        }
+		protected Calculator Calc
+		{
+			get
+			{
+				return this.m_calc;
+			}
+		}
 
-        protected ValueStack Stack
-        {
-            get
-            {
-                return m_calc.Stack;
-            }
-        }
+		protected ValueStack Stack
+		{
+			get
+			{
+				return this.m_calc.Stack;
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region Protected Methods
+		#region Protected Methods
 
-        protected void RequireArgs(int requiredArgCount)
-        {
-            if (m_calc.Stack.Count < requiredArgCount)
-            {
-                string message;
-                switch (requiredArgCount)
-                {
-                    case 1:
-                        message = Resources.Commands_AnArgumentIsRequired;
-                        break;
-                    case 2:
-                        message = Resources.Commands_TwoArgumentsAreRequired;
-                        break;
-                    default:
-                        //Most commands take 0, 1, or 2 args, but some Stack
-                        //commands take N+1 args (e.g., DupN, DropN).
-                        message = string.Format(CultureInfo.CurrentCulture,
-                            Resources.Commands_0ArgumentsAreRequired, requiredArgCount);
-                        break;
-                }
+		protected void RequireArgs(int requiredArgCount)
+		{
+			if (this.m_calc.Stack.Count < requiredArgCount)
+			{
+				string message;
+				switch (requiredArgCount)
+				{
+					case 1:
+						message = Resources.Commands_AnArgumentIsRequired;
+						break;
+					case 2:
+						message = Resources.Commands_TwoArgumentsAreRequired;
+						break;
+					default:
+						// Most commands take 0, 1, or 2 args, but some Stack
+						// commands take N+1 args (e.g., DupN, DropN).
+						message = string.Format(
+							CultureInfo.CurrentCulture,
+							Resources.Commands_0ArgumentsAreRequired, requiredArgCount);
+						break;
+				}
 
-                throw InvalidOperation(message);
-            }
-        }
+				throw InvalidOperation(message);
+			}
+		}
 
-        protected static void RequireNonNegativeCount(int count)
-        {
-            if (count < 0)
-            {
-                throw new ArgumentException(Resources.Commands_CountMustBeNonNegative);
-            }
-        }
+		protected static void RequireNonNegativeCount(int count)
+		{
+			if (count < 0)
+			{
+				throw new ArgumentException(Resources.Commands_CountMustBeNonNegative);
+			}
+		}
 
-        protected static void RequirePositiveStackPosition(int displayStackPosition)
-        {
-            if (displayStackPosition < 1)
-            {
-                throw new ArgumentException(Resources.Commands_PositionMustBePositive);
-            }
-        }
+		protected static void RequirePositiveStackPosition(int displayStackPosition)
+		{
+			if (displayStackPosition < 1)
+			{
+				throw new ArgumentException(Resources.Commands_PositionMustBePositive);
+			}
+		}
 
-        protected void RequireType(int offsetFromTop, params ValueType[] supportedTypes)
-        {
-            Value value = m_calc.Stack.PeekAt(offsetFromTop);
+		protected void RequireType(int offsetFromTop, params ValueType[] supportedTypes)
+		{
+			Value value = this.m_calc.Stack.PeekAt(offsetFromTop);
 
-            if (!supportedTypes.Contains(value.ValueType))
-            {
-                string message = string.Format(CultureInfo.CurrentCulture,
-                    Resources.Commands_Item0MustHaveType1, offsetFromTop + 1,
-                    Utility.Join(Resources.Commands_JoiningOr, supportedTypes));
-                throw InvalidOperation(message);
-            }
-        }
+			if (!supportedTypes.Contains(value.ValueType))
+			{
+				string message = string.Format(
+					CultureInfo.CurrentCulture,
+					Resources.Commands_Item0MustHaveType1, offsetFromTop + 1,
+					Utility.Join(Resources.Commands_JoiningOr, supportedTypes));
+				throw InvalidOperation(message);
+			}
+		}
 
-        protected void RequireScalarNumericType(int offsetFromTop)
-        {
-            Value value = m_calc.Stack.PeekAt(offsetFromTop);
+		protected void RequireScalarNumericType(int offsetFromTop)
+		{
+			Value value = this.m_calc.Stack.PeekAt(offsetFromTop);
 
-            if (!c_scalarNumericTypes.Contains(value.ValueType))
-            {
-                string message = string.Format(CultureInfo.CurrentCulture,
-                    Resources.Commands_Item0MustBeAScalarNumber, offsetFromTop + 1);
-                throw InvalidOperation(message);
-            }
-        }
+			if (!c_scalarNumericTypes.Contains(value.ValueType))
+			{
+				string message = string.Format(
+					CultureInfo.CurrentCulture,
+					Resources.Commands_Item0MustBeAScalarNumber, offsetFromTop + 1);
+				throw InvalidOperation(message);
+			}
+		}
 
-        protected void RequireComplexNumericType(int offsetFromTop)
-        {
-            Value value = m_calc.Stack.PeekAt(offsetFromTop);
+		protected void RequireComplexNumericType(int offsetFromTop)
+		{
+			Value value = this.m_calc.Stack.PeekAt(offsetFromTop);
 
-            if (!c_complexNumericTypes.Contains(value.ValueType))
-            {
-                string message = string.Format(CultureInfo.CurrentCulture,
-                    Resources.Commands_Item0MustBeAScalarOrComplex,
-                    offsetFromTop + 1);
-                throw InvalidOperation(message);
-            }
-        }
+			if (!c_complexNumericTypes.Contains(value.ValueType))
+			{
+				string message = string.Format(
+					CultureInfo.CurrentCulture,
+					Resources.Commands_Item0MustBeAScalarOrComplex,
+					offsetFromTop + 1);
+				throw InvalidOperation(message);
+			}
+		}
 
-        protected void RequireMatchingTypes(int offsetFromTop1, int offsetFromTop2)
-        {
-            ValueStack stack = m_calc.Stack;
-            Value value1 = stack.PeekAt(offsetFromTop1);
-            Value value2 = stack.PeekAt(offsetFromTop2);
+		protected void RequireMatchingTypes(int offsetFromTop1, int offsetFromTop2)
+		{
+			ValueStack stack = this.m_calc.Stack;
+			Value value1 = stack.PeekAt(offsetFromTop1);
+			Value value2 = stack.PeekAt(offsetFromTop2);
 
-            if (value1.ValueType != value2.ValueType)
-            {
-                string message = string.Format(CultureInfo.CurrentCulture,
-                    Resources.Commands_Items0And1MustHaveTheSameType,
-                    offsetFromTop1 + 1, offsetFromTop2 + 1);
-                throw InvalidOperation(message);
-            }
-        }
+			if (value1.ValueType != value2.ValueType)
+			{
+				string message = string.Format(
+					CultureInfo.CurrentCulture,
+					Resources.Commands_Items0And1MustHaveTheSameType,
+					offsetFromTop1 + 1, offsetFromTop2 + 1);
+				throw InvalidOperation(message);
+			}
+		}
 
-        protected void RequireScalarNumericTypeOr(int offsetFromTop, params ValueType[] otherSupportedTypes)
-        {
-            RequireType(offsetFromTop, c_scalarNumericTypes.Concat(otherSupportedTypes).ToArray());
-        }
+		protected void RequireScalarNumericTypeOr(int offsetFromTop, params ValueType[] otherSupportedTypes)
+		{
+			this.RequireType(offsetFromTop, c_scalarNumericTypes.Concat(otherSupportedTypes).ToArray());
+		}
 
-        protected void RequireComplexNumericTypeOr(int offsetFromTop, params ValueType[] otherSupportedTypes)
-        {
-            RequireType(offsetFromTop, c_complexNumericTypes.Concat(otherSupportedTypes).ToArray());
-        }
+		protected void RequireComplexNumericTypeOr(int offsetFromTop, params ValueType[] otherSupportedTypes)
+		{
+			this.RequireType(offsetFromTop, c_complexNumericTypes.Concat(otherSupportedTypes).ToArray());
+		}
 
-        #endregion
+		#endregion
 
-        #region Private Methods
+		#region Private Methods
 
-        private static InvalidOperationException InvalidOperation(string message)
-        {
-            return new InvalidOperationException(message);
-        }
+		private static InvalidOperationException InvalidOperation(string message)
+		{
+			return new InvalidOperationException(message);
+		}
 
-        private Func<Command, object> FindCommand(string commandName, Type[] commandArgTypes, object commandParameter)
-        {
-            Func<Command, object> result = null;
+		private Func<Command, object> FindCommand(string commandName, Type[] commandArgTypes, object commandParameter)
+		{
+			Func<Command, object> result = null;
 
-            Type thisType = GetType();
-            MethodInfo method = thisType.GetMethod(commandName, commandArgTypes);
-            if (method != null)
-            {
-                result = delegate(Command cmd)
-                {
-                    object[] commandArgs;
-                    if (commandParameter != null)
-                    {
-                        commandArgs = new object[] { cmd, commandParameter };
-                    }
-                    else
-                    {
-                        commandArgs = new object[] { cmd };
-                    }
-                    object target = method.IsStatic ? null : this;
-                    object methodResult = method.Invoke(target, commandArgs);
-                    return methodResult;
-                };
-            }
+			Type thisType = this.GetType();
+			MethodInfo method = thisType.GetMethod(commandName, commandArgTypes);
+			if (method != null)
+			{
+				result = delegate (Command cmd)
+				{
+					object[] commandArgs;
+					if (commandParameter != null)
+					{
+						commandArgs = new object[] { cmd, commandParameter };
+					}
+					else
+					{
+						commandArgs = new object[] { cmd };
+					}
 
-            return result;
-        }
+					object target = method.IsStatic ? null : this;
+					object methodResult = method.Invoke(target, commandArgs);
+					return methodResult;
+				};
+			}
 
-        #endregion
+			return result;
+		}
 
-        #region Private Data Members
+		#endregion
 
-        private Calculator m_calc;
+		#region Private Data Members
 
-        private static readonly ValueType[] c_scalarNumericTypes =
-        { ValueType.Integer, ValueType.Double, ValueType.Fraction, ValueType.Binary };
+		private Calculator m_calc;
 
-        private static readonly ValueType[] c_complexNumericTypes =
-        { ValueType.Integer, ValueType.Double, ValueType.Complex, ValueType.Fraction, ValueType.Binary };
+		private static readonly ValueType[] c_scalarNumericTypes =
+		{ ValueType.Integer, ValueType.Double, ValueType.Fraction, ValueType.Binary };
 
-        private static readonly Type[] c_commandType = { typeof(Command) };
-        private static readonly Type[] c_commandAndIntTypes = { typeof(Command), typeof(int) };
+		private static readonly ValueType[] c_complexNumericTypes =
+		{ ValueType.Integer, ValueType.Double, ValueType.Complex, ValueType.Fraction, ValueType.Binary };
 
-        #endregion
-    }
+		private static readonly Type[] c_commandType = { typeof(Command) };
+		private static readonly Type[] c_commandAndIntTypes = { typeof(Command), typeof(int) };
+
+		#endregion
+	}
 }

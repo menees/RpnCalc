@@ -6,14 +6,14 @@ using System;
 
 namespace Menees.RpnCalc.Internal
 {
-    #region CommandState
+	#region CommandState
 
-    internal enum CommandState
-    {
-        None,
-        Committed,
-        Cancelled
-    }
+	internal enum CommandState
+	{
+		None,
+		Committed,
+		Cancelled
+	}
 
-    #endregion
+	#endregion
 }
