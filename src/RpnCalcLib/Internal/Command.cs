@@ -91,7 +91,7 @@
 			{
 				this.calc.Stack.PushRange(this.lastArgs.Reverse());
 
-				// Don't null out m_lastArgs.  We'll keep the args
+				// Don't null out this.lastArgs.  We'll keep the args
 				// around in case the user hits LAST again.
 			}
 		}

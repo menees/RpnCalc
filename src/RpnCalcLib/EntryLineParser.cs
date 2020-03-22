@@ -388,7 +388,7 @@
 				{
 					// Use the same "helpful" error message that the HP48 uses.
 					this.errorMessage = Resources.EntryLineParser_InvalidSyntax;
-					break; // Quit the outer m_tokens loop.
+					break; // Quit the outer this.tokens loop.
 				}
 			}
 		}

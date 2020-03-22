@@ -59,7 +59,7 @@
 			get
 			{
 				// We don't really have to call this.GetEntryLineTextBox() here.
-				bool result = !string.IsNullOrEmpty(this.m_entryLine.Text);
+				bool result = !string.IsNullOrEmpty(this.entryLine.Text);
 				return result;
 			}
 		}
@@ -88,7 +88,7 @@
 		private void ErrorInfoButton_Click(object sender, RoutedEventArgs e)
 		{
 			this.ClearError();
-			this.m_entryLine.Focus();
+			this.entryLine.Focus();
 		}
 
 		private void Command_Click(object sender, RoutedEventArgs e)
@@ -396,7 +396,7 @@
 		{
 			bool result = true;
 
-			// Make sure that m_calc.EntryLine is updated to match
+			// Make sure that this.calc.EntryLine is updated to match
 			// the text that's currently in the entry line TextBox.
 			this.UpdateEntryLineBindingSource();
 
@@ -480,7 +480,7 @@
 			// Put the caret at the end of the line.  This is nice after
 			// some entry commands like Edit and AppendToEntryLine.
 			this.MoveEntryLineCaretToEnd();
-			this.m_displayStack.EnsureTopOfStackIsVisible();
+			this.displayStack.EnsureTopOfStackIsVisible();
 		}
 
 		private void InsertInEntryLine(string text)
@@ -539,7 +539,7 @@
 				entryLine = entryLine.Insert(tokenStart, "-");
 			}
 
-			this.m_entryLine.Text = entryLine;
+			this.entryLine.Text = entryLine;
 			this.MoveEntryLineCaretToEnd();
 			this.UpdateEntryLineBindingSource();
 		}

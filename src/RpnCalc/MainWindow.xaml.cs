@@ -105,13 +105,13 @@
 			// so it should be reliable and stable between WPF versions.
 			// http://stackoverflow.com/questions/3169328/how-to-get-combobox-selectedtext-in-wpf
 			// http://msdn.microsoft.com/en-us/library/system.windows.controls.combobox.aspx
-			TextBox result = (TextBox)this.m_entryLine.Template.FindName("PART_EditableTextBox", this.m_entryLine);
+			TextBox result = (TextBox)this.entryLine.Template.FindName("PART_EditableTextBox", this.entryLine);
 			return result;
 		}
 
 		private BindingExpression GetEntryLineBindingExpression()
 		{
-			return this.m_entryLine.GetBindingExpression(ComboBox.TextProperty);
+			return this.entryLine.GetBindingExpression(ComboBox.TextProperty);
 		}
 
 		private void ExecuteWhenIdle(Action whenIdle)
@@ -129,7 +129,7 @@
 			INode calcNode = GetCalcNode(e, false);
 			this.calc.Load(calcNode);
 
-			this.GetEntryLineTextBox().ContextMenu = this.m_entryLine.ContextMenu;
+			this.GetEntryLineTextBox().ContextMenu = this.entryLine.ContextMenu;
 
 			// Put the caret at the end of the entry line.
 			this.FinishCommandUI();

@@ -75,13 +75,13 @@
 			// The help for ScrollIntoView says to call this.  Without it,
 			// a newly pushed item won't be able to scroll into view.
 			// Note: This can update the number of display items.
-			this.m_listBox.UpdateLayout();
+			this.listBox.UpdateLayout();
 
 			int numItems = this.displayItems.Count;
 			if (numItems > 0)
 			{
 				// Make sure StackTop is scrolled into view.
-				this.m_listBox.ScrollIntoView(this.displayItems[numItems - 1]);
+				this.listBox.ScrollIntoView(this.displayItems[numItems - 1]);
 			}
 		}
 
@@ -138,7 +138,7 @@
 		{
 			if (sender is ContextMenu menu)
 			{
-				int index = this.m_listBox.SelectedIndex;
+				int index = this.listBox.SelectedIndex;
 				int numDisplayItems = this.displayItems.Count;
 
 				bool isDummyItem = true;
@@ -214,7 +214,7 @@
 			this.SizeChanged += this.DisplayStack_SizeChanged;
 
 			// Hook the list box we're wrapping to our private list of DisplayStackItems.
-			this.m_listBox.ItemsSource = this.displayItems;
+			this.listBox.ItemsSource = this.displayItems;
 		}
 
 		private void UpdateDummyItems()
@@ -285,9 +285,9 @@
 				}
 
 				// Now calculate how many items can fit into the list box's client height.
-				Thickness pad = this.m_listBox.Padding;
-				Thickness border = this.m_listBox.BorderThickness;
-				double listBoxClientHeight = this.m_listBox.ActualHeight - pad.Top - pad.Bottom - border.Top - border.Bottom;
+				Thickness pad = this.listBox.Padding;
+				Thickness border = this.listBox.BorderThickness;
+				double listBoxClientHeight = this.listBox.ActualHeight - pad.Top - pad.Bottom - border.Top - border.Bottom;
 				int numberOfDisplayableItems = (int)(listBoxClientHeight / averageItemHeight);
 				if (numberOfDisplayableItems != this.numberOfDisplayableItems)
 				{
@@ -302,7 +302,7 @@
 
 		private ListBoxItem GetListBoxItem(int itemIndex)
 		{
-			ListBoxItem result = (ListBoxItem)this.m_listBox.ItemContainerGenerator.ContainerFromIndex(itemIndex);
+			ListBoxItem result = (ListBoxItem)this.listBox.ItemContainerGenerator.ContainerFromIndex(itemIndex);
 			return result;
 		}
 
@@ -346,7 +346,7 @@
 
 		private void ExecuteCommandForSelectedPosition(string command, int positionAdjustment)
 		{
-			int index = this.m_listBox.SelectedIndex;
+			int index = this.listBox.SelectedIndex;
 			if (index >= 0 && index < this.displayItems.Count)
 			{
 				DisplayStackItem displayItem = this.displayItems[index];

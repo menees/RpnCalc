@@ -48,7 +48,7 @@
 
 		private void ListBox_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
 		{
-			HitTestResult result = VisualTreeHelper.HitTest(this.m_listBox, e.GetPosition(null));
+			HitTestResult result = VisualTreeHelper.HitTest(this.listBox, e.GetPosition(null));
 			if (result.VisualHit is ListBoxItem item)
 			{
 				item.IsSelected = true;

@@ -7,7 +7,7 @@
 		xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
 		xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
 		xmlns:local="clr-namespace:Menees.RpnCalc"
-		xmlns:rpn="clr-namespace:Menees.RpnCalc;assembly=RpnCalcLib"		
+		xmlns:rpn="clr-namespace:Menees.RpnCalc;assembly=RpnCalcLib"
 		Height="{Binding MinHeight, RelativeSource={RelativeSource Self}}"
 		Width="{Binding MinWidth, RelativeSource={RelativeSource Self}}"
 		MinHeight="470" MinWidth="460"
@@ -16,7 +16,7 @@
 		KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" PreviewKeyDown="Window_PreviewKeyDown" Loaded="Window_Loaded">
 	<m:ExtendedWindow.Resources>
 		<ResourceDictionary>
-			<rpn:Calculator x:Key="m_calc" x:Name="m_calc" />
+			<rpn:Calculator x:Key="calc" x:Name="calc" />
 			<m:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="Styles.xaml"/>
@@ -33,8 +33,8 @@
 						</local:Ribbon.Resources>
 						<local:RibbonSection Header="Angle">
 							<StackPanel>
-								<RadioButton Content="Deg" IsChecked="{Binding Path=AngleMode, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Degrees}" />
-								<RadioButton Content="Rad"  IsChecked="{Binding Path=AngleMode, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Radians}" />
+								<RadioButton Content="Deg" IsChecked="{Binding Path=AngleMode, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Degrees}" />
+								<RadioButton Content="Rad"  IsChecked="{Binding Path=AngleMode, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Radians}" />
 							</StackPanel>
 						</local:RibbonSection>
 						<local:RibbonSection Header="Base">
@@ -45,19 +45,19 @@
 									<ColumnDefinition />
 								</Grid.ColumnDefinitions>
 								<StackPanel>
-									<RadioButton Content="2" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Binary}" />
-									<RadioButton Content="8" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Octal}" />
+									<RadioButton Content="2" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Binary}" />
+									<RadioButton Content="8" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Octal}" />
 								</StackPanel>
 								<StackPanel Grid.Column="2">
-									<RadioButton Content="10" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Decimal}" />
-									<RadioButton Content="16" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Hexadecimal}" />
+									<RadioButton Content="10" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Decimal}" />
+									<RadioButton Content="16" GroupName="BaseOptions" IsChecked="{Binding Path=BinaryFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Hexadecimal}" />
 								</StackPanel>
 							</Grid>
 						</local:RibbonSection>
 						<local:RibbonSection Header="Complex">
 							<StackPanel>
-								<RadioButton Content="Rect" IsChecked="{Binding Path=ComplexFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Rectangular}" />
-								<RadioButton Content="Polar" IsChecked="{Binding Path=ComplexFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Polar}" />
+								<RadioButton Content="Rect" IsChecked="{Binding Path=ComplexFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Rectangular}" />
+								<RadioButton Content="Polar" IsChecked="{Binding Path=ComplexFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Polar}" />
 							</StackPanel>
 						</local:RibbonSection>
 						<local:RibbonSection Header="Decimal">
@@ -68,12 +68,12 @@
 									<ColumnDefinition />
 								</Grid.ColumnDefinitions>
 								<StackPanel>
-									<RadioButton Content="Std" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Standard}" />
-									<RadioButton Content="Sci" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Scientific}" />
+									<RadioButton Content="Std" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Standard}" />
+									<RadioButton Content="Sci" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Scientific}" />
 								</StackPanel>
 								<StackPanel Grid.Column="2">
-									<RadioButton Content="Fix" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Fixed}" />
-									<ComboBox SelectedValue="{Binding Source={StaticResource m_calc}, Path=FixedDecimalDigits, Mode=TwoWay}"
+									<RadioButton Content="Fix" GroupName="DecimalOptions" IsChecked="{Binding Path=DecimalFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Fixed}" />
+									<ComboBox SelectedValue="{Binding Source={StaticResource calc}, Path=FixedDecimalDigits, Mode=TwoWay}"
 											  Style="{StaticResource SettingsComboBox}">
 										<ComboBox.ItemsSource>
 											<Int32Collection>0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15</Int32Collection>
@@ -93,23 +93,23 @@
 									<RowDefinition Height="17" />
 									<RowDefinition />
 								</Grid.RowDefinitions>
-								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Mixed}" GroupName="FractionOptions" Height="20" VerticalAlignment="Top"
-                                             TabIndex="0">
+								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Mixed}" GroupName="FractionOptions" Height="20" VerticalAlignment="Top"
+											 TabIndex="0">
 									<RadioButton.Content>
 										<Image Source="Images/Buttons/MixedFraction.png" />
 									</RadioButton.Content>
 								</RadioButton>
-								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Decimal}" Content="Decimal" GroupName="FractionOptions"
-                                             Grid.Row="1" Grid.ColumnSpan="3" TabIndex="1"/>
-								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource m_calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Common}" GroupName="FractionOptions"
-                                             Grid.Column="2" TabIndex="2">
+								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Decimal}" Content="Decimal" GroupName="FractionOptions"
+											 Grid.Row="1" Grid.ColumnSpan="3" TabIndex="1"/>
+								<RadioButton IsChecked="{Binding Path=FractionFormat, Mode=TwoWay, Source={StaticResource calc}, Converter={StaticResource RadioButtonConverter}, ConverterParameter=Common}" GroupName="FractionOptions"
+											 Grid.Column="2" TabIndex="2">
 									<RadioButton.Content>
 										<Image Source="Images/Buttons/CommonFraction.png" />
 									</RadioButton.Content>
 								</RadioButton>
 							</Grid>
 						</local:RibbonSection>
-						<local:RibbonSection Header="Help" x:Name="m_updateRibbonSection">
+						<local:RibbonSection Header="Help" x:Name="updateRibbonSection">
 							<StackPanel>
 								<m:HyperlinkButton Content="About" Click="About_Click" ToolTipService.ToolTip="Shows information about this version of RPN Calc." />
 							</StackPanel>
@@ -152,7 +152,7 @@
 										<ColumnDefinition />
 									</Grid.ColumnDefinitions>
 									<Label Content="Word Size:" />
-									<ComboBox Grid.Column="1" SelectedValue="{Binding Source={StaticResource m_calc}, Path=BinaryWordSize, Mode=TwoWay}"
+									<ComboBox Grid.Column="1" SelectedValue="{Binding Source={StaticResource calc}, Path=BinaryWordSize, Mode=TwoWay}"
 											  Style="{StaticResource SettingsComboBox}">
 										<ComboBox.ItemsSource>
 											<Int32Collection>8 16 24 32 40 48 56 64</Int32Collection>
@@ -642,10 +642,10 @@
 				</Grid>
 			</StackPanel>
 			<DockPanel DockPanel.Dock="Bottom">
-				<ComboBox Name="m_entryLine" DockPanel.Dock="Bottom" Margin="2" Text="{Binding Path=EntryLine, Mode=TwoWay, Source={StaticResource m_calc}}"
-						  TabIndex="0" IsEditable="True" ItemsSource="{Binding EntryLineHistory, Source={StaticResource m_calc}}" IsTextSearchEnabled="False">
+				<ComboBox Name="entryLine" DockPanel.Dock="Bottom" Margin="2" Text="{Binding Path=EntryLine, Mode=TwoWay, Source={StaticResource calc}}"
+						  TabIndex="0" IsEditable="True" ItemsSource="{Binding EntryLineHistory, Source={StaticResource calc}}" IsTextSearchEnabled="False">
 					<ComboBox.ContextMenu>
-						<ContextMenu Name="m_entryLineContextMenu" Opened="ContextMenu_Opened">
+						<ContextMenu Name="entryLineContextMenu" Opened="ContextMenu_Opened">
 							<MenuItem Header="Undo" Tag="Undo" Click="EntryLineUndo_Click">
 								<MenuItem.Icon>
 									<Image Source="Images/MenuItems/Edit_UndoHS.png"/>
@@ -684,7 +684,7 @@
 					</ComboBox.ContextMenu>
 				</ComboBox>
 			</DockPanel>
-			<Border DockPanel.Dock="Top" BorderThickness="1" BorderBrush="Black" Background="#FFFFFFE1" CornerRadius="5" Padding="4" Visibility="{Binding Source={StaticResource m_calc}, Path=ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+			<Border DockPanel.Dock="Top" BorderThickness="1" BorderBrush="Black" Background="#FFFFFFE1" CornerRadius="5" Padding="4" Visibility="{Binding Source={StaticResource calc}, Path=ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
 				<Border.Effect>
 					<DropShadowEffect ShadowDepth="2" Opacity="0.5" />
 				</Border.Effect>
@@ -701,19 +701,19 @@
 							</Polygon.Effect>
 						</Polygon>
 						<!--<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <TextBlock FontSize="5" Foreground="White">STOP</TextBlock>
-                        </StackPanel>-->
+							<TextBlock FontSize="5" Foreground="White">STOP</TextBlock>
+						</StackPanel>-->
 					</Grid>
-					<TextBlock Grid.Column="1" FontWeight="Bold" TextWrapping="Wrap" VerticalAlignment="Center" Margin="2,0,0,0" Text="{Binding Source={StaticResource m_calc}, Path=ErrorMessage}">
-                        <TextBlock.ContextMenu>
-                            <ContextMenu Name="m_errorMessageContextMenu">
-                                <MenuItem Header="Copy Error Message" Click="ErrorCopy_Click">
-                                    <MenuItem.Icon>
-                                        <Image Source="Images/MenuItems/CopyHS.png" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                            </ContextMenu>
-                        </TextBlock.ContextMenu>
+					<TextBlock Grid.Column="1" FontWeight="Bold" TextWrapping="Wrap" VerticalAlignment="Center" Margin="2,0,0,0" Text="{Binding Source={StaticResource calc}, Path=ErrorMessage}">
+						<TextBlock.ContextMenu>
+							<ContextMenu Name="errorMessageContextMenu">
+								<MenuItem Header="Copy Error Message" Click="ErrorCopy_Click">
+									<MenuItem.Icon>
+										<Image Source="Images/MenuItems/CopyHS.png" />
+									</MenuItem.Icon>
+								</MenuItem>
+							</ContextMenu>
+						</TextBlock.ContextMenu>
 					</TextBlock>
 					<StackPanel VerticalAlignment="Top" Grid.Column="2" Margin="2" Orientation="Horizontal">
 						<Button Click="ErrorInfoButton_Click" TabIndex="4">
@@ -727,7 +727,7 @@
 					</StackPanel>
 				</Grid>
 			</Border>
-			<local:DisplayStack x:Name="m_displayStack" Calculator="{StaticResource m_calc}" TabIndex="1" ExecutedCommand="DisplayStack_ExecutedCommand" />
+			<local:DisplayStack x:Name="displayStack" Calculator="{StaticResource calc}" TabIndex="1" ExecutedCommand="DisplayStack_ExecutedCommand" />
 		</DockPanel>
 		<Grid.Background>
 			<LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
