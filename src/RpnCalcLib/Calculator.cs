@@ -1,22 +1,97 @@
-﻿#region Using Directives
-
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Windows;
-using Menees.RpnCalc.Internal;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.ComponentModel;
+	using System.Diagnostics;
+	using System.Globalization;
+	using System.IO;
+	using System.Linq;
+	using System.Reflection;
+	using System.Text;
+	using System.Windows;
+	using Menees.RpnCalc.Internal;
+
+	#endregion
+
 	public sealed partial class Calculator : DependencyObject
 	{
+		#region Public Dependency Property Fields
+
+		public static readonly DependencyProperty AngleModeProperty = DependencyProperty.Register(
+			nameof(AngleMode),
+			typeof(AngleMode),
+			typeof(Calculator),
+			new PropertyMetadata(AngleMode.Degrees, OnDisplayFormatChanged));
+
+		public static readonly DependencyProperty BinaryFormatProperty = DependencyProperty.Register(
+			nameof(BinaryFormat),
+			typeof(BinaryFormat),
+			typeof(Calculator),
+			new PropertyMetadata(BinaryFormat.Decimal, OnDisplayFormatChanged));
+
+		public static readonly DependencyProperty BinaryWordSizeProperty = DependencyProperty.Register(
+			nameof(BinaryWordSize),
+			typeof(int),
+			typeof(Calculator),
+			new PropertyMetadata(IntPtr.Size * 8, OnDisplayFormatChanged));
+
+		public static readonly DependencyProperty ComplexFormatProperty = DependencyProperty.Register(
+			nameof(ComplexFormat),
+			typeof(ComplexFormat),
+			typeof(Calculator),
+			new PropertyMetadata(ComplexFormat.Rectangular, OnDisplayFormatChanged));
+
+		public static readonly DependencyProperty DecimalFormatProperty = DependencyProperty.Register(
+			nameof(DecimalFormat),
+			typeof(DecimalFormat),
+			typeof(Calculator),
+			new PropertyMetadata(DecimalFormat.Standard, OnDisplayFormatChanged));
+
+		public static readonly DependencyProperty EntryLineProperty = DependencyProperty.Register(
+			nameof(EntryLine),
+			typeof(string),
+			typeof(Calculator),
+			new PropertyMetadata(string.Empty));
+
+		public static readonly DependencyProperty FractionFormatProperty = DependencyProperty.Register(
+			nameof(FractionFormat),
+			typeof(FractionFormat),
+			typeof(Calculator),
+			new PropertyMetadata(FractionFormat.Mixed, OnDisplayFormatChanged));
+
+		public static readonly DependencyProperty FixedDecimalDigitsProperty = DependencyProperty.Register(
+			nameof(FixedDecimalDigits),
+			typeof(int),
+			typeof(Calculator),
+			new PropertyMetadata(6, OnDisplayFormatChanged));
+
+		public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register(
+			nameof(ErrorMessage),
+			typeof(string),
+			typeof(Calculator),
+			new PropertyMetadata(null));
+
+		#endregion
+
+		#region Private Data Members
+
+#if DEBUG
+		private const bool ExceptionMessageResourcesAreAvailable = false;
+#else
+		// Assume that "debugging resource strings" are available if the default message
+		// matches the one we expect for DivideByZeroException.
+		private static readonly bool ExceptionMessageResourcesAreAvailable = new DivideByZeroException().Message == Resources.Calculator_DivideByZeroException;
+#endif
+
+		private readonly ValueStack stack = new ValueStack();
+		private readonly Commands[] commands;
+		private readonly EntryLineHistoryCollection history;
+		private Command lastCommand;
+
+		#endregion
+
 		#region Constructors
 
 		public Calculator()
@@ -42,6 +117,12 @@ namespace Menees.RpnCalc
 
 		#endregion
 
+		#region Public Events
+
+		public event DependencyPropertyChangedEventHandler DisplayFormatChanged;
+
+		#endregion
+
 		#region Public Properties
 
 		public AngleMode AngleMode
@@ -58,10 +139,6 @@ namespace Menees.RpnCalc
 			}
 		}
 
-		public static readonly DependencyProperty AngleModeProperty = DependencyProperty.Register(
-			nameof(AngleMode), typeof(AngleMode), typeof(Calculator),
-			new PropertyMetadata(AngleMode.Degrees, OnDisplayFormatChanged));
-
 		public BinaryFormat BinaryFormat
 		{
 			get
@@ -75,10 +152,6 @@ namespace Menees.RpnCalc
 				this.SetValue(BinaryFormatProperty, value);
 			}
 		}
-
-		public static readonly DependencyProperty BinaryFormatProperty = DependencyProperty.Register(
-			nameof(BinaryFormat), typeof(BinaryFormat), typeof(Calculator),
-			new PropertyMetadata(BinaryFormat.Decimal, OnDisplayFormatChanged));
 
 		public int BinaryWordSize
 		{
@@ -94,10 +167,6 @@ namespace Menees.RpnCalc
 			}
 		}
 
-		public static readonly DependencyProperty BinaryWordSizeProperty = DependencyProperty.Register(
-			nameof(BinaryWordSize), typeof(int), typeof(Calculator),
-			new PropertyMetadata(IntPtr.Size * 8, OnDisplayFormatChanged));
-
 		public ComplexFormat ComplexFormat
 		{
 			get
@@ -111,10 +180,6 @@ namespace Menees.RpnCalc
 				this.SetValue(ComplexFormatProperty, value);
 			}
 		}
-
-		public static readonly DependencyProperty ComplexFormatProperty = DependencyProperty.Register(
-			nameof(ComplexFormat), typeof(ComplexFormat), typeof(Calculator),
-			new PropertyMetadata(ComplexFormat.Rectangular, OnDisplayFormatChanged));
 
 		public DecimalFormat DecimalFormat
 		{
@@ -130,10 +195,6 @@ namespace Menees.RpnCalc
 			}
 		}
 
-		public static readonly DependencyProperty DecimalFormatProperty = DependencyProperty.Register(
-			nameof(DecimalFormat), typeof(DecimalFormat), typeof(Calculator),
-			new PropertyMetadata(DecimalFormat.Standard, OnDisplayFormatChanged));
-
 		public string EntryLine
 		{
 			get
@@ -147,10 +208,6 @@ namespace Menees.RpnCalc
 				this.SetValue(EntryLineProperty, value);
 			}
 		}
-
-		public static readonly DependencyProperty EntryLineProperty = DependencyProperty.Register(
-			nameof(EntryLine), typeof(string), typeof(Calculator),
-			new PropertyMetadata(string.Empty));
 
 		public FractionFormat FractionFormat
 		{
@@ -166,10 +223,6 @@ namespace Menees.RpnCalc
 			}
 		}
 
-		public static readonly DependencyProperty FractionFormatProperty = DependencyProperty.Register(
-			nameof(FractionFormat), typeof(FractionFormat), typeof(Calculator),
-			new PropertyMetadata(FractionFormat.Mixed, OnDisplayFormatChanged));
-
 		public int FixedDecimalDigits
 		{
 			get
@@ -183,10 +236,6 @@ namespace Menees.RpnCalc
 				this.SetValue(FixedDecimalDigitsProperty, value);
 			}
 		}
-
-		public static readonly DependencyProperty FixedDecimalDigitsProperty = DependencyProperty.Register(
-			nameof(FixedDecimalDigits), typeof(int), typeof(Calculator),
-			new PropertyMetadata(6, OnDisplayFormatChanged));
 
 		public string ErrorMessage
 		{
@@ -204,10 +253,6 @@ namespace Menees.RpnCalc
 				this.SetValue(ErrorMessageProperty, value);
 			}
 		}
-
-		public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register(
-			nameof(ErrorMessage), typeof(string), typeof(Calculator),
-			new PropertyMetadata(null));
 
 		public ValueStack Stack
 		{
@@ -291,12 +336,6 @@ namespace Menees.RpnCalc
 
 		#endregion
 
-		#region Public Events
-
-		public event DependencyPropertyChangedEventHandler DisplayFormatChanged;
-
-		#endregion
-
 		#region Internal Methods
 
 		internal double ConvertFromRadiansToAngle(double radians)
@@ -337,145 +376,10 @@ namespace Menees.RpnCalc
 
 		private static void OnDisplayFormatChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
 		{
-			Calculator calc = sender as Calculator;
-			if (calc != null)
+			if (sender is Calculator calc)
 			{
 				calc.DisplayFormatChanged?.Invoke(calc, e);
 			}
-		}
-
-		private object TryExecuteCommand(
-			string commandName,
-			Func<Commands, string, Func<Command, object>> findCommand)
-		{
-			Func<Command, object> command = null;
-
-			foreach (Commands cmds in this.commands)
-			{
-				command = findCommand(cmds, commandName);
-				if (command != null)
-				{
-					break;
-				}
-			}
-
-			object result = null;
-			if (command == null)
-			{
-				// Include the command name because this is an internal error that I need to know about.
-				this.SetError(PrefixMessage(commandName, Resources.Calculator_UnknownCommand));
-			}
-			else
-			{
-				result = this.Execute(commandName, command);
-			}
-
-			return result;
-		}
-
-		private object Execute(string commandName, Func<Command, object> executeCommand)
-		{
-			Debug.Assert(!string.IsNullOrEmpty(commandName));
-			Debug.Assert(executeCommand != null);
-
-			this.ClearError();
-
-			Exception reportException = null;
-
-			object result = null;
-			Command cmd = new Command(this);
-			try
-			{
-				result = executeCommand(cmd);
-
-				// Almost every command should call Commit, although a
-				// few will cancel (e.g., Enter and Clear if they're executed
-				// when the stack is empty).  I'm asserting here so I don't
-				// miss cases because I want LastArgs to work properly.
-				Debug.Assert(cmd.State != CommandState.None, commandName + ": Didn't call Command.Commit.");
-
-				// If it committed, store it as the last command.
-				// Don't do it earlier because EntryCommands.Last
-				// needs access to the previous command's args.
-				if (cmd.State == CommandState.Committed)
-				{
-					this.lastCommand = cmd;
-				}
-			}
-			catch (TargetInvocationException invEx)
-			{
-				reportException = invEx.InnerException != null ? invEx.InnerException : invEx;
-			}
-
-			if (reportException != null)
-			{
-				Debug.WriteLine(commandName + ": " + reportException.ToString());
-
-				// Don't include the command name in the message displayed to the user.
-				// They have no way to enter the command names, so it's meaningless
-				// to them.  Unlike the HP48 and RPNCalc2, I used human-friendly
-				// labels in the UI this time, but they don't match the command names.
-				this.SetError(reportException);
-			}
-
-			return result;
-		}
-
-		private void SetError(string message)
-		{
-			this.ErrorMessage = message;
-		}
-
-		private void SetError(Exception ex)
-		{
-			// The end-user, non-developer version of the SL runtime doesn't include all of the exception message resources.
-			// So if anyone creates and throws an exception using the default constructor (e.g. new DivideByZeroException()),
-			// then I won't be able to get the originally intended message unless the developer runtime of SL is installed.
-			// That sucks because Microsoft's code throws exceptions created using default constructors!  For example,
-			// both integer division and BigRational throw DivideByZeroExceptions created using the default constructor.
-			// So I can't just pass message strings into my exception cases to handle this.  To handle this generically,
-			// I'm going to check for all the exception types I know to expect based on user actions and on types I throw.
-			// Then I'll make a fallback handler for other unexpected types.
-			string message = ex.Message;
-			if (!c_exceptionMessageResourcesAreAvailable && IsANoDebugResourcesMessage(message))
-			{
-				// We must check for derived exception types before parent types.
-				if (ex is DivideByZeroException)
-				{
-					message = Resources.Calculator_DivideByZeroException;
-				}
-				else if (ex is NotFiniteNumberException)
-				{
-					message = Resources.Calculator_NotFiniteNumberException;
-				}
-				else if (ex is ArgumentOutOfRangeException)
-				{
-					message = Resources.Calculator_ArgumentOutOfRangeException;
-				}
-				else if (ex is ArgumentNullException)
-				{
-					message = Resources.Calculator_ArgumentNullException;
-				}
-				else if (ex is ArgumentException)
-				{
-					message = Resources.Calculator_ArgumentException;
-				}
-				else if (ex is OverflowException)
-				{
-					message = Resources.Calculator_OverflowException;
-				}
-				else if (ex is ArithmeticException)
-				{
-					message = Resources.Calculator_ArithmeticException;
-				}
-				else
-				{
-					// Include a user-friendly exception type name in the output message.
-					message = PrefixMessage(GetUserFriendlyExceptionName(ex), message);
-				}
-			}
-
-			this.SetError(message);
 		}
 
 		private static bool IsANoDebugResourcesMessage(string message)
@@ -577,22 +481,139 @@ namespace Menees.RpnCalc
 			return result;
 		}
 
-		#endregion
+		private object TryExecuteCommand(
+			string commandName,
+			Func<Commands, string, Func<Command, object>> findCommand)
+		{
+			Func<Command, object> command = null;
 
-		#region Private Data Members
+			foreach (Commands cmds in this.commands)
+			{
+				command = findCommand(cmds, commandName);
+				if (command != null)
+				{
+					break;
+				}
+			}
 
-		private ValueStack stack = new ValueStack();
-		private Command lastCommand;
-		private Commands[] commands;
-		private EntryLineHistoryCollection history;
+			object result = null;
+			if (command == null)
+			{
+				// Include the command name because this is an internal error that I need to know about.
+				this.SetError(PrefixMessage(commandName, Resources.Calculator_UnknownCommand));
+			}
+			else
+			{
+				result = this.Execute(commandName, command);
+			}
 
-#if DEBUG
-		private const bool c_exceptionMessageResourcesAreAvailable = false;
-#else
-		//Assume that "debugging resource strings" are available if the default message
-		//matches the one we expect for DivideByZeroException.
-		private static readonly bool c_exceptionMessageResourcesAreAvailable = new DivideByZeroException().Message == Resources.Calculator_DivideByZeroException;
-#endif
+			return result;
+		}
+
+		private object Execute(string commandName, Func<Command, object> executeCommand)
+		{
+			Debug.Assert(!string.IsNullOrEmpty(commandName), "A command name must be supplied.");
+			Debug.Assert(executeCommand != null, "A command function must be supplied.");
+
+			this.ClearError();
+
+			Exception reportException = null;
+
+			object result = null;
+			Command cmd = new Command(this);
+			try
+			{
+				result = executeCommand(cmd);
+
+				// Almost every command should call Commit, although a
+				// few will cancel (e.g., Enter and Clear if they're executed
+				// when the stack is empty).  I'm asserting here so I don't
+				// miss cases because I want LastArgs to work properly.
+				Debug.Assert(cmd.State != CommandState.None, commandName + ": Didn't call Command.Commit.");
+
+				// If it committed, store it as the last command.
+				// Don't do it earlier because EntryCommands.Last
+				// needs access to the previous command's args.
+				if (cmd.State == CommandState.Committed)
+				{
+					this.lastCommand = cmd;
+				}
+			}
+			catch (TargetInvocationException invEx)
+			{
+				reportException = invEx.InnerException ?? invEx;
+			}
+
+			if (reportException != null)
+			{
+				Debug.WriteLine(commandName + ": " + reportException);
+
+				// Don't include the command name in the message displayed to the user.
+				// They have no way to enter the command names, so it's meaningless
+				// to them.  Unlike the HP48 and RPNCalc2, I used human-friendly
+				// labels in the UI this time, but they don't match the command names.
+				this.SetError(reportException);
+			}
+
+			return result;
+		}
+
+		private void SetError(string message)
+		{
+			this.ErrorMessage = message;
+		}
+
+		private void SetError(Exception ex)
+		{
+			// The end-user, non-developer version of the SL runtime doesn't include all of the exception message resources.
+			// So if anyone creates and throws an exception using the default constructor (e.g. new DivideByZeroException()),
+			// then I won't be able to get the originally intended message unless the developer runtime of SL is installed.
+			// That sucks because Microsoft's code throws exceptions created using default constructors!  For example,
+			// both integer division and BigRational throw DivideByZeroExceptions created using the default constructor.
+			// So I can't just pass message strings into my exception cases to handle this.  To handle this generically,
+			// I'm going to check for all the exception types I know to expect based on user actions and on types I throw.
+			// Then I'll make a fallback handler for other unexpected types.
+			string message = ex.Message;
+			if (!ExceptionMessageResourcesAreAvailable && IsANoDebugResourcesMessage(message))
+			{
+				// We must check for derived exception types before parent types.
+				if (ex is DivideByZeroException)
+				{
+					message = Resources.Calculator_DivideByZeroException;
+				}
+				else if (ex is NotFiniteNumberException)
+				{
+					message = Resources.Calculator_NotFiniteNumberException;
+				}
+				else if (ex is ArgumentOutOfRangeException)
+				{
+					message = Resources.Calculator_ArgumentOutOfRangeException;
+				}
+				else if (ex is ArgumentNullException)
+				{
+					message = Resources.Calculator_ArgumentNullException;
+				}
+				else if (ex is ArgumentException)
+				{
+					message = Resources.Calculator_ArgumentException;
+				}
+				else if (ex is OverflowException)
+				{
+					message = Resources.Calculator_OverflowException;
+				}
+				else if (ex is ArithmeticException)
+				{
+					message = Resources.Calculator_ArithmeticException;
+				}
+				else
+				{
+					// Include a user-friendly exception type name in the output message.
+					message = PrefixMessage(GetUserFriendlyExceptionName(ex), message);
+				}
+			}
+
+			this.SetError(message);
+		}
 
 		#endregion
 	}

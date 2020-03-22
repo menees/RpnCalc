@@ -199,7 +199,7 @@
 			bool result = false;
 			fractionValue = null;
 
-			if (!Utility.IsNullOrWhiteSpace(text))
+			if (!string.IsNullOrWhiteSpace(text))
 			{
 				// Include a space separator since mixed fractions
 				// include it between the whole and fractional parts.

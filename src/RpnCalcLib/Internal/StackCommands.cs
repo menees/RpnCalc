@@ -1,17 +1,17 @@
-﻿#region Using Directives
-
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows;
-using System.Security;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Security;
+	using System.Text;
+	using System.Windows;
+
+	#endregion
+
 	internal class StackCommands : Commands
 	{
 		#region Constructors
@@ -49,8 +49,9 @@ namespace Menees.RpnCalc.Internal
 			string valueText = value.ToString(this.Calc);
 			try
 			{
-				Utility.SetClipboardText(valueText);
+				Clipboard.SetText(valueText);
 			}
+#pragma warning disable CC0004 // Catch block cannot be empty. Comments explain it.
 			catch (SecurityException)
 			{
 				// One of two things happened.  We either invoked this method
@@ -62,6 +63,7 @@ namespace Menees.RpnCalc.Internal
 				// "Copy To Clipboard" command, then we might as well eat the
 				// exception.
 			}
+#pragma warning restore CC0004 // Catch block cannot be empty
 
 			// Since this command didn't pop or push or change anything,
 			// we might as well cancel it, so we preserve the LastArgs from

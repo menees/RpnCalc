@@ -1,23 +1,54 @@
-﻿#region Using Directives
-
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Numerics;
+	using System.Text;
+
+	#endregion
+
 	internal class MathCommands : Commands
 	{
+		#region Private Data Members
+
+		private const double RadianToDegreeMultiplier = 180.0 / Math.PI;
+		private static readonly IntegerValue OneHundred = new IntegerValue(100);
+
+		private Random randomizer;
+
+		#endregion
+
 		#region Constructors
 
 		public MathCommands(Calculator calc)
 			: base(calc)
 		{
+		}
+
+		#endregion
+
+		#region Private Properties
+
+		private Random Randomizer
+		{
+			get
+			{
+				if (this.randomizer == null)
+				{
+					this.randomizer = new Random();
+				}
+
+				return this.randomizer;
+			}
+
+			set
+			{
+				this.randomizer = value;
+			}
 		}
 
 		#endregion
@@ -35,8 +66,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void ACos(Command cmd)
 		{
-			this.TrancendentalOp(cmd, Complex.Acos,
-				value => NormalizeTrigResult(this.Calc.ConvertFromRadiansToAngle(Math.Acos(value))));
+			this.TrancendentalOp(cmd, Complex.Acos, value => NormalizeTrigResult(this.Calc.ConvertFromRadiansToAngle(Math.Acos(value))));
 		}
 
 		public void Add(Command cmd)
@@ -57,14 +87,12 @@ namespace Menees.RpnCalc.Internal
 
 		public void ASin(Command cmd)
 		{
-			this.TrancendentalOp(cmd, Complex.Asin,
-				value => NormalizeTrigResult(this.Calc.ConvertFromRadiansToAngle(Math.Asin(value))));
+			this.TrancendentalOp(cmd, Complex.Asin, value => NormalizeTrigResult(this.Calc.ConvertFromRadiansToAngle(Math.Asin(value))));
 		}
 
 		public void ATan(Command cmd)
 		{
-			this.TrancendentalOp(cmd, Complex.Atan,
-				value => NormalizeTrigResult(this.Calc.ConvertFromRadiansToAngle(Math.Atan(value))));
+			this.TrancendentalOp(cmd, Complex.Atan, value => NormalizeTrigResult(this.Calc.ConvertFromRadiansToAngle(Math.Atan(value))));
 		}
 
 		public void Ceil(Command cmd)
@@ -100,8 +128,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void CosH(Command cmd)
 		{
-			this.TrancendentalOp(cmd, Complex.Cosh,
-				value => NormalizeTrigResult(Math.Cosh(this.Calc.ConvertFromAngleToRadians(value))));
+			this.TrancendentalOp(cmd, Complex.Cosh, value => NormalizeTrigResult(Math.Cosh(this.Calc.ConvertFromAngleToRadians(value))));
 		}
 
 		public void Divide(Command cmd)
@@ -223,20 +250,12 @@ namespace Menees.RpnCalc.Internal
 
 		public void Ln(Command cmd)
 		{
-			this.TrancendentalOp(
-				cmd,
-				new TrancendentalOperations(
-					Complex.Log,
-					Math.Log, BigInteger.Log));
+			this.TrancendentalOp(cmd, new TrancendentalOperations(Complex.Log, Math.Log, BigInteger.Log));
 		}
 
 		public void Log(Command cmd)
 		{
-			this.TrancendentalOp(
-				cmd,
-				new TrancendentalOperations(
-					Complex.Log10,
-					Math.Log10, BigInteger.Log10));
+			this.TrancendentalOp(cmd, new TrancendentalOperations(Complex.Log10, Math.Log10, BigInteger.Log10));
 		}
 
 		public void Max(Command cmd)
@@ -277,7 +296,7 @@ namespace Menees.RpnCalc.Internal
 			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return y% of x => xy/100
-			Value result = Value.Divide(Value.Multiply(x, y, this.Calc), c_oneHundred, this.Calc);
+			Value result = Value.Divide(Value.Multiply(x, y, this.Calc), OneHundred, this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -286,7 +305,7 @@ namespace Menees.RpnCalc.Internal
 			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return % change from y to x as a percentage of y => 100(x-y)/y
-			Value result = Value.Divide(Value.Multiply(c_oneHundred, Value.Subtract(x, y, this.Calc), this.Calc), y, this.Calc);
+			Value result = Value.Divide(Value.Multiply(OneHundred, Value.Subtract(x, y, this.Calc), this.Calc), y, this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -295,7 +314,7 @@ namespace Menees.RpnCalc.Internal
 			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return % of the total y represented by x => 100x/y
-			Value result = Value.Divide(Value.Multiply(c_oneHundred, x, this.Calc), y, this.Calc);
+			Value result = Value.Divide(Value.Multiply(OneHundred, x, this.Calc), y, this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -369,14 +388,12 @@ namespace Menees.RpnCalc.Internal
 
 		public void Sin(Command cmd)
 		{
-			this.TrancendentalOp(cmd, Complex.Sin,
-				value => NormalizeTrigResult(Math.Sin(this.Calc.ConvertFromAngleToRadians(value))));
+			this.TrancendentalOp(cmd, Complex.Sin, value => NormalizeTrigResult(Math.Sin(this.Calc.ConvertFromAngleToRadians(value))));
 		}
 
 		public void SinH(Command cmd)
 		{
-			this.TrancendentalOp(cmd, Complex.Sinh,
-				value => NormalizeTrigResult(Math.Sinh(this.Calc.ConvertFromAngleToRadians(value))));
+			this.TrancendentalOp(cmd, Complex.Sinh, value => NormalizeTrigResult(Math.Sinh(this.Calc.ConvertFromAngleToRadians(value))));
 		}
 
 		public void Sqrt(Command cmd)
@@ -403,14 +420,12 @@ namespace Menees.RpnCalc.Internal
 
 		public void Tan(Command cmd)
 		{
-			this.TrancendentalOp(cmd, Complex.Tan,
-				value => NormalizeTrigResult(Math.Tan(this.Calc.ConvertFromAngleToRadians(value))));
+			this.TrancendentalOp(cmd, Complex.Tan, value => NormalizeTrigResult(Math.Tan(this.Calc.ConvertFromAngleToRadians(value))));
 		}
 
 		public void TanH(Command cmd)
 		{
-			this.TrancendentalOp(cmd, Complex.Tanh,
-				value => NormalizeTrigResult(Math.Tanh(this.Calc.ConvertFromAngleToRadians(value))));
+			this.TrancendentalOp(cmd, Complex.Tanh, value => NormalizeTrigResult(Math.Tanh(this.Calc.ConvertFromAngleToRadians(value))));
 		}
 
 		public void Trunc(Command cmd)
@@ -432,41 +447,86 @@ namespace Menees.RpnCalc.Internal
 
 		internal static double ConvertFromRadiansToDegrees(double radians)
 		{
-			double result = radians * c_radianToDegreeMultiplier;
+			double result = radians * RadianToDegreeMultiplier;
 			return result;
 		}
 
 		internal static double ConvertFromDegreesToRadians(double angle)
 		{
-			double result = angle / c_radianToDegreeMultiplier;
+			double result = angle / RadianToDegreeMultiplier;
 			return result;
 		}
 
 		#endregion
 
-		#region Private Properties
+		#region Private Methods
 
-		private Random Randomizer
+		private static BigInteger RequireInteger(NumericValue value)
 		{
-			get
+			bool isInteger = true;
+			switch (value.ValueType)
 			{
-				if (this.randomizer == null)
-				{
-					this.randomizer = new Random();
-				}
-
-				return this.randomizer;
+				case RpnValueType.Double:
+					double doubleValue = ((DoubleValue)value).AsDouble;
+					isInteger = Utility.IsInteger(doubleValue);
+					break;
+				case RpnValueType.Fraction:
+					var fraction = (FractionValue)value;
+					isInteger = fraction.Denominator == 1;
+					break;
 			}
 
-			set
+			if (!isInteger)
 			{
-				this.randomizer = value;
+				throw new ArgumentException(Resources.MathCommands_IntegerIsRequired);
 			}
+
+			BigInteger result = value.ToInteger();
+			return result;
 		}
 
-		#endregion
+		private static double NormalizeTrigResult(double value)
+		{
+			double result = value;
 
-		#region Private Methods
+			const double c_nearOverflow = 1e15;
+
+			// .NET's trig functions like to return really tiny values (e.g., Sin(Pi) = 1e-16 instead of 0)
+			// or really large values (e.g., Tan(Pi/2) = 1e16 instead of #INF).  Those errors are due to
+			// the limitations of the double data type, so I'm going to apply some fudge factors to give
+			// more real-world results.  I'm making the assumption that users are actually entering normal
+			// range angle values and not microscopically small angles from horizontal or vertical.
+			if (Utility.IsReallyNearZero(value, 1e-14))
+			{
+				result = 0;
+			}
+			else if (value > c_nearOverflow)
+			{
+				result = double.PositiveInfinity;
+			}
+			else if (value < -c_nearOverflow)
+			{
+				result = double.NegativeInfinity;
+			}
+
+			return result;
+		}
+
+		private void CombPerm(Command cmd, Func<BigInteger, BigInteger, BigInteger> getDenominator)
+		{
+			this.UseTopTwoScalarNumericValues(cmd, out NumericValue first, out NumericValue second);
+			BigInteger r = RequireInteger(first);
+			BigInteger n = RequireInteger(second);
+			if (n < r)
+			{
+				throw new ArgumentOutOfRangeException("r must be <= n", (Exception)null);
+			}
+
+			BigInteger nFact = IntegerValue.Factorial(n);
+			BigInteger denominator = getDenominator(n, r);
+			BigInteger result = nFact / denominator;
+			cmd.Commit(new IntegerValue(result));
+		}
 
 		private NumericValue UseTopScalarNumericValue(Command cmd)
 		{
@@ -518,46 +578,6 @@ namespace Menees.RpnCalc.Internal
 			cmd.Commit(result);
 		}
 
-		private static BigInteger RequireInteger(NumericValue value)
-		{
-			bool isInteger = true;
-			switch (value.ValueType)
-			{
-				case RpnValueType.Double:
-					double doubleValue = ((DoubleValue)value).AsDouble;
-					isInteger = Utility.IsInteger(doubleValue);
-					break;
-				case RpnValueType.Fraction:
-					var fraction = (FractionValue)value;
-					isInteger = fraction.Denominator == 1;
-					break;
-			}
-
-			if (!isInteger)
-			{
-				throw new ArgumentException(Resources.MathCommands_IntegerIsRequired);
-			}
-
-			BigInteger result = value.ToInteger();
-			return result;
-		}
-
-		private void CombPerm(Command cmd, Func<BigInteger, BigInteger, BigInteger> getDenominator)
-		{
-			this.UseTopTwoScalarNumericValues(cmd, out NumericValue first, out NumericValue second);
-			BigInteger r = RequireInteger(first);
-			BigInteger n = RequireInteger(second);
-			if (n < r)
-			{
-				throw new ArgumentOutOfRangeException();
-			}
-
-			BigInteger nFact = IntegerValue.Factorial(n);
-			BigInteger denominator = getDenominator(n, r);
-			BigInteger result = nFact / denominator;
-			cmd.Commit(new IntegerValue(result));
-		}
-
 		private void Round(Command cmd, Func<double, int, double> roundValue)
 		{
 			this.RequireArgs(2);
@@ -587,8 +607,7 @@ namespace Menees.RpnCalc.Internal
 			cmd.Commit(result);
 		}
 
-		private void TrancendentalOp(Command cmd, Func<Complex, Complex> complexOp,
-			Func<double, double> doubleOp)
+		private void TrancendentalOp(Command cmd, Func<Complex, Complex> complexOp, Func<double, double> doubleOp)
 		{
 			this.TrancendentalOp(cmd, new TrancendentalOperations(complexOp, doubleOp));
 		}
@@ -598,33 +617,6 @@ namespace Menees.RpnCalc.Internal
 			NumericValue input = this.UseTopNumericValue(cmd);
 			NumericValue output = operations.Apply(input);
 			cmd.Commit(output);
-		}
-
-		private static double NormalizeTrigResult(double value)
-		{
-			double result = value;
-
-			const double c_nearOverflow = 1e15;
-
-			// .NET's trig functions like to return really tiny values (e.g., Sin(Pi) = 1e-16 instead of 0)
-			// or really large values (e.g., Tan(Pi/2) = 1e16 instead of #INF).  Those errors are due to
-			// the limitations of the double data type, so I'm going to apply some fudge factors to give
-			// more real-world results.  I'm making the assumption that users are actually entering normal
-			// range angle values and not microscopically small angles from horizontal or vertical.
-			if (Utility.IsReallyNearZero(value, 1e-14))
-			{
-				result = 0;
-			}
-			else if (value > c_nearOverflow)
-			{
-				result = double.PositiveInfinity;
-			}
-			else if (value < -c_nearOverflow)
-			{
-				result = double.NegativeInfinity;
-			}
-
-			return result;
 		}
 
 		#endregion
@@ -650,7 +642,8 @@ namespace Menees.RpnCalc.Internal
 
 			public TrancendentalOperations(
 				Func<Complex, Complex> complexOperation,
-				Func<double, double> doubleOperation, Func<BigInteger, double> integerOperation)
+				Func<double, double> doubleOperation,
+				Func<BigInteger, double> integerOperation)
 			{
 				this.ComplexOperation = complexOperation;
 				this.DoubleOperation = doubleOperation;
@@ -699,15 +692,6 @@ namespace Menees.RpnCalc.Internal
 		}
 
 		#endregion
-
-		#endregion
-
-		#region Private Data Members
-
-		private Random randomizer;
-
-		private const double c_radianToDegreeMultiplier = 180.0 / Math.PI;
-		private static readonly IntegerValue c_oneHundred = new IntegerValue(100);
 
 		#endregion
 	}

@@ -1,15 +1,15 @@
-﻿#region Using Directives
-
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Text;
+
+	#endregion
+
 	internal class DateTimeCommands : Commands
 	{
 		#region Constructors
@@ -21,7 +21,30 @@ namespace Menees.RpnCalc.Internal
 
 		#endregion
 
+		#region Private Properties
+
+#pragma warning disable MEN013 // Use UTC time. This needs to be the local date time.
+		private static DateTime LocalNow => DateTime.Now;
+#pragma warning restore MEN013 // Use UTC time
+
+		#endregion
+
 		#region Public Methods
+
+		public static void Date(Command cmd)
+		{
+			cmd.Commit(new DateTimeValue(LocalNow.Date));
+		}
+
+		public static void Time(Command cmd)
+		{
+			cmd.Commit(GetTimePart(LocalNow));
+		}
+
+		public static void Now(Command cmd)
+		{
+			cmd.Commit(new DateTimeValue(LocalNow));
+		}
 
 		public void AgeOn(Command cmd)
 		{
@@ -37,12 +60,7 @@ namespace Menees.RpnCalc.Internal
 		public void AgeToday(Command cmd)
 		{
 			var birthDate = this.UseTopDateTime(cmd);
-			cmd.Commit(CalculateAge(birthDate.AsDateTime, DateTime.Today));
-		}
-
-		public static void Date(Command cmd)
-		{
-			cmd.Commit(new DateTimeValue(DateTime.Today));
+			cmd.Commit(CalculateAge(birthDate.AsDateTime, LocalNow.Date));
 		}
 
 		public void DatePart(Command cmd)
@@ -57,16 +75,6 @@ namespace Menees.RpnCalc.Internal
 
 			// This returns a 1-based value already, so we don't need to offset it.
 			cmd.Commit(new IntegerValue(value.AsDateTime.DayOfYear));
-		}
-
-		public static void Now(Command cmd)
-		{
-			cmd.Commit(new DateTimeValue(DateTime.Now));
-		}
-
-		public static void Time(Command cmd)
-		{
-			cmd.Commit(GetTimePart(DateTime.Now));
 		}
 
 		public void TimePart(Command cmd)
@@ -86,14 +94,6 @@ namespace Menees.RpnCalc.Internal
 		#endregion
 
 		#region Private Methods
-
-		private DateTimeValue UseTopDateTime(Command cmd)
-		{
-			this.RequireArgs(1);
-			this.RequireType(0, RpnValueType.DateTime);
-			var result = (DateTimeValue)cmd.UseTopValue();
-			return result;
-		}
 
 		private static TimeSpanValue GetTimePart(DateTime value)
 		{
@@ -129,6 +129,14 @@ namespace Menees.RpnCalc.Internal
 			}
 
 			return new IntegerValue(multiplier * years);
+		}
+
+		private DateTimeValue UseTopDateTime(Command cmd)
+		{
+			this.RequireArgs(1);
+			this.RequireType(0, RpnValueType.DateTime);
+			var result = (DateTimeValue)cmd.UseTopValue();
+			return result;
 		}
 
 		#endregion

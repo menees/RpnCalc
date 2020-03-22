@@ -236,7 +236,7 @@
 
 		private void Tokenize()
 		{
-			if (!Utility.IsNullOrWhiteSpace(this.entryLine))
+			if (!string.IsNullOrWhiteSpace(this.entryLine))
 			{
 				char ch = this.SkipWhitespace();
 				while (ch != NULL)

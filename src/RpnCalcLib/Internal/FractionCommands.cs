@@ -1,16 +1,16 @@
-﻿#region Using Directives
-
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Numerics;
+	using System.Text;
+
+	#endregion
+
 	internal class FractionCommands : Commands
 	{
 		#region Constructors

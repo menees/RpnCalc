@@ -1,21 +1,27 @@
-﻿#region Using Directives
-
-using System;
-using System.Xml.Linq;
-using System.Numerics;
-using System.Globalization;
-using System.Diagnostics;
-using System.IO.IsolatedStorage;
-using System.Windows;
-using System.Collections.Generic;
-using System.Text;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Globalization;
+	using System.IO.IsolatedStorage;
+	using System.Numerics;
+	using System.Text;
+	using System.Windows;
+	using System.Xml.Linq;
+
+	#endregion
+
 	internal static class Utility
 	{
+		#region Private Data Members
+
+		private const int DefaultPrecision = 12;
+
+		#endregion
+
 		#region Xml Public Methods
 
 		public static int GetAttributeValue(this XElement element, XName attributeName, int defaultValue)
@@ -37,7 +43,10 @@ namespace Menees.RpnCalc.Internal
 			return result;
 		}
 
-		public static T GetAttributeValue<T>(this XElement element, XName attributeName, T defaultValue,
+		public static T GetAttributeValue<T>(
+			this XElement element,
+			XName attributeName,
+			T defaultValue,
 			Func<string, T> converter)
 		{
 			T result = defaultValue;
@@ -74,7 +83,7 @@ namespace Menees.RpnCalc.Internal
 				value = longValue;
 				parsedSuccessfully = true;
 			}
-			else if (!Utility.IsNullOrWhiteSpace(text))
+			else if (!string.IsNullOrWhiteSpace(text))
 			{
 				// The input wasn't parsible with a long, which has a range of
 				// -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807.
@@ -253,7 +262,7 @@ namespace Menees.RpnCalc.Internal
 			// This uses a very simplistic rounding scheme, unlike Math.Round(double, int).
 			double dPow10 = Math.Pow(10, places);
 			value *= dPow10;
-			value = value + (value > 0 ? 0.5 : -0.5);
+			value += value > 0 ? 0.5 : -0.5;
 			value = value < 0 ? Math.Ceiling(value) : Math.Floor(value);
 			return value / dPow10;
 		}
@@ -268,13 +277,13 @@ namespace Menees.RpnCalc.Internal
 		public static double Truncate(double value, int places)
 		{
 			double powerOf10 = Math.Pow(10, places);
-			double result = value = Truncate(value * powerOf10) / powerOf10;
+			double result = Truncate(value * powerOf10) / powerOf10;
 			return result;
 		}
 
 		public static bool IsInteger(double doubleValue)
 		{
-			return IsInteger(doubleValue, out BigInteger integerValue);
+			return IsInteger(doubleValue, out _);
 		}
 
 		public static bool IsInteger(double doubleValue, out BigInteger integerValue)
@@ -339,7 +348,7 @@ namespace Menees.RpnCalc.Internal
 					CheckGcdLoopIterations(iteration++);
 				}
 
-				result = Round(x, c_defaultPrecision);
+				result = Round(x, DefaultPrecision);
 			}
 
 			return result;
@@ -465,11 +474,11 @@ namespace Menees.RpnCalc.Internal
 			const int c_scaleFactor = 100;
 			const int c_scaleFactorMinus1 = c_scaleFactor - 1;
 
-			double nineX = Round((c_scaleFactor * value) - value, c_defaultPrecision);
+			double nineX = Round((c_scaleFactor * value) - value, DefaultPrecision);
 			double gcd = Gcd(nineX, c_scaleFactorMinus1);
 
-			double doubleNumerator = Round(nineX / gcd, c_defaultPrecision);
-			double doubleDenominator = Round(c_scaleFactorMinus1 / gcd, c_defaultPrecision);
+			double doubleNumerator = Round(nineX / gcd, DefaultPrecision);
+			double doubleDenominator = Round(c_scaleFactorMinus1 / gcd, DefaultPrecision);
 
 			return new FractionValue((BigInteger)doubleNumerator, (BigInteger)doubleDenominator);
 		}
@@ -485,159 +494,6 @@ namespace Menees.RpnCalc.Internal
 
 			return result;
 		}
-
-		#endregion
-
-		#region Windows Phone Helpers
-
-#if WINDOWS_PHONE
-        //Code adapted from Reflector's decompile of .NET 4's Enum.HasFlag.
-        public static bool HasFlag<TEnum>(this TEnum currentEnumValue, TEnum enumFlagToCheckFor)
-            where TEnum : struct
-        {
-            ulong value = Convert.ToUInt64(currentEnumValue);
-            ulong flag = Convert.ToUInt64(enumFlagToCheckFor);
-            bool result = (value & flag) == flag;
-            return result;
-        }
-#endif
-
-		public static bool IsNullOrWhiteSpace(string value)
-		{
-#if WINDOWS_PHONE
-            //Code copied from Reflector's decompile of .NET 4's string.IsNullOrWhiteSpace.
-            if (value != null)
-            {
-                for (int i = 0; i < value.Length; i++)
-                {
-                    if (!char.IsWhiteSpace(value[i]))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-#else
-			return string.IsNullOrWhiteSpace(value);
-#endif
-		}
-
-		public static bool IsIsolatedStorageFileEnabled
-		{
-			get
-			{
-#if WINDOWS_PHONE
-                //Isolated storage is always enabled on WP7.
-                return true;
-#else
-				return IsolatedStorageFile.IsEnabled;
-#endif
-			}
-		}
-
-		public static void SetClipboardText(string text)
-		{
-#if WINDOWS_PHONE
-            //WP7 doesn't support a programmatic way to set clipboard text.  Sheesh.
-            Debug.WriteLine("Attempted to set Clipboard text to: " + text);
-#else
-			Clipboard.SetText(text);
-#endif
-		}
-
-		public static string Join<T>(string separator, IEnumerable<T> values)
-		{
-#if WINDOWS_PHONE
-            //Code copied from Reflector's decompile of .NET 4's string.Join<T>.
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (separator == null)
-            {
-                separator = "";
-            }
-            using (IEnumerator<T> enumerator = values.GetEnumerator())
-            {
-                if (!enumerator.MoveNext())
-                {
-                    return "";
-                }
-                StringBuilder builder = new StringBuilder();
-                if (enumerator.Current != null)
-                {
-                    string str = enumerator.Current.ToString();
-                    if (str != null)
-                    {
-                        builder.Append(str);
-                    }
-                }
-                while (enumerator.MoveNext())
-                {
-                    builder.Append(separator);
-                    if (enumerator.Current != null)
-                    {
-                        string str2 = enumerator.Current.ToString();
-                        if (str2 != null)
-                        {
-                            builder.Append(str2);
-                        }
-                    }
-                }
-                return builder.ToString();
-            }
-#else
-			return string.Join(separator, values);
-#endif
-		}
-
-		public static bool TryParse<TEnum>(string value, bool ignoreCase, out TEnum result)
-			where TEnum : struct
-		{
-#if WINDOWS_PHONE
-            bool parsed = false;
-            result = default(TEnum);
-            try
-            {
-                result = (TEnum)Enum.Parse(typeof(TEnum), value, ignoreCase);
-                parsed = true;
-            }
-            catch (ArgumentException) { }
-            catch (OverflowException) { }
-            return parsed;
-#else
-			return Enum.TryParse(value, ignoreCase, out result);
-#endif
-		}
-
-		public static bool TryParseExact(string input, string[] formats, IFormatProvider formatProvider, out TimeSpan result)
-		{
-#if WINDOWS_PHONE
-            //WP7 doesn't support any TryParseExact overloads.  I'm returning false since we
-            //can't parse using the explicit format strings passed in.  The only caller(s) in RPN
-            //Calc will fallback to TryParse if TryParseExact fails anyway.
-            result = TimeSpan.Zero;
-            return false;
-#else
-			return TimeSpan.TryParseExact(input, formats, formatProvider, out result);
-#endif
-		}
-
-		public static bool TryParse(string input, IFormatProvider formatProvider, out TimeSpan result)
-		{
-#if WINDOWS_PHONE
-            //WP7 doesn't support the overload that takes a formatProvider.
-            return TimeSpan.TryParse(input, out result);
-#else
-			return TimeSpan.TryParse(input, formatProvider, out result);
-#endif
-		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private const int c_defaultPrecision = 12;
 
 		#endregion
 	}

@@ -1,14 +1,14 @@
-﻿#region Using Directives
-
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Collections.Generic;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Globalization;
+	using System.Linq;
+
+	#endregion
+
 	internal static class TimeSpanParser
 	{
 		#region Public Methods
@@ -106,7 +106,7 @@ namespace Menees.RpnCalc.Internal
 			//  can't assume that everything after the first NENWS token will also be a NENWS token.
 			// Only the first NENWS token can contain a negative sign.
 			// Only the Seconds token can contain a decimal separator.
-			var nenwsTokens = dhmsTokens.SkipWhile(x => Utility.IsNullOrWhiteSpace(x));
+			var nenwsTokens = dhmsTokens.SkipWhile(x => string.IsNullOrWhiteSpace(x));
 			if (nenwsTokens.Count() >= 2 &&
 				ValidateTokens(nenwsTokens.Skip(1), x => x == null || !x.Contains(negativeSign)) &&
 				ValidateTokens(dhmsTokens.Take(3), x => x == null || !x.Contains(decimalSeparator)))

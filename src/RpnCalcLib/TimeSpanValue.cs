@@ -322,7 +322,7 @@
 
 			// Try to parse the value using our exact format strings first,
 			// and if those fail, then fall back to general case parsing.
-			if (Utility.TryParseExact(text, minSecFormats, timeFmt, out TimeSpan value))
+			if (TimeSpan.TryParseExact(text, minSecFormats, timeFmt, out TimeSpan value))
 			{
 				// In SL4, TryParseExact won't return a negative TimeSpan
 				// even if it matches the negative sign in the text.  So I
@@ -341,7 +341,7 @@
 				timeSpanValue = new TimeSpanValue(value);
 				result = true;
 			}
-			else if (Utility.TryParse(text, timeFmt, out value))
+			else if (TimeSpan.TryParse(text, timeFmt, out value))
 			{
 				timeSpanValue = new TimeSpanValue(value);
 				result = true;

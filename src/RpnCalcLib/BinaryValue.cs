@@ -1,19 +1,37 @@
-﻿#region Using Directives
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
-using System.Globalization;
-using System.Numerics;
-using Menees.RpnCalc.Internal;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Globalization;
+	using System.Numerics;
+	using System.Text;
+	using Menees.RpnCalc.Internal;
+
+	#endregion
+
 	public sealed class BinaryValue : NumericValue, IComparable<BinaryValue>
 	{
+		#region Internal Constants
+
+		internal const char Prefix = '#';
+		internal const char BinarySuffix = 'b';
+		internal const char OctalSuffix = 'o';
+		internal const char DecimalSuffix = 'd';
+		internal const char HexadecimalSuffix = 'h';
+
+		#endregion
+
+		#region Private Data Members
+
+		private const int MaxWordSize = 8 * sizeof(ulong); // 64
+
+		private readonly ulong value;
+
+		#endregion
+
 		#region Constructors
 
 		// This overload is provided for CLS compliance.
@@ -42,51 +60,41 @@ namespace Menees.RpnCalc
 
 		#endregion
 
+		#region Public Operators
+
+		public static bool operator ==(BinaryValue x, BinaryValue y)
+		{
+			return Compare(x, y) == 0;
+		}
+
+		public static bool operator !=(BinaryValue x, BinaryValue y)
+		{
+			return Compare(x, y) != 0;
+		}
+
+		public static bool operator <(BinaryValue x, BinaryValue y)
+		{
+			return Compare(x, y) < 0;
+		}
+
+		public static bool operator <=(BinaryValue x, BinaryValue y)
+		{
+			return Compare(x, y) <= 0;
+		}
+
+		public static bool operator >(BinaryValue x, BinaryValue y)
+		{
+			return Compare(x, y) > 0;
+		}
+
+		public static bool operator >=(BinaryValue x, BinaryValue y)
+		{
+			return Compare(x, y) >= 0;
+		}
+
+		#endregion
+
 		#region Public Methods
-
-		public override string ToString()
-		{
-			return GetDecimalFormat(this.value);
-		}
-
-		public override string ToString(Calculator calc)
-		{
-			string result;
-
-			ulong maskedValue = this.GetMaskedWordSizeValue(calc);
-
-			switch (calc.BinaryFormat)
-			{
-				case BinaryFormat.Binary:
-					result = GetBinaryFormat(maskedValue);
-					break;
-				case BinaryFormat.Octal:
-					result = GetOctalFormat(maskedValue);
-					break;
-				case BinaryFormat.Hexadecimal:
-					result = GetHexadecimalFormat(maskedValue);
-					break;
-				default:
-					result = GetDecimalFormat(maskedValue);
-					break;
-			}
-
-			return result;
-		}
-
-		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
-		{
-			List<DisplayFormat> result = new List<DisplayFormat>(4);
-
-			ulong maskedValue = this.GetMaskedWordSizeValue(calc);
-
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Binary, GetBinaryFormat(maskedValue)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Octal, GetOctalFormat(maskedValue)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Decimal, GetDecimalFormat(maskedValue)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Hexadecimal, GetHexadecimalFormat(maskedValue)));
-
-			return result;
-		}
 
 		public static bool TryParse(string text, out BinaryValue value)
 		{
@@ -98,7 +106,7 @@ namespace Menees.RpnCalc
 			bool result = false;
 			value = null;
 
-			if (!Utility.IsNullOrWhiteSpace(text))
+			if (!string.IsNullOrWhiteSpace(text))
 			{
 				text = text.Trim();
 				if (text.Length > 0 && text[0] == Prefix)
@@ -129,16 +137,6 @@ namespace Menees.RpnCalc
 			}
 
 			return result;
-		}
-
-		public override double ToDouble()
-		{
-			return (double)this.value;
-		}
-
-		public override BigInteger ToInteger()
-		{
-			return (BigInteger)this.value;
 		}
 
 		public static BinaryValue And(BinaryValue x, BinaryValue y)
@@ -243,6 +241,70 @@ namespace Menees.RpnCalc
 			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.value % y.value)));
 		}
 
+		public static int Compare(BinaryValue x, BinaryValue y)
+		{
+			if (!CompareWithNulls(x, y, out int result))
+			{
+				result = x.value.CompareTo(y.value);
+			}
+
+			return result;
+		}
+
+		public override string ToString()
+		{
+			return GetDecimalFormat(this.value);
+		}
+
+		public override string ToString(Calculator calc)
+		{
+			string result;
+
+			ulong maskedValue = this.GetMaskedWordSizeValue(calc);
+
+			switch (calc.BinaryFormat)
+			{
+				case BinaryFormat.Binary:
+					result = GetBinaryFormat(maskedValue);
+					break;
+				case BinaryFormat.Octal:
+					result = GetOctalFormat(maskedValue);
+					break;
+				case BinaryFormat.Hexadecimal:
+					result = GetHexadecimalFormat(maskedValue);
+					break;
+				default:
+					result = GetDecimalFormat(maskedValue);
+					break;
+			}
+
+			return result;
+		}
+
+		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
+		{
+			List<DisplayFormat> result = new List<DisplayFormat>(4);
+
+			ulong maskedValue = this.GetMaskedWordSizeValue(calc);
+
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Binary, GetBinaryFormat(maskedValue)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Octal, GetOctalFormat(maskedValue)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Decimal, GetDecimalFormat(maskedValue)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Hexadecimal, GetHexadecimalFormat(maskedValue)));
+
+			return result;
+		}
+
+		public override double ToDouble()
+		{
+			return (double)this.value;
+		}
+
+		public override BigInteger ToInteger()
+		{
+			return (BigInteger)this.value;
+		}
+
 		public int Sign(Calculator calc)
 		{
 			int result = 0;
@@ -275,16 +337,6 @@ namespace Menees.RpnCalc
 			return this.value.GetHashCode();
 		}
 
-		public static int Compare(BinaryValue x, BinaryValue y)
-		{
-			if (!CompareWithNulls(x, y, out int result))
-			{
-				result = x.value.CompareTo(y.value);
-			}
-
-			return result;
-		}
-
 		public int CompareTo(BinaryValue other)
 		{
 			return Compare(this, other);
@@ -292,63 +344,14 @@ namespace Menees.RpnCalc
 
 		#endregion
 
-		#region Public Operators
-
-		public static bool operator ==(BinaryValue x, BinaryValue y)
-		{
-			return Compare(x, y) == 0;
-		}
-
-		public static bool operator !=(BinaryValue x, BinaryValue y)
-		{
-			return Compare(x, y) != 0;
-		}
-
-		public static bool operator <(BinaryValue x, BinaryValue y)
-		{
-			return Compare(x, y) < 0;
-		}
-
-		public static bool operator <=(BinaryValue x, BinaryValue y)
-		{
-			return Compare(x, y) <= 0;
-		}
-
-		public static bool operator >(BinaryValue x, BinaryValue y)
-		{
-			return Compare(x, y) > 0;
-		}
-
-		public static bool operator >=(BinaryValue x, BinaryValue y)
-		{
-			return Compare(x, y) >= 0;
-		}
-
-		#endregion
-
-		#region Internal Constants
-
-		internal const char Prefix = '#';
-		internal const char BinarySuffix = 'b';
-		internal const char OctalSuffix = 'o';
-		internal const char DecimalSuffix = 'd';
-		internal const char HexadecimalSuffix = 'h';
-
-		#endregion
-
 		#region Private Methods
-
-		private ulong GetMaskedWordSizeValue(Calculator calc)
-		{
-			return GetMaskedWordSizeValue(calc, this.value);
-		}
 
 		private static ulong GetMaskedWordSizeValue(Calculator calc, ulong value)
 		{
 			int wordSize = calc.BinaryWordSize;
-			int shiftSize = c_maxWordSize - wordSize;
+			int shiftSize = MaxWordSize - wordSize;
 
-			ulong result = ((value << shiftSize) >> shiftSize);
+			ulong result = (value << shiftSize) >> shiftSize;
 			return result;
 		}
 
@@ -451,13 +454,10 @@ namespace Menees.RpnCalc
 			return result;
 		}
 
-		#endregion
-
-		#region Private Data Members
-
-		private ulong value;
-
-		private const int c_maxWordSize = 8 * sizeof(ulong); // 64
+		private ulong GetMaskedWordSizeValue(Calculator calc)
+		{
+			return GetMaskedWordSizeValue(calc, this.value);
+		}
 
 		#endregion
 	}

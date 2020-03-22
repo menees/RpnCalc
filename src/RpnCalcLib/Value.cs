@@ -529,7 +529,7 @@
 
 				if (typeText != null && valueText != null)
 				{
-					if (Utility.TryParse(typeText, false, out RpnValueType type))
+					if (Enum.TryParse(typeText, false, out RpnValueType type))
 					{
 						TryParse(type, valueText, calc, out result);
 					}

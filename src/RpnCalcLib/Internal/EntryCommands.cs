@@ -1,17 +1,23 @@
-﻿#region Using Directives
-
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Text;
+
+	#endregion
+
 	internal class EntryCommands : Commands
 	{
+		#region Private Data Members
+
+		private readonly StackCommands stackCommands;
+
+		#endregion
+
 		#region Constructors
 
 		public EntryCommands(Calculator calc, StackCommands stackCommands)
@@ -79,17 +85,17 @@ namespace Menees.RpnCalc.Internal
 
 		public EntryLineParser Enter(Command cmd)
 		{
+			EntryLineParser parser = null;
+
 			string entryLine = this.Calc.EntryLine;
 			if (string.IsNullOrEmpty(entryLine))
 			{
 				// If they hit Enter with an empty entry line, then duplicate the top item.
 				this.stackCommands.Dup(cmd);
-
-				return null;
 			}
 			else
 			{
-				EntryLineParser parser = new EntryLineParser(this.Calc, entryLine);
+				parser = new EntryLineParser(this.Calc, entryLine);
 				if (parser.HasError)
 				{
 					this.Calc.ErrorMessage = parser.ErrorMessage;
@@ -113,9 +119,9 @@ namespace Menees.RpnCalc.Internal
 
 				// Save the entry line in the history regardless of whether there was an error.
 				this.Calc.EntryLineHistory.Add(entryLine);
-
-				return parser;
 			}
+
+			return parser;
 		}
 
 		public void Last(Command cmd)
@@ -126,12 +132,6 @@ namespace Menees.RpnCalc.Internal
 			// (since that would blow away the previous command's LastArgs).
 			cmd.Cancel();
 		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private StackCommands stackCommands;
 
 		#endregion
 	}

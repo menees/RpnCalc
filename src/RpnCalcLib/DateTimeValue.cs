@@ -102,7 +102,7 @@
 			bool result = false;
 			dateTimeValue = null;
 
-			if (!Utility.IsNullOrWhiteSpace(text))
+			if (!string.IsNullOrWhiteSpace(text))
 			{
 				// Remove the delimiters if both are present.
 				text = Utility.StripDelimiters(text, StartDelimiter, EndDelimiter);
