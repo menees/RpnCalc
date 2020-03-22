@@ -16,7 +16,9 @@
 
 	#endregion
 
+#pragma warning disable CA1724 // Name conflicts with system type. I don't care about System.Windows.Controls.Ribbon.
 	public class Ribbon : ItemsControl
+#pragma warning restore CA1724
 	{
 		#region Constructors
 

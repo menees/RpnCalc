@@ -32,11 +32,11 @@ namespace Menees.RpnCalc
 
 		#region Public Properties
 
-		public override ValueType ValueType
+		public override RpnValueType ValueType
 		{
 			get
 			{
-				return ValueType.Binary;
+				return RpnValueType.Binary;
 			}
 		}
 

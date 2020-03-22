@@ -1,16 +1,16 @@
-﻿#region Using Directives
-
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Globalization;
-using Menees.RpnCalc.Internal;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Globalization;
+	using System.Linq;
+	using System.Numerics;
+	using Menees.RpnCalc.Internal;
+
+	#endregion
+
 	// Design note: Value-derived classes must implement immutable-value semantics.
 	// Lots of things pass around references to Values and assume that a Value's "value"
 	// will never change.  All Value operations should create and return new Value instances
@@ -27,70 +27,55 @@ namespace Menees.RpnCalc
 
 		#region Public Properties
 
-		public abstract ValueType ValueType { get; }
+		public abstract RpnValueType ValueType { get; }
 
 		#endregion
 
 		#region Public Methods
 
-		public virtual string ToString(Calculator calc)
-		{
-			return this.ToString();
-		}
-
-		public virtual string GetEntryValue(Calculator calc)
-		{
-			return this.ToString(calc);
-		}
-
-		public virtual IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
-		{
-			return new[] { new DisplayFormat(this.ToString(calc)) };
-		}
-
-		public static bool TryParse(ValueType type, string text, out Value value)
+		public static bool TryParse(RpnValueType type, string text, out Value value)
 		{
 			return TryParse(type, text, null, out value);
 		}
 
-		public static bool TryParse(ValueType type, string text, Calculator calc, out Value value)
+		public static bool TryParse(RpnValueType type, string text, Calculator calc, out Value value)
 		{
 			// NOTE: calc can be null.
 			bool result;
 
 			switch (type)
 			{
-				case ValueType.Binary:
+				case RpnValueType.Binary:
 					BinaryValue binaryValue;
 					result = BinaryValue.TryParse(text, calc, out binaryValue);
 					value = binaryValue;
 					break;
-				case ValueType.Complex:
+				case RpnValueType.Complex:
 					ComplexValue complexValue;
 					result = ComplexValue.TryParse(text, calc, out complexValue);
 					value = complexValue;
 					break;
-				case ValueType.DateTime:
+				case RpnValueType.DateTime:
 					DateTimeValue dateTimeValue;
 					result = DateTimeValue.TryParse(text, out dateTimeValue);
 					value = dateTimeValue;
 					break;
-				case ValueType.Double:
+				case RpnValueType.Double:
 					DoubleValue doubleValue;
 					result = DoubleValue.TryParse(text, out doubleValue);
 					value = doubleValue;
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					FractionValue fractionValue;
 					result = FractionValue.TryParse(text, out fractionValue);
 					value = fractionValue;
 					break;
-				case ValueType.Integer:
+				case RpnValueType.Integer:
 					IntegerValue integerValue;
 					result = IntegerValue.TryParse(text, out integerValue);
 					value = integerValue;
 					break;
-				case ValueType.TimeSpan:
+				case RpnValueType.TimeSpan:
 					TimeSpanValue timeSpanValue;
 					result = TimeSpanValue.TryParse(text, out timeSpanValue);
 					value = timeSpanValue;
@@ -110,7 +95,7 @@ namespace Menees.RpnCalc
 
 			switch (value.ValueType)
 			{
-				case ValueType.TimeSpan:
+				case RpnValueType.TimeSpan:
 					TimeSpanValue timeSpan = (TimeSpanValue)value;
 					if (timeSpan.AsTimeSpan < TimeSpan.Zero)
 					{
@@ -118,13 +103,13 @@ namespace Menees.RpnCalc
 					}
 
 					break;
-				case ValueType.Complex:
+				case RpnValueType.Complex:
 					result = new DoubleValue(Complex.Abs(((ComplexValue)value).AsComplex));
 					break;
-				case ValueType.Double:
+				case RpnValueType.Double:
 					result = new DoubleValue(Math.Abs(((DoubleValue)value).AsDouble));
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					FractionValue fraction = (FractionValue)value;
 					if (fraction.Sign < 0)
 					{
@@ -132,10 +117,10 @@ namespace Menees.RpnCalc
 					}
 
 					break;
-				case ValueType.Integer:
+				case RpnValueType.Integer:
 					result = new IntegerValue(BigInteger.Abs(((IntegerValue)value).AsInteger));
 					break;
-				case ValueType.Binary:
+				case RpnValueType.Binary:
 					BinaryValue binary = (BinaryValue)value;
 					if (binary.Sign(calc) < 0)
 					{
@@ -158,33 +143,34 @@ namespace Menees.RpnCalc
 			{
 				switch (x.ValueType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						result = BinaryValue.Add((BinaryValue)x, (BinaryValue)y, calc);
 						break;
-					case ValueType.Complex:
+					case RpnValueType.Complex:
 						result = (ComplexValue)x + (ComplexValue)y;
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = (DoubleValue)x + (DoubleValue)y;
 						break;
-					case ValueType.Fraction:
+					case RpnValueType.Fraction:
 						result = (FractionValue)x + (FractionValue)y;
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						result = (IntegerValue)x + (IntegerValue)y;
 						break;
-					case ValueType.TimeSpan:
+					case RpnValueType.TimeSpan:
 						result = (TimeSpanValue)x + (TimeSpanValue)y;
 						break;
 				}
 			}
-			else // Handle special cases.
+			else
 			{
-				if (x.ValueType == ValueType.DateTime && y.ValueType == ValueType.TimeSpan)
+				// Handle special cases.
+				if (x.ValueType == RpnValueType.DateTime && y.ValueType == RpnValueType.TimeSpan)
 				{
 					result = (DateTimeValue)x + (TimeSpanValue)y;
 				}
-				else if (x.ValueType == ValueType.TimeSpan && y.ValueType == ValueType.DateTime)
+				else if (x.ValueType == RpnValueType.TimeSpan && y.ValueType == RpnValueType.DateTime)
 				{
 					result = (TimeSpanValue)x + (DateTimeValue)y;
 				}
@@ -206,32 +192,33 @@ namespace Menees.RpnCalc
 			{
 				switch (x.ValueType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						result = BinaryValue.Subtract((BinaryValue)x, (BinaryValue)y, calc);
 						break;
-					case ValueType.Complex:
+					case RpnValueType.Complex:
 						result = (ComplexValue)x - (ComplexValue)y;
 						break;
-					case ValueType.DateTime:
+					case RpnValueType.DateTime:
 						result = (DateTimeValue)x - (DateTimeValue)y;
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = (DoubleValue)x - (DoubleValue)y;
 						break;
-					case ValueType.Fraction:
+					case RpnValueType.Fraction:
 						result = (FractionValue)x - (FractionValue)y;
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						result = (IntegerValue)x - (IntegerValue)y;
 						break;
-					case ValueType.TimeSpan:
+					case RpnValueType.TimeSpan:
 						result = (TimeSpanValue)x - (TimeSpanValue)y;
 						break;
 				}
 			}
-			else // Handle special cases.
+			else
 			{
-				if (x.ValueType == ValueType.DateTime && y.ValueType == ValueType.TimeSpan)
+				// Handle special cases.
+				if (x.ValueType == RpnValueType.DateTime && y.ValueType == RpnValueType.TimeSpan)
 				{
 					result = (DateTimeValue)x - (TimeSpanValue)y;
 				}
@@ -253,33 +240,34 @@ namespace Menees.RpnCalc
 			{
 				switch (x.ValueType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						result = BinaryValue.Multiply((BinaryValue)x, (BinaryValue)y, calc);
 						break;
-					case ValueType.Complex:
+					case RpnValueType.Complex:
 						result = (ComplexValue)x * (ComplexValue)y;
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = (DoubleValue)x * (DoubleValue)y;
 						break;
-					case ValueType.Fraction:
+					case RpnValueType.Fraction:
 						result = (FractionValue)x * (FractionValue)y;
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						result = (IntegerValue)x * (IntegerValue)y;
 						break;
 				}
 			}
-			else // Handle special cases.
+			else
 			{
-				NumericValue numX = x as NumericValue;
-				NumericValue numY = y as NumericValue;
-				if (x.ValueType == ValueType.TimeSpan && numY != null) // TimeSpan * Numeric
+				// Handle special cases.
+				if (x.ValueType == RpnValueType.TimeSpan && y is NumericValue numY)
 				{
+					// TimeSpan * Numeric
 					result = (TimeSpanValue)x * new DoubleValue(numY.ToDouble());
 				}
-				else if (numX != null && y.ValueType == ValueType.TimeSpan) // Numeric * TimeSpan
+				else if (x is NumericValue numX && y.ValueType == RpnValueType.TimeSpan)
 				{
+					// Numeric * TimeSpan
 					result = (TimeSpanValue)y * new DoubleValue(numX.ToDouble());
 				}
 			}
@@ -300,31 +288,32 @@ namespace Menees.RpnCalc
 			{
 				switch (x.ValueType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						result = BinaryValue.Divide((BinaryValue)x, (BinaryValue)y, calc);
 						break;
-					case ValueType.Complex:
+					case RpnValueType.Complex:
 						result = (ComplexValue)x / (ComplexValue)y;
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = (DoubleValue)x / (DoubleValue)y;
 						break;
-					case ValueType.Fraction:
+					case RpnValueType.Fraction:
 						result = (FractionValue)x / (FractionValue)y;
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						result = (IntegerValue)x / (IntegerValue)y;
 						break;
-					case ValueType.TimeSpan:
+					case RpnValueType.TimeSpan:
 						result = (TimeSpanValue)x / (TimeSpanValue)y;
 						break;
 				}
 			}
-			else // Handle special cases.
+			else
 			{
-				NumericValue numY = y as NumericValue;
-				if (x.ValueType == ValueType.TimeSpan && numY != null) // TimeSpan / Numeric
+				// Handle special cases.
+				if (x.ValueType == RpnValueType.TimeSpan && y is NumericValue numY)
 				{
+					// TimeSpan / Numeric
 					result = (TimeSpanValue)x / new DoubleValue(numY.ToDouble());
 				}
 			}
@@ -342,22 +331,22 @@ namespace Menees.RpnCalc
 			Value result;
 			switch (value.ValueType)
 			{
-				case ValueType.TimeSpan:
+				case RpnValueType.TimeSpan:
 					result = -(TimeSpanValue)value;
 					break;
-				case ValueType.Complex:
+				case RpnValueType.Complex:
 					result = -(ComplexValue)value;
 					break;
-				case ValueType.Double:
+				case RpnValueType.Double:
 					result = -(DoubleValue)value;
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					result = -(FractionValue)value;
 					break;
-				case ValueType.Integer:
+				case RpnValueType.Integer:
 					result = -(IntegerValue)value;
 					break;
-				case ValueType.Binary:
+				case RpnValueType.Binary:
 					result = BinaryValue.Negate((BinaryValue)value, calc);
 					break;
 				default:
@@ -373,11 +362,11 @@ namespace Menees.RpnCalc
 
 			switch (value.ValueType)
 			{
-				case ValueType.TimeSpan:
+				case RpnValueType.TimeSpan:
 					TimeSpan timeSpan = ((TimeSpanValue)value).AsTimeSpan;
 					result = new IntegerValue((timeSpan > TimeSpan.Zero) ? 1 : (timeSpan < TimeSpan.Zero ? -1 : 0));
 					break;
-				case ValueType.Complex:
+				case RpnValueType.Complex:
 					Complex complex = ((ComplexValue)value).AsComplex;
 					if (complex == Complex.Zero)
 					{
@@ -394,16 +383,16 @@ namespace Menees.RpnCalc
 					}
 
 					break;
-				case ValueType.Double:
+				case RpnValueType.Double:
 					result = new IntegerValue(Math.Sign(((DoubleValue)value).AsDouble));
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					result = new IntegerValue(((FractionValue)value).Sign);
 					break;
-				case ValueType.Integer:
+				case RpnValueType.Integer:
 					result = new IntegerValue(((IntegerValue)value).AsInteger.Sign);
 					break;
-				case ValueType.Binary:
+				case RpnValueType.Binary:
 					result = new IntegerValue(((BinaryValue)value).Sign(calc));
 					break;
 				default:
@@ -413,36 +402,24 @@ namespace Menees.RpnCalc
 			return result;
 		}
 
+		public virtual string ToString(Calculator calc)
+		{
+			return this.ToString();
+		}
+
+		public virtual string GetEntryValue(Calculator calc)
+		{
+			return this.ToString(calc);
+		}
+
+		public virtual IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
+		{
+			return new[] { new DisplayFormat(this.ToString(calc)) };
+		}
+
 		#endregion
 
 		#region Internal Methods
-
-		internal static Value Load(INode valueNode, Calculator calc)
-		{
-			Value result = null;
-
-			if (valueNode != null)
-			{
-				string typeText = valueNode.GetValue(nameof(ValueType), null);
-				string valueText = valueNode.GetValue("EntryValue", null);
-
-				if (typeText != null && valueText != null)
-				{
-					if (Utility.TryParse(typeText, false, out ValueType type))
-					{
-						TryParse(type, valueText, calc, out result);
-					}
-				}
-			}
-
-			return result;
-		}
-
-		internal void Save(INode valueNode, Calculator calc)
-		{
-			valueNode.SetValue(nameof(this.ValueType), this.ValueType);
-			valueNode.SetValue("EntryValue", this.GetEntryValue(calc));
-		}
 
 		/// <summary>
 		/// This compares values after implicit type conversion, and complex values
@@ -458,22 +435,22 @@ namespace Menees.RpnCalc
 				// X and Y should be of the same type now.
 				switch (x.ValueType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						result = ((BinaryValue)x).CompareTo((BinaryValue)y);
 						break;
-					case ValueType.DateTime:
+					case RpnValueType.DateTime:
 						result = ((DateTimeValue)x).CompareTo((DateTimeValue)y);
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = ((DoubleValue)x).CompareTo((DoubleValue)y);
 						break;
-					case ValueType.Fraction:
+					case RpnValueType.Fraction:
 						result = ((FractionValue)x).CompareTo((FractionValue)y);
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						result = ((IntegerValue)x).CompareTo((IntegerValue)y);
 						break;
-					case ValueType.TimeSpan:
+					case RpnValueType.TimeSpan:
 						result = ((TimeSpanValue)x).CompareTo((TimeSpanValue)y);
 						break;
 				}
@@ -483,7 +460,9 @@ namespace Menees.RpnCalc
 			{
 				throw new ArgumentException(string.Format(
 					CultureInfo.CurrentCulture,
-					Resources.Value_UnableToCompare, x.ToString(calc), y.ToString(calc)));
+					Resources.Value_UnableToCompare,
+					x.ToString(calc),
+					y.ToString(calc)));
 			}
 
 			return result.Value;
@@ -493,7 +472,9 @@ namespace Menees.RpnCalc
 		{
 			string message = string.Format(
 				CultureInfo.CurrentCulture,
-				Resources.Value_UnaryOperationNotSupported, opName, value.ValueType);
+				Resources.Value_UnaryOperationNotSupported,
+				opName,
+				value.ValueType);
 			throw new ArithmeticException(message);
 		}
 
@@ -501,7 +482,10 @@ namespace Menees.RpnCalc
 		{
 			string message = string.Format(
 				CultureInfo.CurrentCulture,
-				Resources.Value_BinaryOperationNotSupported, opName, x.ValueType, y.ValueType);
+				Resources.Value_BinaryOperationNotSupported,
+				opName,
+				x.ValueType,
+				y.ValueType);
 			throw new ArithmeticException(message);
 		}
 
@@ -534,6 +518,33 @@ namespace Menees.RpnCalc
 			return atLeastOneNull;
 		}
 
+		internal static Value Load(INode valueNode, Calculator calc)
+		{
+			Value result = null;
+
+			if (valueNode != null)
+			{
+				string typeText = valueNode.GetValue(nameof(ValueType), null);
+				string valueText = valueNode.GetValue("EntryValue", null);
+
+				if (typeText != null && valueText != null)
+				{
+					if (Utility.TryParse(typeText, false, out RpnValueType type))
+					{
+						TryParse(type, valueText, calc, out result);
+					}
+				}
+			}
+
+			return result;
+		}
+
+		internal void Save(INode valueNode, Calculator calc)
+		{
+			valueNode.SetValue(nameof(this.ValueType), this.ValueType);
+			valueNode.SetValue("EntryValue", this.GetEntryValue(calc));
+		}
+
 		#endregion
 
 		#region Private Methods
@@ -541,15 +552,10 @@ namespace Menees.RpnCalc
 		private static bool HandleImplicitTypeConversion(ref Value x, ref Value y)
 		{
 			// We can only do implicit conversions between numeric types.
-			NumericValue numX = x as NumericValue;
-			NumericValue numY = y as NumericValue;
-			if (numX != null && numY != null)
+			if (x is NumericValue numX && y is NumericValue numY && NumericValue.HandleImplicitTypeConversion(ref numX, ref numY))
 			{
-				if (NumericValue.HandleImplicitTypeConversion(ref numX, ref numY))
-				{
-					x = numX;
-					y = numY;
-				}
+				x = numX;
+				y = numY;
 			}
 
 			bool result = x.ValueType == y.ValueType;

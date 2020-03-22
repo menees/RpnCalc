@@ -103,7 +103,7 @@ namespace Menees.RpnCalc.Internal
 			}
 		}
 
-		protected void RequireType(int offsetFromTop, params ValueType[] supportedTypes)
+		protected void RequireType(int offsetFromTop, params RpnValueType[] supportedTypes)
 		{
 			Value value = this.calc.Stack.PeekAt(offsetFromTop);
 
@@ -160,12 +160,12 @@ namespace Menees.RpnCalc.Internal
 			}
 		}
 
-		protected void RequireScalarNumericTypeOr(int offsetFromTop, params ValueType[] otherSupportedTypes)
+		protected void RequireScalarNumericTypeOr(int offsetFromTop, params RpnValueType[] otherSupportedTypes)
 		{
 			this.RequireType(offsetFromTop, c_scalarNumericTypes.Concat(otherSupportedTypes).ToArray());
 		}
 
-		protected void RequireComplexNumericTypeOr(int offsetFromTop, params ValueType[] otherSupportedTypes)
+		protected void RequireComplexNumericTypeOr(int offsetFromTop, params RpnValueType[] otherSupportedTypes)
 		{
 			this.RequireType(offsetFromTop, c_complexNumericTypes.Concat(otherSupportedTypes).ToArray());
 		}
@@ -214,14 +214,14 @@ namespace Menees.RpnCalc.Internal
 
 		private Calculator calc;
 
-		private static readonly ValueType[] c_scalarNumericTypes =
+		private static readonly RpnValueType[] c_scalarNumericTypes =
 		{
-			ValueType.Integer, ValueType.Double, ValueType.Fraction, ValueType.Binary,
+			RpnValueType.Integer, RpnValueType.Double, RpnValueType.Fraction, RpnValueType.Binary,
 		};
 
-		private static readonly ValueType[] c_complexNumericTypes =
+		private static readonly RpnValueType[] c_complexNumericTypes =
 		{
-			ValueType.Integer, ValueType.Double, ValueType.Complex, ValueType.Fraction, ValueType.Binary,
+			RpnValueType.Integer, RpnValueType.Double, RpnValueType.Complex, RpnValueType.Fraction, RpnValueType.Binary,
 		};
 
 		private static readonly Type[] c_commandType = { typeof(Command) };

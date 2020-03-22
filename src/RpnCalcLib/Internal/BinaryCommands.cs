@@ -1,15 +1,14 @@
-﻿#region Using Directives
-
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Text;
+
+	#endregion
+
 	internal class BinaryCommands : Commands
 	{
 		#region Constructors
@@ -33,7 +32,7 @@ namespace Menees.RpnCalc.Internal
 		public void BtoI(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.Binary);
+			this.RequireType(0, RpnValueType.Binary);
 			var value = (BinaryValue)cmd.UseTopValue();
 			cmd.Commit(new IntegerValue(value.ToInteger()));
 		}
@@ -41,7 +40,7 @@ namespace Menees.RpnCalc.Internal
 		public void ItoB(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.Integer, ValueType.Double);
+			this.RequireType(0, RpnValueType.Integer, RpnValueType.Double);
 			var value = (NumericValue)cmd.UseTopValue();
 			cmd.Commit(new BinaryValue((ulong)value.ToInteger()));
 		}
@@ -49,7 +48,7 @@ namespace Menees.RpnCalc.Internal
 		public void Not(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.Binary);
+			this.RequireType(0, RpnValueType.Binary);
 			var value = (BinaryValue)cmd.UseTopValue();
 			cmd.Commit(BinaryValue.Not(value, this.Calc));
 		}
@@ -99,8 +98,8 @@ namespace Menees.RpnCalc.Internal
 		private BinaryValue[] RequireTwoBinaryValues(Command cmd)
 		{
 			this.RequireArgs(2);
-			this.RequireType(0, ValueType.Binary);
-			this.RequireType(1, ValueType.Binary);
+			this.RequireType(0, RpnValueType.Binary);
+			this.RequireType(1, RpnValueType.Binary);
 
 			var values = cmd.UseTopValues(2);
 			return new[] { (BinaryValue)values[0], (BinaryValue)values[1] };
@@ -109,8 +108,8 @@ namespace Menees.RpnCalc.Internal
 		private void RequireIntegerAndBinary(Command cmd, out int integerValue, out BinaryValue binaryValue)
 		{
 			this.RequireArgs(2);
-			this.RequireType(0, ValueType.Integer, ValueType.Double);
-			this.RequireType(1, ValueType.Binary);
+			this.RequireType(0, RpnValueType.Integer, RpnValueType.Double);
+			this.RequireType(1, RpnValueType.Binary);
 
 			var values = cmd.UseTopValues(2);
 

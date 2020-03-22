@@ -15,3 +15,9 @@ csharp_style_prefer_range_operator = true:silent
 csharp_style_prefer_switch_expression = false:silent
 
 csharp_using_directive_placement = inside_namespace
+
+# IDE0070: Use 'System.HashCode'. It only exists in .NET Core, so I don't want this hint as long as I'm targeting .NET Framework too.
+dotnet_diagnostic.IDE0070.severity = silent
+
+# IDE0056: Use index operator. Only supported in .NET Core.
+csharp_style_prefer_index_operator = false:silent

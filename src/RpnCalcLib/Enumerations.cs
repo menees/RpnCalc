@@ -1,11 +1,11 @@
-﻿#region Using Directives
-
-using System;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+
+	#endregion
+
 	#region AngleMode
 
 	public enum AngleMode
@@ -25,7 +25,9 @@ namespace Menees.RpnCalc
 		Unknown = 0,
 		Binary = 2,
 		Octal = 8,
+#pragma warning disable CA1720 // Identifier contains type name
 		Decimal = 10,
+#pragma warning restore CA1720 // Identifier contains type name
 		Hexadecimal = 16,
 	}
 
@@ -60,14 +62,19 @@ namespace Menees.RpnCalc
 		// http://en.wikipedia.org/wiki/Vulgar_fraction#Vulgar.2C_proper.2C_and_improper_fractions
 		Common,
 		Mixed,
+#pragma warning disable CA1720 // Identifier contains type name
 		Decimal,
+#pragma warning restore CA1720 // Identifier contains type name
 	}
 
 	#endregion
 
-	#region ValueType
+	#region RpnValueType
 
-	public enum ValueType
+	// We can't name this ValueType without causing naming conflicts with System.ValueType
+	// when a "using System;" directive is used inside the Menees.RpnCalc namespace.
+#pragma warning disable CA1720 // Identifier contains type name. Integer and Double conflict with type names in VB.
+	public enum RpnValueType
 	{
 		// Group all the numeric types together in order of "range size". This makes
 		// type coercion easier in NumericValue.HandleImplicitTypeConversion.
@@ -81,6 +88,7 @@ namespace Menees.RpnCalc
 		DateTime,
 		TimeSpan,
 	}
+#pragma warning restore CA1720 // Identifier contains type name
 
 	#endregion
 }

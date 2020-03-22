@@ -1,45 +1,39 @@
-﻿#region Using Directives
-
-using System;
-using System.Collections.Generic;
-using Numerics;
-using System.Text;
-using System.Numerics;
-using Menees.RpnCalc.Internal;
-using System.Globalization;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Globalization;
+	using System.Numerics;
+	using System.Text;
+	using Menees.RpnCalc.Internal;
+	using Numerics;
+
+	#endregion
+
 	public sealed class FractionValue : NumericValue, IComparable<FractionValue>
 	{
+		#region Internal Constants
+
+		// Use '_' like my old Casio fx-85 did.  That's better than using '|',
+		// which looks weird when entering mixed fractions.
+		internal const char EntrySeparator = '_';
+		internal const char DisplaySeparator = '/';
+
+		#endregion
+
+		#region Private Data Members
+
+		private BigRational value;
+
+		#endregion
+
 		#region Constructors
 
 		public FractionValue(BigInteger numerator, BigInteger denominator)
 		{
 			this.value = new BigRational(numerator, denominator);
-		}
-
-		// See comments here and in TryParse for why this is internal.
-		internal FractionValue(BigInteger whole, BigInteger numerator, BigInteger denominator)
-		{
-			// Make numerator always have the same sign as the whole portion,
-			// and make denominator always non-negative.  That gets rid of some
-			// ambiguous cases.  Without this, then (-2,1,2) is interpreted by
-			// BigRational as (-2*2+1)/2, which is -3/2 instead of -5/2.  The math
-			// makes sense and GetWholePart and GetFractionalPart behave
-			// consistently.  But it's unintuitive to me because (2,1,2) gives 5/2.
-			//
-			// So I'm going to make FractionValue work the way I want and only
-			// use the sign from the whole portion.  In standard math notation
-			// for mixed fractions, the sign distributes to both the whole and
-			// fractional portions.  I'm going with Dr. Math's approach of treating
-			// a b/c like a + b/c and -a b/c like -(a + b/c).
-			// http://mathforum.org/library/drmath/view/69479.html
-			numerator = whole.Sign * BigInteger.Abs(numerator);
-			denominator = BigInteger.Abs(denominator);
-			this.value = new BigRational(whole, numerator, denominator);
 		}
 
 		/// <summary>
@@ -65,6 +59,27 @@ namespace Menees.RpnCalc
 			this.value = new BigRational(value);
 		}
 
+		// See comments here and in TryParse for why this is internal.
+		internal FractionValue(BigInteger whole, BigInteger numerator, BigInteger denominator)
+		{
+			// Make numerator always have the same sign as the whole portion,
+			// and make denominator always non-negative.  That gets rid of some
+			// ambiguous cases.  Without this, then (-2,1,2) is interpreted by
+			// BigRational as (-2*2+1)/2, which is -3/2 instead of -5/2.  The math
+			// makes sense and GetWholePart and GetFractionalPart behave
+			// consistently.  But it's unintuitive to me because (2,1,2) gives 5/2.
+			//
+			// So I'm going to make FractionValue work the way I want and only
+			// use the sign from the whole portion.  In standard math notation
+			// for mixed fractions, the sign distributes to both the whole and
+			// fractional portions.  I'm going with Dr. Math's approach of treating
+			// a b/c like a + b/c and -a b/c like -(a + b/c).
+			// http://mathforum.org/library/drmath/view/69479.html
+			numerator = whole.Sign * BigInteger.Abs(numerator);
+			denominator = BigInteger.Abs(denominator);
+			this.value = new BigRational(whole, numerator, denominator);
+		}
+
 		private FractionValue(BigRational value)
 		{
 			this.value = value;
@@ -74,11 +89,11 @@ namespace Menees.RpnCalc
 
 		#region Public Properties
 
-		public override ValueType ValueType
+		public override RpnValueType ValueType
 		{
 			get
 			{
-				return ValueType.Fraction;
+				return RpnValueType.Fraction;
 			}
 		}
 
@@ -108,79 +123,76 @@ namespace Menees.RpnCalc
 
 		#endregion
 
+		#region Public Operators
+
+		public static FractionValue operator +(FractionValue x, FractionValue y)
+		{
+			return Add(x, y);
+		}
+
+		public static FractionValue operator -(FractionValue x, FractionValue y)
+		{
+			return Subtract(x, y);
+		}
+
+		public static FractionValue operator *(FractionValue x, FractionValue y)
+		{
+			return Multiply(x, y);
+		}
+
+		public static FractionValue operator /(FractionValue x, FractionValue y)
+		{
+			return Divide(x, y);
+		}
+
+		public static FractionValue operator %(FractionValue x, FractionValue y)
+		{
+			return Modulus(x, y);
+		}
+
+		public static FractionValue operator +(FractionValue x)
+		{
+			return x;
+		}
+
+		public static FractionValue operator -(FractionValue x)
+		{
+			return Negate(x);
+		}
+
+		public static bool operator ==(FractionValue x, FractionValue y)
+		{
+			return Compare(x, y) == 0;
+		}
+
+		public static bool operator !=(FractionValue x, FractionValue y)
+		{
+			return Compare(x, y) != 0;
+		}
+
+		public static bool operator <(FractionValue x, FractionValue y)
+		{
+			return Compare(x, y) < 0;
+		}
+
+		public static bool operator <=(FractionValue x, FractionValue y)
+		{
+			return Compare(x, y) <= 0;
+		}
+
+		public static bool operator >(FractionValue x, FractionValue y)
+		{
+			return Compare(x, y) > 0;
+		}
+
+		public static bool operator >=(FractionValue x, FractionValue y)
+		{
+			return Compare(x, y) >= 0;
+		}
+
+		#endregion
+
 		#region Public Methods
-
-		public override string ToString()
-		{
-			return GetMixedFormat(this.value, DisplaySeparator);
-		}
-
-		public override string ToString(Calculator calc)
-		{
-			string result;
-
-			switch (calc.FractionFormat)
-			{
-				case FractionFormat.Mixed:
-					result = GetMixedFormat(this.value, DisplaySeparator);
-					break;
-				case FractionFormat.Decimal:
-					bool isDecimalFormat;
-					result = GetDecimalFormat(this.value, DisplaySeparator, calc, out isDecimalFormat);
-					break;
-				default:
-					result = GetCommonFormat(this.value, DisplaySeparator);
-					break;
-			}
-
-			return result;
-		}
-
-		public override string GetEntryValue(Calculator calc)
-		{
-			string result;
-
-			switch (calc.FractionFormat)
-			{
-				case FractionFormat.Mixed:
-					result = GetMixedFormat(this.value, EntrySeparator);
-					break;
-				default:
-					// I'm intentionally handling FractionFormat.Decimal
-					// with the Common format because entry values
-					// should always use a lossless format.  If I let them
-					// edit it as a decimal, then precision would be lost,
-					// and the parser wouldn't convert it back into a
-					// fraction when they entered the value.
-					result = GetCommonFormat(this.value, EntrySeparator);
-					break;
-			}
-
-			return result;
-		}
-
-		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
-		{
-			List<DisplayFormat> result = new List<DisplayFormat>(3);
-
-			// The mixed and common formats are identical unless the whole part is non-zero.
-			if (!this.value.GetWholePart().IsZero)
-			{
-				result.Add(new DisplayFormat(Resources.DisplayFormat_Mixed, GetMixedFormat(this.value, DisplaySeparator)));
-			}
-
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Common, GetCommonFormat(this.value, DisplaySeparator)));
-
-			// If BigInteger division overflows what a double can hold, then we'll actually get
-			// back a fractional form instead.  In that case, we don't need to show it again.
-			string decimalFormat = GetDecimalFormat(this.value, DisplaySeparator, calc, out bool isDecimalFormat);
-			if (isDecimalFormat)
-			{
-				result.Add(new DisplayFormat(Resources.DisplayFormat_Decimal, decimalFormat));
-			}
-
-			return result;
-		}
 
 		public static bool TryParse(string text, out FractionValue fractionValue)
 		{
@@ -225,16 +237,6 @@ namespace Menees.RpnCalc
 			}
 
 			return result;
-		}
-
-		public override double ToDouble()
-		{
-			return (double)this.value;
-		}
-
-		public override BigInteger ToInteger()
-		{
-			return (BigInteger)this.value;
 		}
 
 		public static FractionValue Add(FractionValue x, FractionValue y)
@@ -340,16 +342,6 @@ namespace Menees.RpnCalc
 			return new IntegerValue(result);
 		}
 
-		public IntegerValue GetWholePart()
-		{
-			return new IntegerValue(this.value.GetWholePart());
-		}
-
-		public FractionValue GetFractionalPart()
-		{
-			return new FractionValue(this.value.GetFractionPart());
-		}
-
 		public static FractionValue Gcd(FractionValue x, FractionValue y)
 		{
 			BigRational rX = x.value;
@@ -378,6 +370,107 @@ namespace Menees.RpnCalc
 			return new FractionValue(result);
 		}
 
+		public static int Compare(FractionValue x, FractionValue y)
+		{
+			if (!CompareWithNulls(x, y, out int result))
+			{
+				result = x.value.CompareTo(y.value);
+			}
+
+			return result;
+		}
+
+		public override string ToString()
+		{
+			return GetMixedFormat(this.value, DisplaySeparator);
+		}
+
+		public override string ToString(Calculator calc)
+		{
+			string result;
+
+			switch (calc.FractionFormat)
+			{
+				case FractionFormat.Mixed:
+					result = GetMixedFormat(this.value, DisplaySeparator);
+					break;
+				case FractionFormat.Decimal:
+					result = GetDecimalFormat(this.value, DisplaySeparator, calc, out _);
+					break;
+				default:
+					result = GetCommonFormat(this.value, DisplaySeparator);
+					break;
+			}
+
+			return result;
+		}
+
+		public override string GetEntryValue(Calculator calc)
+		{
+			string result;
+
+			switch (calc.FractionFormat)
+			{
+				case FractionFormat.Mixed:
+					result = GetMixedFormat(this.value, EntrySeparator);
+					break;
+				default:
+					// I'm intentionally handling FractionFormat.Decimal
+					// with the Common format because entry values
+					// should always use a lossless format.  If I let them
+					// edit it as a decimal, then precision would be lost,
+					// and the parser wouldn't convert it back into a
+					// fraction when they entered the value.
+					result = GetCommonFormat(this.value, EntrySeparator);
+					break;
+			}
+
+			return result;
+		}
+
+		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
+		{
+			List<DisplayFormat> result = new List<DisplayFormat>(3);
+
+			// The mixed and common formats are identical unless the whole part is non-zero.
+			if (!this.value.GetWholePart().IsZero)
+			{
+				result.Add(new DisplayFormat(Resources.DisplayFormat_Mixed, GetMixedFormat(this.value, DisplaySeparator)));
+			}
+
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Common, GetCommonFormat(this.value, DisplaySeparator)));
+
+			// If BigInteger division overflows what a double can hold, then we'll actually get
+			// back a fractional form instead.  In that case, we don't need to show it again.
+			string decimalFormat = GetDecimalFormat(this.value, DisplaySeparator, calc, out bool isDecimalFormat);
+			if (isDecimalFormat)
+			{
+				result.Add(new DisplayFormat(Resources.DisplayFormat_Decimal, decimalFormat));
+			}
+
+			return result;
+		}
+
+		public override double ToDouble()
+		{
+			return (double)this.value;
+		}
+
+		public override BigInteger ToInteger()
+		{
+			return (BigInteger)this.value;
+		}
+
+		public IntegerValue GetWholePart()
+		{
+			return new IntegerValue(this.value.GetWholePart());
+		}
+
+		public FractionValue GetFractionalPart()
+		{
+			return new FractionValue(this.value.GetFractionPart());
+		}
+
 		public override bool Equals(object obj)
 		{
 			FractionValue value = obj as FractionValue;
@@ -389,98 +482,10 @@ namespace Menees.RpnCalc
 			return this.value.GetHashCode();
 		}
 
-		public static int Compare(FractionValue x, FractionValue y)
-		{
-			if (!CompareWithNulls(x, y, out int result))
-			{
-				result = x.value.CompareTo(y.value);
-			}
-
-			return result;
-		}
-
 		public int CompareTo(FractionValue other)
 		{
 			return Compare(this, other);
 		}
-
-		#endregion
-
-		#region Public Operators
-
-		public static FractionValue operator +(FractionValue x, FractionValue y)
-		{
-			return Add(x, y);
-		}
-
-		public static FractionValue operator -(FractionValue x, FractionValue y)
-		{
-			return Subtract(x, y);
-		}
-
-		public static FractionValue operator *(FractionValue x, FractionValue y)
-		{
-			return Multiply(x, y);
-		}
-
-		public static FractionValue operator /(FractionValue x, FractionValue y)
-		{
-			return Divide(x, y);
-		}
-
-		public static FractionValue operator %(FractionValue x, FractionValue y)
-		{
-			return Modulus(x, y);
-		}
-
-		public static FractionValue operator +(FractionValue x)
-		{
-			return x;
-		}
-
-		public static FractionValue operator -(FractionValue x)
-		{
-			return Negate(x);
-		}
-
-		public static bool operator ==(FractionValue x, FractionValue y)
-		{
-			return Compare(x, y) == 0;
-		}
-
-		public static bool operator !=(FractionValue x, FractionValue y)
-		{
-			return Compare(x, y) != 0;
-		}
-
-		public static bool operator <(FractionValue x, FractionValue y)
-		{
-			return Compare(x, y) < 0;
-		}
-
-		public static bool operator <=(FractionValue x, FractionValue y)
-		{
-			return Compare(x, y) <= 0;
-		}
-
-		public static bool operator >(FractionValue x, FractionValue y)
-		{
-			return Compare(x, y) > 0;
-		}
-
-		public static bool operator >=(FractionValue x, FractionValue y)
-		{
-			return Compare(x, y) >= 0;
-		}
-
-		#endregion
-
-		#region Internal Constants
-
-		// Use '_' like my old Casio fx-85 did.  That's better than using '|',
-		// which looks weird when entering mixed fractions.
-		internal const char EntrySeparator = '_';
-		internal const char DisplaySeparator = '/';
 
 		#endregion
 
@@ -555,12 +560,6 @@ namespace Menees.RpnCalc
 
 			return result;
 		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private BigRational value;
 
 		#endregion
 	}

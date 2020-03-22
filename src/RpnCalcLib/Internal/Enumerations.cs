@@ -1,11 +1,11 @@
-﻿#region Using Directives
-
-using System;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+
+	#endregion
+
 	#region CommandState
 
 	internal enum CommandState

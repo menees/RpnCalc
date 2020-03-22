@@ -30,7 +30,7 @@ namespace Menees.RpnCalc.Internal
 			this.RequireComplexNumericType(0);
 
 			var value = cmd.UseTopValue();
-			if (value.ValueType == ValueType.Complex)
+			if (value.ValueType == RpnValueType.Complex)
 			{
 				var complexValue = (ComplexValue)value;
 				cmd.Commit(new ComplexValue(Complex.Conjugate(complexValue.AsComplex)));
@@ -45,7 +45,7 @@ namespace Menees.RpnCalc.Internal
 		public void CtoR(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.Complex);
+			this.RequireType(0, RpnValueType.Complex);
 			var value = (ComplexValue)cmd.UseTopValue();
 			cmd.Commit(new DoubleValue(value.AsComplex.Real), new DoubleValue(value.AsComplex.Imaginary));
 		}
@@ -56,7 +56,7 @@ namespace Menees.RpnCalc.Internal
 			this.RequireComplexNumericType(0);
 
 			var value = cmd.UseTopValue();
-			if (value.ValueType == ValueType.Complex)
+			if (value.ValueType == RpnValueType.Complex)
 			{
 				var complexValue = (ComplexValue)value;
 				cmd.Commit(new DoubleValue(complexValue.AsComplex.Imaginary));
@@ -73,7 +73,7 @@ namespace Menees.RpnCalc.Internal
 			this.RequireComplexNumericType(0);
 
 			var value = cmd.UseTopValue();
-			if (value.ValueType == ValueType.Complex)
+			if (value.ValueType == RpnValueType.Complex)
 			{
 				var complexValue = (ComplexValue)value;
 				cmd.Commit(new DoubleValue(complexValue.AsComplex.Real));
@@ -99,7 +99,7 @@ namespace Menees.RpnCalc.Internal
 		{
 			// Note: Complex Magnitude can be calculated with Abs.
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.Complex);
+			this.RequireType(0, RpnValueType.Complex);
 			var value = (ComplexValue)cmd.UseTopValue();
 			double phaseInRadians = value.AsComplex.Phase;
 			double phaseAngle = this.Calc.ConvertFromRadiansToAngle(phaseInRadians);

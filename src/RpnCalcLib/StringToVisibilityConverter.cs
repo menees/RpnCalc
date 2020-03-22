@@ -1,14 +1,14 @@
-﻿#region Using Directives
-
-using System;
-using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Globalization;
+	using System.Windows;
+	using System.Windows.Data;
+
+	#endregion
+
 	public class StringToVisibilityConverter : IValueConverter
 	{
 		#region IValueConverter Members
@@ -24,7 +24,8 @@ namespace Menees.RpnCalc
 		{
 			// For RPN calc's use cases, it never makes sense to convert a Visibility back into a string.
 			// We only need one-way binding support from this converter.
-			throw new NotImplementedException();
+			// https://stackoverflow.com/a/265544/1882616
+			return DependencyProperty.UnsetValue;
 		}
 
 		#endregion

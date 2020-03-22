@@ -1,14 +1,14 @@
-﻿#region Using Directives
-
-using System;
-using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Globalization;
+	using System.Windows;
+	using System.Windows.Data;
+
+	#endregion
+
 	// This technique came from the second answer at:
 	// http://stackoverflow.com/questions/397556/wpf-how-to-bind-radiobuttons-to-an-enum
 	// Usage example:
@@ -31,17 +31,7 @@ namespace Menees.RpnCalc
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			if (value.Equals(false))
-			{
-				return DependencyProperty.UnsetValue;
-			}
-			else
-			{
-				object parameterValue = GetParameterValue(targetType, parameter);
-				return parameterValue;
-			}
-		}
+			=> value.Equals(false) ? DependencyProperty.UnsetValue : GetParameterValue(targetType, parameter);
 
 		#endregion
 

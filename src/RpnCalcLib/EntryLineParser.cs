@@ -1,19 +1,53 @@
-﻿#region Using Directives
-
-using System;
-using System.Text;
-using System.Linq;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using Menees.RpnCalc.Internal;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Globalization;
+	using System.Linq;
+	using System.Text;
+	using Menees.RpnCalc.Internal;
+
+	#endregion
+
 	public class EntryLineParser
 	{
+		#region Private Data Members
+
+		private const char NULL = '\0';
+
+		// These are listed in the order we want to try them.
+		private static readonly RpnValueType[] AmbiguousValueTypes =
+		{
+			// Try as Integer first because TimeSpan will parse
+			// an integer as a number of days.  That's not what
+			// we want normally. Also, integer must come before
+			// double since every sub-15-digit integer would parse
+			// as a double.
+			RpnValueType.Integer,
+
+			// TimeSpans can use culture-specific separators,
+			// but they shouldn't conflict with a Double's format.
+			RpnValueType.TimeSpan,
+			RpnValueType.Double,
+		};
+
+		private readonly Calculator calc;
+
+		// If you add a member here, add it to the Reset() method too.
+		private readonly List<Token> tokens = new List<Token>();
+		private readonly List<Value> values = new List<Value>();
+		private int position;
+		private ParseStates states;
+		private string errorMessage;
+
+		private string entryLine;
+		private int entryLineLength;
+
+		#endregion
+
 		#region Constructors
 
 		public EntryLineParser(Calculator calc)
@@ -25,6 +59,34 @@ namespace Menees.RpnCalc
 			: this(calc)
 		{
 			this.EntryLine = entryLine;
+		}
+
+		#endregion
+
+		#region ParseStates
+
+		[Flags]
+		private enum ParseStates
+		{
+			None = 0,
+
+			// We were able to completely parse all the tokens
+			// (although the last one may not have an ending delimiter).
+			Complete = 1,
+
+			// The last token begins with '(' but doesn't end with ')'.
+			InComplex = 2,
+
+			// The last token begins with '"' but doesn't end with '"'.
+			InDateTime = 4,
+
+			// Last token appears to be a Fraction, TimeSpan, Integer, or Double.
+			// Might be incomplete (e.g., 1_2_, 3:12:, 1.23e-).
+			InNegatableScalarValue = 8,
+
+			// Note: We don't need an Error state because
+			// it's really just the lack of the Complete state,
+			// and we have an ErrorMessage member for it too.
 		}
 
 		#endregion
@@ -152,6 +214,17 @@ namespace Menees.RpnCalc
 
 		#region Private Methods
 
+		private static bool ContainsFractionValueSeparator(string text)
+		{
+			// Look for '_' and '/' because FractionValue can parse them both.
+			// However, we have to be a little careful to avoid ambiguities with
+			// dates, which also use '/'.  But everywhere in this class, I've made
+			// sure to look for dates before dealing with fractions.
+			bool result = text.IndexOf(FractionValue.EntrySeparator) >= 0
+				|| text.IndexOf(FractionValue.DisplaySeparator) >= 0;
+			return result;
+		}
+
 		private void Reset()
 		{
 			this.states = ParseStates.None;
@@ -168,19 +241,19 @@ namespace Menees.RpnCalc
 				char ch = this.SkipWhitespace();
 				while (ch != NULL)
 				{
-					string tokenText = null;
 					int tokenStartPosition = this.position - 1;
-					ValueType? tokenValueType = null;
+					RpnValueType? tokenValueType = null;
 
+					string tokenText;
 					if (ch == ComplexValue.StartDelimiter)
 					{
 						tokenText = this.ReadToEndDelimiter(ch, ComplexValue.EndDelimiter);
-						tokenValueType = ValueType.Complex;
+						tokenValueType = RpnValueType.Complex;
 					}
 					else if (ch == DateTimeValue.StartDelimiter)
 					{
 						tokenText = this.ReadToEndDelimiter(ch, DateTimeValue.EndDelimiter);
-						tokenValueType = ValueType.DateTime;
+						tokenValueType = RpnValueType.DateTime;
 					}
 					else if ((ch == BinaryValue.Prefix) || (ch == '0' && this.PeekChar() == 'x'))
 					{
@@ -192,7 +265,7 @@ namespace Menees.RpnCalc
 						}
 
 						tokenText = this.ReadToWhitespace(ch);
-						tokenValueType = ValueType.Binary;
+						tokenValueType = RpnValueType.Binary;
 					}
 					else
 					{
@@ -230,17 +303,7 @@ namespace Menees.RpnCalc
 			}
 		}
 
-		private char PeekChar()
-		{
-			if (this.position < this.entryLineLength)
-			{
-				return this.entryLine[this.position];
-			}
-			else
-			{
-				return NULL;
-			}
-		}
+		private char PeekChar() => this.position < this.entryLineLength ? this.entryLine[this.position] : NULL;
 
 		private char SkipWhitespace()
 		{
@@ -309,7 +372,7 @@ namespace Menees.RpnCalc
 				else
 				{
 					// Handles: TimeSpan, Integer, Double
-					foreach (ValueType type in c_ambiguousValueTypes)
+					foreach (RpnValueType type in AmbiguousValueTypes)
 					{
 						if (Value.TryParse(type, text, this.calc, out Value value))
 						{
@@ -328,17 +391,6 @@ namespace Menees.RpnCalc
 					break; // Quit the outer m_tokens loop.
 				}
 			}
-		}
-
-		private static bool ContainsFractionValueSeparator(string text)
-		{
-			// Look for '_' and '/' because FractionValue can parse them both.
-			// However, we have to be a little careful to avoid ambiguities with
-			// dates, which also use '/'.  But everywhere in this class, I've made
-			// sure to look for dates before dealing with fractions.
-			bool result = text.IndexOf(FractionValue.EntrySeparator) >= 0
-				|| text.IndexOf(FractionValue.DisplaySeparator) >= 0;
-			return result;
 		}
 
 		private void SetStates()
@@ -377,9 +429,9 @@ namespace Menees.RpnCalc
 					{
 						// We have a parsed entry line, so we'll use the last value's type.
 						Value lastValue = this.values[this.values.Count - 1];
-						ValueType type = lastValue.ValueType;
-						if (type == ValueType.Integer || type == ValueType.Double ||
-							type == ValueType.Fraction || type == ValueType.TimeSpan)
+						RpnValueType type = lastValue.ValueType;
+						if (type == RpnValueType.Integer || type == RpnValueType.Double ||
+							type == RpnValueType.Fraction || type == RpnValueType.TimeSpan)
 						{
 							this.states |= ParseStates.InNegatableScalarValue;
 						}
@@ -412,7 +464,7 @@ namespace Menees.RpnCalc
 		{
 			#region Constructors
 
-			public Token(string text, int startPos, ValueType? type)
+			public Token(string text, int startPos, RpnValueType? type)
 			{
 				this.Text = text;
 				this.StartPosition = startPos;
@@ -427,73 +479,12 @@ namespace Menees.RpnCalc
 
 			public int StartPosition { get; private set; }
 
-			public ValueType? ValueType { get; private set; }
+			public RpnValueType? ValueType { get; private set; }
 
 			#endregion
 		}
 
 		#endregion
-
-		#region ParseStates
-
-		[Flags]
-		private enum ParseStates
-		{
-			None = 0,
-
-			// We were able to completely parse all the tokens
-			// (although the last one may not have an ending delimiter).
-			Complete = 1,
-
-			// The last token begins with '(' but doesn't end with ')'.
-			InComplex = 2,
-
-			// The last token begins with '"' but doesn't end with '"'.
-			InDateTime = 4,
-
-			// Last token appears to be a Fraction, TimeSpan, Integer, or Double.
-			// Might be incomplete (e.g., 1_2_, 3:12:, 1.23e-).
-			InNegatableScalarValue = 8,
-
-			// Note: We don't need an Error state because
-			// it's really just the lack of the Complete state,
-			// and we have an ErrorMessage member for it too.
-		}
-
-		#endregion
-
-		#endregion
-
-		#region Private Data Members
-
-		private Calculator calc;
-		private string entryLine;
-		private int entryLineLength;
-
-		// If you add a member here, add it to the Reset() method too.
-		private int position;
-		private List<Token> tokens = new List<Token>();
-		private List<Value> values = new List<Value>();
-		private ParseStates states;
-		private string errorMessage;
-
-		private const char NULL = '\0';
-
-		// These are listed in the order we want to try them.
-		private static readonly ValueType[] c_ambiguousValueTypes =
-		{
-			// Try as Integer first because TimeSpan will parse
-			// an integer as a number of days.  That's not what
-			// we want normally. Also, integer must come before
-			// double since every sub-15-digit integer would parse
-			// as a double.
-			ValueType.Integer,
-
-			// TimeSpans can use culture-specific separators,
-			// but they shouldn't conflict with a Double's format.
-			ValueType.TimeSpan,
-			ValueType.Double,
-		};
 
 		#endregion
 	}

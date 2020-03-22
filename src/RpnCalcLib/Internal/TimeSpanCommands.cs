@@ -80,7 +80,7 @@ namespace Menees.RpnCalc.Internal
 		private TimeSpan UseTopTimeSpan(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.TimeSpan);
+			this.RequireType(0, RpnValueType.TimeSpan);
 			var result = (TimeSpanValue)cmd.UseTopValue();
 			return result.AsTimeSpan;
 		}

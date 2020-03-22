@@ -29,11 +29,11 @@ namespace Menees.RpnCalc
 
 		#region Public Properties
 
-		public override ValueType ValueType
+		public override RpnValueType ValueType
 		{
 			get
 			{
-				return ValueType.Complex;
+				return RpnValueType.Complex;
 			}
 		}
 

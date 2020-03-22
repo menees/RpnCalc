@@ -27,7 +27,7 @@ namespace Menees.RpnCalc.Internal
 		public void Abs(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireComplexNumericTypeOr(0, ValueType.TimeSpan);
+			this.RequireComplexNumericTypeOr(0, RpnValueType.TimeSpan);
 			var value = cmd.UseTopValue();
 			Value result = Value.Abs(value, this.Calc);
 			cmd.Commit(result);
@@ -73,10 +73,10 @@ namespace Menees.RpnCalc.Internal
 			NumericValue result = value;
 			switch (value.ValueType)
 			{
-				case ValueType.Double:
+				case RpnValueType.Double:
 					result = new DoubleValue(Math.Ceiling(value.ToDouble()));
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					result = FractionValue.Ceiling((FractionValue)value);
 					break;
 			}
@@ -137,10 +137,10 @@ namespace Menees.RpnCalc.Internal
 			NumericValue result = value;
 			switch (value.ValueType)
 			{
-				case ValueType.Double:
+				case RpnValueType.Double:
 					result = new DoubleValue(Math.Floor(((DoubleValue)value).AsDouble));
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					result = FractionValue.Floor((FractionValue)value);
 					break;
 			}
@@ -154,18 +154,18 @@ namespace Menees.RpnCalc.Internal
 			NumericValue result = value;
 			switch (value.ValueType)
 			{
-				case ValueType.Double:
+				case RpnValueType.Double:
 					double originalValue = ((DoubleValue)value).AsDouble;
 					double fractionalValue = originalValue - Utility.Truncate(originalValue);
 					result = new DoubleValue(fractionalValue);
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					result = ((FractionValue)value).GetFractionalPart();
 					break;
-				case ValueType.Integer:
+				case RpnValueType.Integer:
 					result = new IntegerValue(BigInteger.Zero);
 					break;
-				case ValueType.Binary:
+				case RpnValueType.Binary:
 					result = new BinaryValue(0);
 					break;
 			}
@@ -196,10 +196,10 @@ namespace Menees.RpnCalc.Internal
 			NumericValue result = value;
 			switch (value.ValueType)
 			{
-				case ValueType.Double:
+				case RpnValueType.Double:
 					result = new DoubleValue(Utility.Truncate(((DoubleValue)value).AsDouble));
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					result = ((FractionValue)value).GetWholePart();
 					break;
 			}
@@ -361,7 +361,7 @@ namespace Menees.RpnCalc.Internal
 		public void Sign(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireComplexNumericTypeOr(0, ValueType.TimeSpan);
+			this.RequireComplexNumericTypeOr(0, RpnValueType.TimeSpan);
 			var value = cmd.UseTopValue();
 			NumericValue result = Value.Sign(value, this.Calc);
 			cmd.Commit(result);
@@ -507,8 +507,8 @@ namespace Menees.RpnCalc.Internal
 		private void Compare2(Command cmd, int signToMatch)
 		{
 			this.RequireArgs(2);
-			this.RequireScalarNumericTypeOr(0, ValueType.DateTime, ValueType.TimeSpan);
-			this.RequireScalarNumericTypeOr(1, ValueType.DateTime, ValueType.TimeSpan);
+			this.RequireScalarNumericTypeOr(0, RpnValueType.DateTime, RpnValueType.TimeSpan);
+			this.RequireScalarNumericTypeOr(1, RpnValueType.DateTime, RpnValueType.TimeSpan);
 
 			var values = cmd.UseTopValues(2);
 			Value x = values[0];
@@ -523,11 +523,11 @@ namespace Menees.RpnCalc.Internal
 			bool isInteger = true;
 			switch (value.ValueType)
 			{
-				case ValueType.Double:
+				case RpnValueType.Double:
 					double doubleValue = ((DoubleValue)value).AsDouble;
 					isInteger = Utility.IsInteger(doubleValue);
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					var fraction = (FractionValue)value;
 					isInteger = fraction.Denominator == 1;
 					break;
@@ -569,7 +569,7 @@ namespace Menees.RpnCalc.Internal
 			NumericValue result = value;
 			switch (value.ValueType)
 			{
-				case ValueType.Complex:
+				case RpnValueType.Complex:
 					// I'm doing just what the HP48 does.  It always adjusts the real
 					// and imaginary portions, not the displayed first and second
 					// portions if polar mode is selected.
@@ -578,8 +578,8 @@ namespace Menees.RpnCalc.Internal
 						roundValue(complex.Real, digits),
 						roundValue(complex.Imaginary, digits));
 					break;
-				case ValueType.Double:
-				case ValueType.Fraction:
+				case RpnValueType.Double:
+				case RpnValueType.Fraction:
 					result = new DoubleValue(roundValue(value.ToDouble(), digits));
 					break;
 			}
@@ -676,12 +676,12 @@ namespace Menees.RpnCalc.Internal
 				NumericValue result;
 
 				if (this.IntegerOperation != null &&
-					(input.ValueType == ValueType.Integer || input.ValueType == ValueType.Binary))
+					(input.ValueType == RpnValueType.Integer || input.ValueType == RpnValueType.Binary))
 				{
 					double opResult = this.IntegerOperation(input.ToInteger());
 					result = new DoubleValue(opResult);
 				}
-				else if (this.DoubleOperation != null && input.ValueType != ValueType.Complex)
+				else if (this.DoubleOperation != null && input.ValueType != RpnValueType.Complex)
 				{
 					double opResult = this.DoubleOperation(input.ToDouble());
 					result = new DoubleValue(opResult);

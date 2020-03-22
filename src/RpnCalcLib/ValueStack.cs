@@ -1,23 +1,81 @@
-﻿#region Using Directives
-
-using System;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using System.Collections;
-using System.Collections.Specialized;
-using System.Linq;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
-	public sealed class ValueStack : IEnumerable<Value>, ICollection, INotifyCollectionChanged
+	#region Using Directives
+
+	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
+	using System.Collections.Specialized;
+	using System.Linq;
+
+	#endregion
+
+#pragma warning disable CA1710 // Identifiers should have correct suffix. Stack is a better suffix than Collection for this type.
+	public sealed class ValueStack : IEnumerable<Value>, ICollection, ICollection<Value>, INotifyCollectionChanged
+#pragma warning restore CA1710 // Identifiers should have correct suffix
 	{
+		#region Private Data Members
+
+		private readonly ObservableCollection<Value> storage = new ObservableCollection<Value>();
+		private int resetLevel;
+
+		#endregion
+
 		#region Constructors
 
 		public ValueStack()
 		{
 			this.storage.CollectionChanged += this.Storage_CollectionChanged;
+		}
+
+		#endregion
+
+		#region INotifyCollectionChanged Members
+
+		public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+		#endregion
+
+		#region Public Properties
+
+		public int Count
+		{
+			get
+			{
+				return this.storage.Count;
+			}
+		}
+
+		public bool IsSynchronized
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+		public object SyncRoot
+		{
+			get
+			{
+				return this;
+			}
+		}
+
+		// We only support ICollection<T> for reading not writing.
+		bool ICollection<Value>.IsReadOnly => true;
+
+		#endregion
+
+		#region Private Properties
+
+		private int TopIndex
+		{
+			get
+			{
+				return this.Count - 1;
+			}
 		}
 
 		#endregion
@@ -113,35 +171,13 @@ namespace Menees.RpnCalc
 			this.CopyTo((Value[])array, index);
 		}
 
-		public int Count
-		{
-			get
-			{
-				return this.storage.Count;
-			}
-		}
+		void ICollection<Value>.Add(Value item) => throw new NotSupportedException();
 
-		public bool IsSynchronized
-		{
-			get
-			{
-				return false;
-			}
-		}
+		void ICollection<Value>.Clear() => throw new NotSupportedException();
 
-		public object SyncRoot
-		{
-			get
-			{
-				return this;
-			}
-		}
+		bool ICollection<Value>.Contains(Value item) => this.storage.Contains(item);
 
-		#endregion
-
-		#region INotifyCollectionChanged Members
-
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
+		bool ICollection<Value>.Remove(Value item) => throw new NotSupportedException();
 
 		#endregion
 
@@ -196,18 +232,6 @@ namespace Menees.RpnCalc
 
 		#endregion
 
-		#region Private Properties
-
-		private int TopIndex
-		{
-			get
-			{
-				return this.Count - 1;
-			}
-		}
-
-		#endregion
-
 		#region Private Methods
 
 		private void Storage_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -254,13 +278,6 @@ namespace Menees.RpnCalc
 				this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 			}
 		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private ObservableCollection<Value> storage = new ObservableCollection<Value>();
-		private int resetLevel;
 
 		#endregion
 	}

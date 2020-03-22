@@ -1,16 +1,22 @@
-﻿#region Using Directives
-
-using System;
-using System.Numerics;
-using Menees.RpnCalc.Internal;
-using System.Globalization;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Globalization;
+	using System.Numerics;
+	using Menees.RpnCalc.Internal;
+
+	#endregion
+
 	public abstract class NumericValue : Value
 	{
+		#region Private Data Members
+
+		private static readonly FractionValue Half = new FractionValue(BigInteger.One, 2);
+
+		#endregion
+
 		#region Constructors
 
 		protected NumericValue()
@@ -21,17 +27,6 @@ namespace Menees.RpnCalc
 
 		#region Public Methods
 
-		public abstract double ToDouble();
-
-		public abstract BigInteger ToInteger();
-
-		public virtual Complex ToComplex()
-		{
-			// This is sufficient for every derived type except ComplexValue.
-			double real = this.ToDouble();
-			return new Complex(real, 0);
-		}
-
 		public static NumericValue Power(NumericValue x, NumericValue y)
 		{
 			NumericValue result = null;
@@ -40,19 +35,19 @@ namespace Menees.RpnCalc
 			{
 				switch (x.ValueType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						result = BinaryValue.Power((BinaryValue)x, (BinaryValue)y);
 						break;
-					case ValueType.Complex:
+					case RpnValueType.Complex:
 						result = ComplexValue.Power((ComplexValue)x, (ComplexValue)y);
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = DoubleValue.Power((DoubleValue)x, (DoubleValue)y);
 						break;
-					case ValueType.Fraction:
+					case RpnValueType.Fraction:
 						result = FractionValue.Power((FractionValue)x, (FractionValue)y);
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						result = IntegerValue.Power((IntegerValue)x, (IntegerValue)y);
 						break;
 				}
@@ -71,19 +66,19 @@ namespace Menees.RpnCalc
 			NumericValue result;
 			switch (value.ValueType)
 			{
-				case ValueType.Binary:
+				case RpnValueType.Binary:
 					result = BinaryValue.Invert((BinaryValue)value);
 					break;
-				case ValueType.Complex:
+				case RpnValueType.Complex:
 					result = ComplexValue.Invert((ComplexValue)value);
 					break;
-				case ValueType.Double:
+				case RpnValueType.Double:
 					result = DoubleValue.Invert((DoubleValue)value);
 					break;
-				case ValueType.Fraction:
+				case RpnValueType.Fraction:
 					result = FractionValue.Invert((FractionValue)value);
 					break;
-				case ValueType.Integer:
+				case RpnValueType.Integer:
 					result = IntegerValue.Invert((IntegerValue)value);
 					break;
 				default:
@@ -101,16 +96,16 @@ namespace Menees.RpnCalc
 			{
 				switch (x.ValueType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						result = BinaryValue.Modulus((BinaryValue)x, (BinaryValue)y, calc);
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = (DoubleValue)x % (DoubleValue)y;
 						break;
-					case ValueType.Fraction:
+					case RpnValueType.Fraction:
 						result = (FractionValue)x % (FractionValue)y;
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						result = (IntegerValue)x % (IntegerValue)y;
 						break;
 				}
@@ -126,7 +121,7 @@ namespace Menees.RpnCalc
 
 		public static NumericValue Sqrt(NumericValue value)
 		{
-			NumericValue result = Power(value, c_half);
+			NumericValue result = Power(value, Half);
 			return result;
 		}
 
@@ -138,17 +133,17 @@ namespace Menees.RpnCalc
 			{
 				switch (x.ValueType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						var binGcd = BigInteger.GreatestCommonDivisor(((BinaryValue)x).ToInteger(), ((BinaryValue)y).ToInteger());
 						result = new BinaryValue((ulong)binGcd);
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = new DoubleValue(Utility.Gcd(((DoubleValue)x).AsDouble, ((DoubleValue)y).AsDouble));
 						break;
-					case ValueType.Fraction:
+					case RpnValueType.Fraction:
 						result = FractionValue.Gcd((FractionValue)x, (FractionValue)y);
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						var intGcd = BigInteger.GreatestCommonDivisor(((IntegerValue)x).AsInteger, ((IntegerValue)y).AsInteger);
 						result = new IntegerValue(intGcd);
 						break;
@@ -171,11 +166,11 @@ namespace Menees.RpnCalc
 			return result;
 		}
 
-		public static NumericValue ChangeType(NumericValue value, ValueType targetType)
+		public static NumericValue ChangeType(NumericValue value, RpnValueType targetType)
 		{
 			NumericValue result;
 
-			ValueType sourceType = value.ValueType;
+			RpnValueType sourceType = value.ValueType;
 			if (sourceType == targetType)
 			{
 				result = value;
@@ -184,17 +179,17 @@ namespace Menees.RpnCalc
 			{
 				switch (targetType)
 				{
-					case ValueType.Binary:
+					case RpnValueType.Binary:
 						result = new BinaryValue((ulong)value.ToInteger());
 						break;
-					case ValueType.Complex:
+					case RpnValueType.Complex:
 						result = new ComplexValue(value.ToComplex());
 						break;
-					case ValueType.Double:
+					case RpnValueType.Double:
 						result = new DoubleValue(value.ToDouble());
 						break;
-					case ValueType.Fraction:
-						if (sourceType == ValueType.Double || sourceType == ValueType.Complex)
+					case RpnValueType.Fraction:
+						if (sourceType == RpnValueType.Double || sourceType == RpnValueType.Complex)
 						{
 							result = Utility.DoubleToFraction(value.ToDouble());
 						}
@@ -204,18 +199,30 @@ namespace Menees.RpnCalc
 						}
 
 						break;
-					case ValueType.Integer:
+					case RpnValueType.Integer:
 						result = new IntegerValue(value.ToInteger());
 						break;
 					default:
 						throw new InvalidCastException(string.Format(
 							CultureInfo.CurrentCulture,
 							Resources.NumericValue_UnableToChangeType,
-							value.ValueType, targetType));
+							value.ValueType,
+							targetType));
 				}
 			}
 
 			return result;
+		}
+
+		public abstract double ToDouble();
+
+		public abstract BigInteger ToInteger();
+
+		public virtual Complex ToComplex()
+		{
+			// This is sufficient for every derived type except ComplexValue.
+			double real = this.ToDouble();
+			return new Complex(real, 0);
 		}
 
 		#endregion
@@ -226,11 +233,11 @@ namespace Menees.RpnCalc
 		{
 			if (x == null || y == null)
 			{
-				throw new ArgumentNullException();
+				throw new ArgumentNullException(x == null ? nameof(x) : nameof(y));
 			}
 
-			ValueType xType = x.ValueType;
-			ValueType yType = y.ValueType;
+			RpnValueType xType = x.ValueType;
+			RpnValueType yType = y.ValueType;
 
 			// NumericValue types can be implicitly converted up in the following order:
 			//  Binary --> Integer --> Fraction --> Double --> Complex.
@@ -247,12 +254,6 @@ namespace Menees.RpnCalc
 
 			return x.ValueType == y.ValueType;
 		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private static readonly FractionValue c_half = new FractionValue(BigInteger.One, 2);
 
 		#endregion
 	}

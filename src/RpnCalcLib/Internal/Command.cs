@@ -1,24 +1,45 @@
-﻿#region Using Directives
-
-using System;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Windows.Input;
-using System.Numerics;
-
-#endregion
-
-namespace Menees.RpnCalc.Internal
+﻿namespace Menees.RpnCalc.Internal
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using System.Numerics;
+	using System.Text;
+	using System.Windows.Input;
+
+	#endregion
+
 	internal class Command
 	{
+		#region Private Data Members
+
+		private readonly Calculator calc;
+		private int topValuesUsedCount;
+		private IList<Value> lastArgs;
+		private CommandState state;
+
+		#endregion
+
 		#region Constructors
 
 		public Command(Calculator calc)
 		{
 			this.calc = calc;
+		}
+
+		#endregion
+
+		#region Internal Properties
+
+		internal CommandState State
+		{
+			get
+			{
+				return this.state;
+			}
 		}
 
 		#endregion
@@ -62,18 +83,6 @@ namespace Menees.RpnCalc.Internal
 
 		#endregion
 
-		#region Internal Properties
-
-		internal CommandState State
-		{
-			get
-			{
-				return this.state;
-			}
-		}
-
-		#endregion
-
 		#region Internal Methods
 
 		internal void PushLastArgs()
@@ -112,65 +121,71 @@ namespace Menees.RpnCalc.Internal
 
 		private static IEnumerable<Value> ValidateAndReduce(Value[] valuesToPush)
 		{
+			IEnumerable<Value> result;
+
 			int numValuesToPush = valuesToPush.Length;
 			if (numValuesToPush == 0)
 			{
-				return valuesToPush;
+				result = valuesToPush;
 			}
-
-			// This method does value type reduction, which is something
-			// the HP48 doesn't do.  It's usually a good thing:
-			//  * Complex values with 0 imaginary part are reduced to doubles.
-			//  * Doubles with no fractional part are reduced to integers.
-			//  * Fractions with a denominator of 1 are reduced to integers.
-			//
-			// But sometimes the results can seem odd.  For example:
-			//  * If I manually type in "(4,0)" it ends up as the integer 4.
-			//  * If 4 and 0 are on the stack, then RtoC returns 4.
-			//
-			// I'm going to keep this logic in spite of the oddities though
-			// because numeric value types will be implicitly converted up
-			// (i.e., widened) whenever necessary in operations.
-			List<Value> result = new List<Value>(numValuesToPush);
-			foreach (Value value in valuesToPush)
+			else
 			{
-				switch (value.ValueType)
+				// This method does value type reduction, which is something
+				// the HP48 doesn't do.  It's usually a good thing:
+				//  * Complex values with 0 imaginary part are reduced to doubles.
+				//  * Doubles with no fractional part are reduced to integers.
+				//  * Fractions with a denominator of 1 are reduced to integers.
+				//
+				// But sometimes the results can seem odd.  For example:
+				//  * If I manually type in "(4,0)" it ends up as the integer 4.
+				//  * If 4 and 0 are on the stack, then RtoC returns 4.
+				//
+				// I'm going to keep this logic in spite of the oddities though
+				// because numeric value types will be implicitly converted up
+				// (i.e., widened) whenever necessary in operations.
+				List<Value> values = new List<Value>(numValuesToPush);
+				foreach (Value value in valuesToPush)
 				{
-					case ValueType.Complex:
-						ComplexValue complexValue = (ComplexValue)value;
-						Complex complex = complexValue.AsComplex;
-						Validate(complex.Real);
-						Validate(complex.Imaginary);
+					switch (value.ValueType)
+					{
+						case RpnValueType.Complex:
+							ComplexValue complexValue = (ComplexValue)value;
+							Complex complex = complexValue.AsComplex;
+							Validate(complex.Real);
+							Validate(complex.Imaginary);
 
-						// Reduce to a double or integer if the imaginary part is 0.
-						result.Add(Reduce(complex, complexValue));
-						break;
-					case ValueType.Double:
-						DoubleValue doubleValue = (DoubleValue)value;
-						double dbl = doubleValue.AsDouble;
-						Validate(dbl);
+							// Reduce to a double or integer if the imaginary part is 0.
+							values.Add(Reduce(complex, complexValue));
+							break;
+						case RpnValueType.Double:
+							DoubleValue doubleValue = (DoubleValue)value;
+							double dbl = doubleValue.AsDouble;
+							Validate(dbl);
 
-						// Reduce to an integer if there's no fractional part.
-						result.Add(Reduce(dbl, doubleValue));
-						break;
-					case ValueType.Fraction:
-						FractionValue fraction = (FractionValue)value;
+							// Reduce to an integer if there's no fractional part.
+							values.Add(Reduce(dbl, doubleValue));
+							break;
+						case RpnValueType.Fraction:
+							FractionValue fraction = (FractionValue)value;
 
-						// Reduce to an integer if the denominator is 1.
-						if (fraction.Denominator == BigInteger.One)
-						{
-							result.Add(new IntegerValue(fraction.Numerator));
-						}
-						else
-						{
-							result.Add(value);
-						}
+							// Reduce to an integer if the denominator is 1.
+							if (fraction.Denominator == BigInteger.One)
+							{
+								values.Add(new IntegerValue(fraction.Numerator));
+							}
+							else
+							{
+								values.Add(value);
+							}
 
-						break;
-					default:
-						result.Add(value);
-						break;
+							break;
+						default:
+							values.Add(value);
+							break;
+					}
 				}
+
+				result = values;
 			}
 
 			return result;
@@ -244,15 +259,6 @@ namespace Menees.RpnCalc.Internal
 
 			return result;
 		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private Calculator calc;
-		private int topValuesUsedCount;
-		private IList<Value> lastArgs;
-		private CommandState state;
 
 		#endregion
 	}

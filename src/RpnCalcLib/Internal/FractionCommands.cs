@@ -27,7 +27,7 @@ namespace Menees.RpnCalc.Internal
 		public void FtoR(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.Fraction);
+			this.RequireType(0, RpnValueType.Fraction);
 			var value = (FractionValue)cmd.UseTopValue();
 			cmd.Commit(new IntegerValue(value.Numerator), new IntegerValue(value.Denominator));
 		}
@@ -51,13 +51,13 @@ namespace Menees.RpnCalc.Internal
 			NumericValue result = value;
 			switch (value.ValueType)
 			{
-				case ValueType.Binary:
+				case RpnValueType.Binary:
 					result = new FractionValue(((BinaryValue)value).ToInteger(), BigInteger.One);
 					break;
-				case ValueType.Integer:
+				case RpnValueType.Integer:
 					result = new FractionValue(((IntegerValue)value).AsInteger, BigInteger.One);
 					break;
-				case ValueType.Double:
+				case RpnValueType.Double:
 					result = Utility.DoubleToFraction(((DoubleValue)value).AsDouble);
 					break;
 			}
@@ -68,7 +68,7 @@ namespace Menees.RpnCalc.Internal
 		public void FtoD(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.Fraction);
+			this.RequireType(0, RpnValueType.Fraction);
 			var value = (FractionValue)cmd.UseTopValue();
 			cmd.Commit(new DoubleValue(value.ToDouble()));
 		}

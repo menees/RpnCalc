@@ -1,12 +1,12 @@
-﻿#region Using Directives
-
-using System;
-using System.Globalization;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Globalization;
+
+	#endregion
+
 	public class DisplayFormat
 	{
 		#region Constructors
@@ -38,7 +38,9 @@ namespace Menees.RpnCalc
 		{
 			string result = string.Format(
 				CultureInfo.CurrentCulture,
-				Resources.DisplayFormat_NameValueFormat, this.FormatName, this.DisplayValue);
+				Resources.DisplayFormat_NameValueFormat,
+				this.FormatName,
+				this.DisplayValue);
 			return result;
 		}
 

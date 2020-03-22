@@ -261,7 +261,7 @@ namespace Menees.RpnCalc.Internal
 
 		private int GetTopItemAsInteger()
 		{
-			this.RequireType(0, ValueType.Integer);
+			this.RequireType(0, RpnValueType.Integer);
 			IntegerValue countValue = (IntegerValue)this.Stack.PeekAt(0);
 			int result = (int)countValue.AsInteger;
 			return result;

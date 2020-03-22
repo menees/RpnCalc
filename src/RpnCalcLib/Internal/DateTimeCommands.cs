@@ -26,8 +26,8 @@ namespace Menees.RpnCalc.Internal
 		public void AgeOn(Command cmd)
 		{
 			this.RequireArgs(2);
-			this.RequireType(0, ValueType.DateTime);
-			this.RequireType(1, ValueType.DateTime);
+			this.RequireType(0, RpnValueType.DateTime);
+			this.RequireType(1, RpnValueType.DateTime);
 			var values = cmd.UseTopValues(2);
 			var birthDate = (DateTimeValue)values[1];
 			var onDate = (DateTimeValue)values[0];
@@ -90,7 +90,7 @@ namespace Menees.RpnCalc.Internal
 		private DateTimeValue UseTopDateTime(Command cmd)
 		{
 			this.RequireArgs(1);
-			this.RequireType(0, ValueType.DateTime);
+			this.RequireType(0, RpnValueType.DateTime);
 			var result = (DateTimeValue)cmd.UseTopValue();
 			return result;
 		}

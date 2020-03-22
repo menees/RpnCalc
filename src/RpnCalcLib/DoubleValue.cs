@@ -1,216 +1,36 @@
-﻿#region Using Directives
-
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Globalization;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Globalization;
+	using System.Numerics;
+
+	#endregion
+
 	public sealed class DoubleValue : NumericValue, IComparable<DoubleValue>
 	{
 		#region Constructors
 
 		public DoubleValue(double value)
 		{
-			this.value = value;
+			this.AsDouble = value;
 		}
 
 		#endregion
 
 		#region Public Properties
 
-		public override ValueType ValueType
+		public override RpnValueType ValueType
 		{
 			get
 			{
-				return ValueType.Double;
+				return RpnValueType.Double;
 			}
 		}
 
-		public double AsDouble
-		{
-			get
-			{
-				return this.value;
-			}
-		}
-
-		#endregion
-
-		#region Public Methods
-
-		public override string ToString()
-		{
-			return this.value.ToString(CultureInfo.CurrentCulture);
-		}
-
-		public override string ToString(Calculator calc)
-		{
-			return Format(this.value, calc);
-		}
-
-		public override string GetEntryValue(Calculator calc)
-		{
-			// The entry value must show all the precision available, not just what the
-			// current display mode is limited to.  For example, if the display format is
-			// Fixed 2 Digits, we don't want to return 0.12 if the stored value is 0.1234.
-			// For maximum precision, we'll use the "round-trip" format code because it
-			// can use up to 17 digits in certain cases.  That helps us minimize round-off
-			// errors when we save and re-load the stack from XML (since saving uses
-			// GetEntryValue).
-			string result = GetFormat(this.value, "R");
-			return result;
-		}
-
-		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
-		{
-			List<DisplayFormat> result = new List<DisplayFormat>(4);
-
-			result.Add(new DisplayFormat(GetStandardFormat(this.value)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Formatted, GetFormat(this.value, "N")));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Fixed, GetFixedFormat(this.value, calc)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Scientific, GetScientificFormat(this.value, calc)));
-
-			return result;
-		}
-
-		public static string Format(double value, Calculator calc)
-		{
-			string result;
-
-			switch (calc.DecimalFormat)
-			{
-				case DecimalFormat.Fixed:
-					result = GetFixedFormat(value, calc);
-					break;
-				case DecimalFormat.Scientific:
-					result = GetScientificFormat(value, calc);
-					break;
-				default:
-					result = GetStandardFormat(value);
-					break;
-			}
-
-			return result;
-		}
-
-		public static bool TryParse(string text, out DoubleValue doubleValue)
-		{
-			bool result = false;
-			doubleValue = null;
-
-			if (double.TryParse(text, out double value))
-			{
-				doubleValue = new DoubleValue(value);
-				result = true;
-			}
-
-			return result;
-		}
-
-		public override double ToDouble()
-		{
-			return this.value;
-		}
-
-		public override BigInteger ToInteger()
-		{
-			return (BigInteger)this.value;
-		}
-
-		public static DoubleValue Add(DoubleValue x, DoubleValue y)
-		{
-			return new DoubleValue(x.value + y.value);
-		}
-
-		public static DoubleValue Subtract(DoubleValue x, DoubleValue y)
-		{
-			return new DoubleValue(x.value - y.value);
-		}
-
-		public static DoubleValue Multiply(DoubleValue x, DoubleValue y)
-		{
-			return new DoubleValue(x.value * y.value);
-		}
-
-		public static DoubleValue Divide(DoubleValue x, DoubleValue y)
-		{
-			if (y.value == 0)
-			{
-				throw new DivideByZeroException();
-			}
-
-			return new DoubleValue(x.value / y.value);
-		}
-
-		public static DoubleValue Negate(DoubleValue x)
-		{
-			return new DoubleValue(-x.value);
-		}
-
-		public static NumericValue Power(DoubleValue x, DoubleValue exponent)
-		{
-			double result = Math.Pow(x.value, exponent.value);
-			if (double.IsNaN(result) && x.value < 0)
-			{
-				// They tried to take a fractional root of a negative number,
-				// so we have to return a complex number instead.
-				return ComplexValue.Power(new ComplexValue(x.value, 0), exponent);
-			}
-			else
-			{
-				return new DoubleValue(result);
-			}
-		}
-
-		public static DoubleValue Invert(DoubleValue x)
-		{
-			if (x.value == 0)
-			{
-				throw new DivideByZeroException();
-			}
-
-			return new DoubleValue(1.0 / x.value);
-		}
-
-		public static DoubleValue Modulus(DoubleValue x, DoubleValue y)
-		{
-			if (y.value == 0)
-			{
-				throw new DivideByZeroException();
-			}
-
-			return new DoubleValue(x.value % y.value);
-		}
-
-		public override bool Equals(object obj)
-		{
-			DoubleValue value = obj as DoubleValue;
-			return Compare(this, value) == 0;
-		}
-
-		public override int GetHashCode()
-		{
-			return this.value.GetHashCode();
-		}
-
-		public static int Compare(DoubleValue x, DoubleValue y)
-		{
-			if (!CompareWithNulls(x, y, out int result))
-			{
-				result = x.value.CompareTo(y.value);
-			}
-
-			return result;
-		}
-
-		public int CompareTo(DoubleValue other)
-		{
-			return Compare(this, other);
-		}
+		public double AsDouble { get; private set; }
 
 		#endregion
 
@@ -283,6 +103,184 @@ namespace Menees.RpnCalc
 
 		#endregion
 
+		#region Public Methods
+
+		public static string Format(double value, Calculator calc)
+		{
+			string result;
+
+			switch (calc.DecimalFormat)
+			{
+				case DecimalFormat.Fixed:
+					result = GetFixedFormat(value, calc);
+					break;
+				case DecimalFormat.Scientific:
+					result = GetScientificFormat(value, calc);
+					break;
+				default:
+					result = GetStandardFormat(value);
+					break;
+			}
+
+			return result;
+		}
+
+		public static bool TryParse(string text, out DoubleValue doubleValue)
+		{
+			bool result = false;
+			doubleValue = null;
+
+			if (double.TryParse(text, out double value))
+			{
+				doubleValue = new DoubleValue(value);
+				result = true;
+			}
+
+			return result;
+		}
+
+		public static DoubleValue Add(DoubleValue x, DoubleValue y)
+		{
+			return new DoubleValue(x.AsDouble + y.AsDouble);
+		}
+
+		public static DoubleValue Subtract(DoubleValue x, DoubleValue y)
+		{
+			return new DoubleValue(x.AsDouble - y.AsDouble);
+		}
+
+		public static DoubleValue Multiply(DoubleValue x, DoubleValue y)
+		{
+			return new DoubleValue(x.AsDouble * y.AsDouble);
+		}
+
+		public static DoubleValue Divide(DoubleValue x, DoubleValue y)
+		{
+			if (y.AsDouble == 0)
+			{
+				throw new DivideByZeroException();
+			}
+
+			return new DoubleValue(x.AsDouble / y.AsDouble);
+		}
+
+		public static DoubleValue Negate(DoubleValue x)
+		{
+			return new DoubleValue(-x.AsDouble);
+		}
+
+		public static NumericValue Power(DoubleValue x, DoubleValue exponent)
+		{
+			NumericValue result;
+
+			double value = Math.Pow(x.AsDouble, exponent.AsDouble);
+			if (double.IsNaN(value) && x.AsDouble < 0)
+			{
+				// They tried to take a fractional root of a negative number,
+				// so we have to return a complex number instead.
+				result = ComplexValue.Power(new ComplexValue(x.AsDouble, 0), exponent);
+			}
+			else
+			{
+				result = new DoubleValue(value);
+			}
+
+			return result;
+		}
+
+		public static DoubleValue Invert(DoubleValue x)
+		{
+			if (x.AsDouble == 0)
+			{
+				throw new DivideByZeroException();
+			}
+
+			return new DoubleValue(1.0 / x.AsDouble);
+		}
+
+		public static DoubleValue Modulus(DoubleValue x, DoubleValue y)
+		{
+			if (y.AsDouble == 0)
+			{
+				throw new DivideByZeroException();
+			}
+
+			return new DoubleValue(x.AsDouble % y.AsDouble);
+		}
+
+		public static int Compare(DoubleValue x, DoubleValue y)
+		{
+			if (!CompareWithNulls(x, y, out int result))
+			{
+				result = x.AsDouble.CompareTo(y.AsDouble);
+			}
+
+			return result;
+		}
+
+		public override string ToString()
+		{
+			return this.AsDouble.ToString(CultureInfo.CurrentCulture);
+		}
+
+		public override string ToString(Calculator calc)
+		{
+			return Format(this.AsDouble, calc);
+		}
+
+		public override string GetEntryValue(Calculator calc)
+		{
+			// The entry value must show all the precision available, not just what the
+			// current display mode is limited to.  For example, if the display format is
+			// Fixed 2 Digits, we don't want to return 0.12 if the stored value is 0.1234.
+			// For maximum precision, we'll use the "round-trip" format code because it
+			// can use up to 17 digits in certain cases.  That helps us minimize round-off
+			// errors when we save and re-load the stack from XML (since saving uses
+			// GetEntryValue).
+			string result = GetFormat(this.AsDouble, "R");
+			return result;
+		}
+
+		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
+		{
+			List<DisplayFormat> result = new List<DisplayFormat>(4);
+
+			result.Add(new DisplayFormat(GetStandardFormat(this.AsDouble)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Formatted, GetFormat(this.AsDouble, "N")));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Fixed, GetFixedFormat(this.AsDouble, calc)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Scientific, GetScientificFormat(this.AsDouble, calc)));
+
+			return result;
+		}
+
+		public override double ToDouble()
+		{
+			return this.AsDouble;
+		}
+
+		public override BigInteger ToInteger()
+		{
+			return (BigInteger)this.AsDouble;
+		}
+
+		public override bool Equals(object obj)
+		{
+			DoubleValue value = obj as DoubleValue;
+			return Compare(this, value) == 0;
+		}
+
+		public override int GetHashCode()
+		{
+			return this.AsDouble.GetHashCode();
+		}
+
+		public int CompareTo(DoubleValue other)
+		{
+			return Compare(this, other);
+		}
+
+		#endregion
+
 		#region Private Methods
 
 		private static string GetStandardFormat(double value)
@@ -335,12 +333,6 @@ namespace Menees.RpnCalc
 			string result = value.ToString(formatCode, CultureInfo.CurrentCulture);
 			return result;
 		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private double value;
 
 		#endregion
 	}

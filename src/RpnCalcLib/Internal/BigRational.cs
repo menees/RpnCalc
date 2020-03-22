@@ -224,7 +224,9 @@ namespace Numerics
 			this.Simplify();
 		}
 
+#pragma warning disable CA1801 // Unused parameter. The context parameter is required for .NET deserialization.
 		private BigRational(SerializationInfo info, StreamingContext context)
+#pragma warning restore CA1801 // Unused parameter
 		{
 			if (info == null)
 			{

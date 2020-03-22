@@ -1,17 +1,26 @@
-﻿#region Using Directives
-
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Collections.Specialized;
-using Menees.RpnCalc.Internal;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.ObjectModel;
+	using System.Collections.Specialized;
+	using System.ComponentModel;
+	using Menees.RpnCalc.Internal;
+
+	#endregion
+
 	public sealed class EntryLineHistoryCollection : ReadOnlyObservableCollection<string>
 	{
+		#region Private Data Members
+
+		private const int DefaultInitialPosition = -1;
+
+		private readonly Calculator calc;
+		private int position = DefaultInitialPosition;
+
+		#endregion
+
 		#region Constructors
 
 		internal EntryLineHistoryCollection(Calculator calc)
@@ -62,7 +71,7 @@ namespace Menees.RpnCalc
 		{
 			// Clear the position first, so it will already be
 			// reset when the XxxChanged events fire.
-			this.position = c_initialPosition;
+			this.position = DefaultInitialPosition;
 			this.Items.Clear();
 		}
 
@@ -90,7 +99,7 @@ namespace Menees.RpnCalc
 			// moving the most recent entry to the front of the
 			// history.  Once it's moved, there's little point in
 			// keeping the position where the item used to be.
-			this.position = c_initialPosition;
+			this.position = DefaultInitialPosition;
 
 			// Purge old items, so the history doesn't grow forever.
 			this.RemoveOldItems();
@@ -111,7 +120,7 @@ namespace Menees.RpnCalc
 					}
 				}
 
-				this.position = historyNode.GetValue("Position", c_initialPosition);
+				this.position = historyNode.GetValue("Position", DefaultInitialPosition);
 			}
 		}
 
@@ -143,15 +152,6 @@ namespace Menees.RpnCalc
 
 			return result;
 		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private Calculator calc;
-		private int position = c_initialPosition;
-
-		private const int c_initialPosition = -1;
 
 		#endregion
 	}
