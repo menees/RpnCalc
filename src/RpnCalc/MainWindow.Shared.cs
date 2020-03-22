@@ -4,8 +4,13 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Globalization;
 	using System.Linq;
 	using System.Net;
+	using System.Reflection;
+	using System.Security;
+	using System.Text;
 	using System.Windows;
 	using System.Windows.Controls;
 	using System.Windows.Documents;
@@ -13,11 +18,6 @@
 	using System.Windows.Media;
 	using System.Windows.Media.Animation;
 	using System.Windows.Shapes;
-	using System.Text;
-	using System.Diagnostics;
-	using System.Reflection;
-	using System.Security;
-	using System.Globalization;
 
 	#endregion
 
@@ -66,6 +66,23 @@
 
 		#endregion
 
+		#region Private Static Methods
+
+		private static int FocusTextBox(TextBox textBox)
+		{
+			// In WPF the TextBox in the ComboBox has a SelectAll done whenever Focus is called.
+			// In SL that doesn't happen with the TextBox.  So we'll explicitly recreate the selection
+			// after setting focus.  Otherwise, clicking the number buttons would overwrite each
+			// letter rather than insert.
+			int start = textBox.SelectionStart;
+			int length = textBox.SelectionLength;
+			textBox.Focus();
+			textBox.Select(start, length);
+			return start;
+		}
+
+		#endregion
+
 		#region Private Event Handlers
 
 		private void ErrorInfoButton_Click(object sender, RoutedEventArgs e)
@@ -77,8 +94,7 @@
 		private void Command_Click(object sender, RoutedEventArgs e)
 		{
 			// Most commands come to this event handler.
-			Control control = sender as Control;
-			if (control != null)
+			if (sender is Control control)
 			{
 				string commandName = control.Tag as string;
 				if (!string.IsNullOrEmpty(commandName))
@@ -120,8 +136,7 @@
 		{
 			this.ClearError();
 
-			ContentControl control = sender as ContentControl;
-			if (control != null)
+			if (sender is ContentControl control)
 			{
 				string text = control.Content as string;
 				if (string.IsNullOrEmpty(text))
@@ -144,7 +159,7 @@
 			// Pressing any key should clear the error (like on the HP48).
 			this.ClearError();
 
-			Key key = this.TranslateKey(e);
+			Key key = TranslateKey(e);
 			ShortcutKey shortcutKey = this.GetShortcutKey(key, Keyboard.Modifiers);
 			switch (shortcutKey)
 			{
@@ -231,10 +246,12 @@
 					Clipboard.SetText(selectedText);
 					this.InsertInEntryLine(string.Empty);
 				}
+#pragma warning disable CC0004 // Catch block cannot be empty.
 				catch (SecurityException)
 				{
 					// The user disallowed the clipboard operation.
 				}
+#pragma warning restore CC0004 // Catch block cannot be empty
 			}
 		}
 
@@ -247,10 +264,12 @@
 				{
 					Clipboard.SetText(selectedText);
 				}
+#pragma warning disable CC0004 // Catch block cannot be empty
 				catch (SecurityException)
 				{
 					// The user disallowed the clipboard operation.
 				}
+#pragma warning restore CC0004 // Catch block cannot be empty
 			}
 		}
 
@@ -273,10 +292,12 @@
 						this.InsertInEntryLine(text);
 					}
 				}
+#pragma warning disable CC0004 // Catch block cannot be empty
 				catch (SecurityException)
 				{
 					// The user disallowed the clipboard operation.
 				}
+#pragma warning restore CC0004 // Catch block cannot be empty
 			}
 		}
 
@@ -287,15 +308,17 @@
 
 		private void ClearHistory_Click(object sender, RoutedEventArgs e)
 		{
-			this.m_calc.EntryLineHistory.Clear();
+			this.calc.EntryLineHistory.Clear();
 		}
 
+#pragma warning disable CC0068 // Unused Method. Used by MainWindow.xaml to attach a DisplayStack.ExecutedCommand event handler.
 		private void DisplayStack_ExecutedCommand(object sender, EventArgs e)
 		{
 			// When a right-click action from the display stack
 			// finishes we need to update the UI.
 			this.FinishCommandUI();
 		}
+#pragma warning restore CC0068 // Unused Method
 
 		private void EntryLineDelete_Click(object sender, RoutedEventArgs e)
 		{
@@ -304,24 +327,25 @@
 
 		private void ErrorCopy_Click(object sender, RoutedEventArgs e)
 		{
-			string message = this.m_calc.ErrorMessage;
+			string message = this.calc.ErrorMessage;
 			if (!string.IsNullOrEmpty(message))
 			{
 				try
 				{
 					Clipboard.SetText(message);
 				}
+#pragma warning disable CC0004 // Catch block cannot be empty
 				catch (SecurityException)
 				{
 					// The user disallowed the clipboard operation.
 				}
+#pragma warning restore CC0004 // Catch block cannot be empty
 			}
 		}
 
 		private void ContextMenu_Opened(object sender, RoutedEventArgs e)
 		{
-			ContextMenu menu = sender as ContextMenu;
-			if (menu != null)
+			if (sender is ContextMenu menu)
 			{
 				bool entryLineHasSelection = this.GetEntryLineTextBox().SelectionLength > 0;
 
@@ -345,7 +369,7 @@
 							item.IsEnabled = this.HasEntryLineText;
 							break;
 						case "ClearHistory":
-							item.IsEnabled = this.m_calc.EntryLineHistory.Count > 0;
+							item.IsEnabled = this.calc.EntryLineHistory.Count > 0;
 							break;
 					}
 				}
@@ -380,8 +404,7 @@
 			if (parser != null && parser.HasError)
 			{
 				result = false;
-				int start, length;
-				if (parser.GetErrorLocation(out start, out length))
+				if (parser.GetErrorLocation(out int start, out int length))
 				{
 					this.GetEntryLineTextBox().Select(start, length);
 				}
@@ -445,7 +468,7 @@
 
 			if (!needsImplicitEnter || this.HandleImplicitEnter())
 			{
-				result = this.m_calc.ExecuteCommand(commandName);
+				result = this.calc.ExecuteCommand(commandName);
 				this.FinishCommandUI();
 			}
 
@@ -474,19 +497,6 @@
 			this.UpdateEntryLineBindingSource();
 		}
 
-		private static int FocusTextBox(TextBox textBox)
-		{
-			// In WPF the TextBox in the ComboBox has a SelectAll done whenever Focus is called.
-			// In SL that doesn't happen with the TextBox.  So we'll explicitly recreate the selection
-			// after setting focus.  Otherwise, clicking the number buttons would overwrite each
-			// letter rather than insert.
-			int start = textBox.SelectionStart;
-			int length = textBox.SelectionLength;
-			textBox.Focus();
-			textBox.Select(start, length);
-			return start;
-		}
-
 		private void MoveEntryLineCaretToEnd()
 		{
 			// The control has to be focused for the selection to change.
@@ -499,7 +509,7 @@
 		{
 			TextBox textBox = this.GetEntryLineTextBox();
 			string entryLineToCaret = textBox.Text.Substring(0, this.GetEntryLineTextBox().SelectionStart);
-			EntryLineParser parser = new EntryLineParser(this.m_calc, entryLineToCaret);
+			EntryLineParser parser = new EntryLineParser(this.calc, entryLineToCaret);
 			return parser;
 		}
 
@@ -547,7 +557,7 @@
 
 		private void ClearError()
 		{
-			this.m_calc.ClearError();
+			this.calc.ClearError();
 		}
 
 		private ShortcutKey GetShortcutKey(Key key, ModifierKeys modifiers)
@@ -555,7 +565,7 @@
 			ShortcutKey result = ShortcutKey.None;
 
 			// Debug.WriteLine(string.Format("Key: {0}, Modifiers: {1}", key, modifiers));
-
+#pragma warning disable CC0019 // Use 'switch'. A switch of switch statements would be more confusing.
 			if (modifiers == ModifierKeys.None)
 			{
 				switch (key)
@@ -636,6 +646,7 @@
 						break;
 				}
 			}
+#pragma warning restore CC0019 // Use 'switch'
 
 			// If we're editing a DateTime value, then don't
 			// treat arithmetic key characters as operators.
@@ -656,7 +667,7 @@
 			// The entry line history needs to know what we're currently displaying,
 			// so it can more intelligently scroll forward and backward through history.
 			this.UpdateEntryLineBindingSource();
-			this.m_calc.EntryLineHistory.Scroll(scrollUp);
+			this.calc.EntryLineHistory.Scroll(scrollUp);
 			this.FinishCommandUI();
 		}
 

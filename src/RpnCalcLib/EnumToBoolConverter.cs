@@ -12,13 +12,13 @@ namespace Menees.RpnCalc
 	// This technique came from the second answer at:
 	// http://stackoverflow.com/questions/397556/wpf-how-to-bind-radiobuttons-to-an-enum
 	// Usage example:
-	// <StackPanel> 
+	// <StackPanel>
 	//    <StackPanel.Resources>
 	//        <rpn:EnumToBoolValueConverter x:Key="EnumToBoolConverter" />
 	//    </StackPanel.Resources>
 	//    <RadioButton IsChecked="{Binding Path=YourEnumProperty, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Enum1}" />
 	//    <RadioButton IsChecked="{Binding Path=YourEnumProperty, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Enum2}" />
-	// </StackPanel> 
+	// </StackPanel>
 	public class EnumToBoolConverter : IValueConverter
 	{
 		#region IValueConverter Members

@@ -18,7 +18,7 @@ namespace Menees.RpnCalc
 
 		public FractionValue(BigInteger numerator, BigInteger denominator)
 		{
-			this.m_value = new BigRational(numerator, denominator);
+			this.value = new BigRational(numerator, denominator);
 		}
 
 		// See comments here and in TryParse for why this is internal.
@@ -39,7 +39,7 @@ namespace Menees.RpnCalc
 			// http://mathforum.org/library/drmath/view/69479.html
 			numerator = whole.Sign * BigInteger.Abs(numerator);
 			denominator = BigInteger.Abs(denominator);
-			this.m_value = new BigRational(whole, numerator, denominator);
+			this.value = new BigRational(whole, numerator, denominator);
 		}
 
 		/// <summary>
@@ -62,12 +62,12 @@ namespace Menees.RpnCalc
 		/// </devnote>
 		public FractionValue(decimal value)
 		{
-			this.m_value = new BigRational(value);
+			this.value = new BigRational(value);
 		}
 
 		private FractionValue(BigRational value)
 		{
-			this.m_value = value;
+			this.value = value;
 		}
 
 		#endregion
@@ -86,7 +86,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_value.Numerator;
+				return this.value.Numerator;
 			}
 		}
 
@@ -94,7 +94,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_value.Denominator;
+				return this.value.Denominator;
 			}
 		}
 
@@ -102,7 +102,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_value.Sign;
+				return this.value.Sign;
 			}
 		}
 
@@ -112,7 +112,7 @@ namespace Menees.RpnCalc
 
 		public override string ToString()
 		{
-			return GetMixedFormat(this.m_value, DisplaySeparator);
+			return GetMixedFormat(this.value, DisplaySeparator);
 		}
 
 		public override string ToString(Calculator calc)
@@ -122,14 +122,14 @@ namespace Menees.RpnCalc
 			switch (calc.FractionFormat)
 			{
 				case FractionFormat.Mixed:
-					result = GetMixedFormat(this.m_value, DisplaySeparator);
+					result = GetMixedFormat(this.value, DisplaySeparator);
 					break;
 				case FractionFormat.Decimal:
 					bool isDecimalFormat;
-					result = GetDecimalFormat(this.m_value, DisplaySeparator, calc, out isDecimalFormat);
+					result = GetDecimalFormat(this.value, DisplaySeparator, calc, out isDecimalFormat);
 					break;
 				default:
-					result = GetCommonFormat(this.m_value, DisplaySeparator);
+					result = GetCommonFormat(this.value, DisplaySeparator);
 					break;
 			}
 
@@ -143,7 +143,7 @@ namespace Menees.RpnCalc
 			switch (calc.FractionFormat)
 			{
 				case FractionFormat.Mixed:
-					result = GetMixedFormat(this.m_value, EntrySeparator);
+					result = GetMixedFormat(this.value, EntrySeparator);
 					break;
 				default:
 					// I'm intentionally handling FractionFormat.Decimal
@@ -152,7 +152,7 @@ namespace Menees.RpnCalc
 					// edit it as a decimal, then precision would be lost,
 					// and the parser wouldn't convert it back into a
 					// fraction when they entered the value.
-					result = GetCommonFormat(this.m_value, EntrySeparator);
+					result = GetCommonFormat(this.value, EntrySeparator);
 					break;
 			}
 
@@ -164,17 +164,16 @@ namespace Menees.RpnCalc
 			List<DisplayFormat> result = new List<DisplayFormat>(3);
 
 			// The mixed and common formats are identical unless the whole part is non-zero.
-			if (!this.m_value.GetWholePart().IsZero)
+			if (!this.value.GetWholePart().IsZero)
 			{
-				result.Add(new DisplayFormat(Resources.DisplayFormat_Mixed, GetMixedFormat(this.m_value, DisplaySeparator)));
+				result.Add(new DisplayFormat(Resources.DisplayFormat_Mixed, GetMixedFormat(this.value, DisplaySeparator)));
 			}
 
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Common, GetCommonFormat(this.m_value, DisplaySeparator)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Common, GetCommonFormat(this.value, DisplaySeparator)));
 
 			// If BigInteger division overflows what a double can hold, then we'll actually get
 			// back a fractional form instead.  In that case, we don't need to show it again.
-			bool isDecimalFormat;
-			string decimalFormat = GetDecimalFormat(this.m_value, DisplaySeparator, calc, out isDecimalFormat);
+			string decimalFormat = GetDecimalFormat(this.value, DisplaySeparator, calc, out bool isDecimalFormat);
 			if (isDecimalFormat)
 			{
 				result.Add(new DisplayFormat(Resources.DisplayFormat_Decimal, decimalFormat));
@@ -200,9 +199,8 @@ namespace Menees.RpnCalc
 				{
 					// In a common fraction, the numerator, denominator, or both
 					// can be negative, but the denominator must be non-zero.
-					BigInteger numerator, denominator;
-					if (Utility.TryParse(parts[0], out numerator) &&
-						Utility.TryParse(parts[1], out denominator) &&
+					if (Utility.TryParse(parts[0], out BigInteger numerator) &&
+						Utility.TryParse(parts[1], out BigInteger denominator) &&
 						!denominator.IsZero)
 					{
 						fractionValue = new FractionValue(numerator, denominator);
@@ -215,10 +213,9 @@ namespace Menees.RpnCalc
 					// and the denominator be positive.  So the sign of the whole portion
 					// determines the sign of the final value.  See comments in our three
 					// argument constructor for why.
-					BigInteger whole, numerator, denominator;
-					if (Utility.TryParse(parts[0], out whole) &&
-						Utility.TryParse(parts[1], out numerator) &&
-						Utility.TryParse(parts[2], out denominator) &&
+					if (Utility.TryParse(parts[0], out BigInteger whole) &&
+						Utility.TryParse(parts[1], out BigInteger numerator) &&
+						Utility.TryParse(parts[2], out BigInteger denominator) &&
 						numerator.Sign >= 0 && denominator.Sign > 0)
 					{
 						fractionValue = new FractionValue(whole, numerator, denominator);
@@ -232,37 +229,37 @@ namespace Menees.RpnCalc
 
 		public override double ToDouble()
 		{
-			return (double)this.m_value;
+			return (double)this.value;
 		}
 
 		public override BigInteger ToInteger()
 		{
-			return (BigInteger)this.m_value;
+			return (BigInteger)this.value;
 		}
 
 		public static FractionValue Add(FractionValue x, FractionValue y)
 		{
-			return new FractionValue(x.m_value + y.m_value);
+			return new FractionValue(x.value + y.value);
 		}
 
 		public static FractionValue Subtract(FractionValue x, FractionValue y)
 		{
-			return new FractionValue(x.m_value - y.m_value);
+			return new FractionValue(x.value - y.value);
 		}
 
 		public static FractionValue Multiply(FractionValue x, FractionValue y)
 		{
-			return new FractionValue(x.m_value * y.m_value);
+			return new FractionValue(x.value * y.value);
 		}
 
 		public static FractionValue Divide(FractionValue x, FractionValue y)
 		{
-			return new FractionValue(x.m_value / y.m_value);
+			return new FractionValue(x.value / y.value);
 		}
 
 		public static FractionValue Negate(FractionValue x)
 		{
-			return new FractionValue(-x.m_value);
+			return new FractionValue(-x.value);
 		}
 
 		public static NumericValue Power(FractionValue x, FractionValue exponent)
@@ -271,10 +268,9 @@ namespace Menees.RpnCalc
 
 			// Wikipedia has good info on exponentiation with fractional powers.
 			// http://en.wikipedia.org/wiki/Exponentiation#Principal_n-th_root
-
 			if (exponent.Denominator == 1)
 			{
-				result = new FractionValue(BigRational.Pow(x.m_value, exponent.Numerator));
+				result = new FractionValue(BigRational.Pow(x.value, exponent.Numerator));
 			}
 			else if (x.Sign < 0 && exponent.Sign > 0 && !exponent.Denominator.IsEven)
 			{
@@ -282,7 +278,7 @@ namespace Menees.RpnCalc
 				// DoubleValue can.  It ends up deferring to Complex.Pow, which
 				// returns non-principal roots.  This will return -2 as the cube root
 				// of -8, whereas Complex.Pow would return (1, 1.73205080756888).
-				BigRational radicand = BigRational.Pow(x.m_value, exponent.Numerator);
+				BigRational radicand = BigRational.Pow(x.value, exponent.Numerator);
 				double rootPower = 1 / (double)exponent.Denominator;
 				double value = radicand.Sign * Math.Pow(Math.Abs((double)radicand), rootPower);
 				result = new DoubleValue(value);
@@ -294,9 +290,8 @@ namespace Menees.RpnCalc
 				double exponentDouble = exponent.ToDouble();
 				double resultNumeratorDouble = Math.Pow((double)x.Numerator, exponentDouble);
 				double resultDenominatorDouble = Math.Pow((double)x.Denominator, exponentDouble);
-				BigInteger resultNumerator, resultDenominator;
-				if (Utility.IsInteger(resultNumeratorDouble, out resultNumerator) &&
-					Utility.IsInteger(resultDenominatorDouble, out resultDenominator))
+				if (Utility.IsInteger(resultNumeratorDouble, out BigInteger resultNumerator) &&
+					Utility.IsInteger(resultDenominatorDouble, out BigInteger resultDenominator))
 				{
 					result = new FractionValue(resultNumerator, resultDenominator);
 				}
@@ -315,18 +310,17 @@ namespace Menees.RpnCalc
 
 		public static FractionValue Invert(FractionValue x)
 		{
-			return new FractionValue(BigRational.Invert(x.m_value));
+			return new FractionValue(BigRational.Invert(x.value));
 		}
 
 		public static FractionValue Modulus(FractionValue x, FractionValue y)
 		{
-			return new FractionValue(x.m_value % y.m_value);
+			return new FractionValue(x.value % y.value);
 		}
 
 		public static IntegerValue Ceiling(FractionValue x)
 		{
-			BigInteger remainder;
-			BigInteger result = BigInteger.DivRem(x.Numerator, x.Denominator, out remainder);
+			BigInteger result = BigInteger.DivRem(x.Numerator, x.Denominator, out BigInteger remainder);
 			if (remainder > BigInteger.Zero)
 			{
 				result++;
@@ -337,8 +331,7 @@ namespace Menees.RpnCalc
 
 		public static IntegerValue Floor(FractionValue x)
 		{
-			BigInteger remainder;
-			BigInteger result = BigInteger.DivRem(x.Numerator, x.Denominator, out remainder);
+			BigInteger result = BigInteger.DivRem(x.Numerator, x.Denominator, out BigInteger remainder);
 			if (remainder < BigInteger.Zero)
 			{
 				result--;
@@ -349,18 +342,18 @@ namespace Menees.RpnCalc
 
 		public IntegerValue GetWholePart()
 		{
-			return new IntegerValue(this.m_value.GetWholePart());
+			return new IntegerValue(this.value.GetWholePart());
 		}
 
 		public FractionValue GetFractionalPart()
 		{
-			return new FractionValue(this.m_value.GetFractionPart());
+			return new FractionValue(this.value.GetFractionPart());
 		}
 
 		public static FractionValue Gcd(FractionValue x, FractionValue y)
 		{
-			BigRational rX = x.m_value;
-			BigRational rY = y.m_value;
+			BigRational rX = x.value;
+			BigRational rY = y.value;
 
 			BigRational result;
 			if ((rX == BigRational.Zero) && (rY == BigRational.Zero))
@@ -393,15 +386,14 @@ namespace Menees.RpnCalc
 
 		public override int GetHashCode()
 		{
-			return this.m_value.GetHashCode();
+			return this.value.GetHashCode();
 		}
 
 		public static int Compare(FractionValue x, FractionValue y)
 		{
-			int result;
-			if (!CompareWithNulls(x, y, out result))
+			if (!CompareWithNulls(x, y, out int result))
 			{
-				result = x.m_value.CompareTo(y.m_value);
+				result = x.value.CompareTo(y.value);
 			}
 
 			return result;
@@ -568,7 +560,7 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private BigRational m_value;
+		private BigRational value;
 
 		#endregion
 	}

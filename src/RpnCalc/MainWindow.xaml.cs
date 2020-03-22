@@ -24,8 +24,8 @@
 	{
 		#region Private Data Members
 
-		private Calculator m_calc;
-		private WindowSaver saver;
+		private readonly Calculator calc;
+		private readonly WindowSaver saver;
 
 		#endregion
 
@@ -34,7 +34,7 @@
 		public MainWindow()
 		{
 			this.InitializeComponent();
-			this.m_calc = (Calculator)this.FindResource("m_calc");
+			this.calc = (Calculator)this.FindResource(nameof(this.calc));
 
 			this.saver = new WindowSaver(this);
 			this.saver.LoadSettings += this.Saver_LoadSettings;
@@ -61,7 +61,7 @@
 			return result;
 		}
 
-		private Key TranslateKey(KeyEventArgs e)
+		private static Key TranslateKey(KeyEventArgs e)
 		{
 			Key result = e.Key;
 
@@ -127,7 +127,7 @@
 		private void Saver_LoadSettings(object sender, SettingsEventArgs e)
 		{
 			INode calcNode = GetCalcNode(e, false);
-			this.m_calc.Load(calcNode);
+			this.calc.Load(calcNode);
 
 			this.GetEntryLineTextBox().ContextMenu = this.m_entryLine.ContextMenu;
 
@@ -148,7 +148,7 @@
 			// Close.  That's rare enough that I'm willing to live with it and not add the overhead of forcing
 			// those controls to update their source every time we close the app.
 			INode calcNode = GetCalcNode(e, true);
-			this.m_calc.Save(calcNode);
+			this.calc.Save(calcNode);
 		}
 
 		private void About_Click(object sender, RoutedEventArgs e)

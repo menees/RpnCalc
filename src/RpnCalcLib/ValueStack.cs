@@ -17,7 +17,7 @@ namespace Menees.RpnCalc
 
 		public ValueStack()
 		{
-			this.m_storage.CollectionChanged += this.Storage_CollectionChanged;
+			this.storage.CollectionChanged += this.Storage_CollectionChanged;
 		}
 
 		#endregion
@@ -26,21 +26,21 @@ namespace Menees.RpnCalc
 
 		public void Push(Value value)
 		{
-			this.m_storage.Add(value);
+			this.storage.Add(value);
 		}
 
 		public void PushRange(IEnumerable<Value> values)
 		{
 			foreach (Value value in values)
 			{
-				this.m_storage.Add(value);
+				this.storage.Add(value);
 			}
 		}
 
 		public Value Pop()
 		{
 			Value result = this.Peek();
-			this.m_storage.RemoveAt(this.TopIndex);
+			this.storage.RemoveAt(this.TopIndex);
 			return result;
 		}
 
@@ -49,7 +49,7 @@ namespace Menees.RpnCalc
 			IList<Value> result = this.PeekRange(count);
 			for (int i = 0; i < count; i++)
 			{
-				this.m_storage.RemoveAt(this.TopIndex);
+				this.storage.RemoveAt(this.TopIndex);
 			}
 
 			return result;
@@ -57,7 +57,7 @@ namespace Menees.RpnCalc
 
 		public Value Peek()
 		{
-			Value result = this.m_storage[this.TopIndex];
+			Value result = this.storage[this.TopIndex];
 			return result;
 		}
 
@@ -67,7 +67,7 @@ namespace Menees.RpnCalc
 			int topIndex = this.TopIndex;
 			for (int i = 0; i < count; i++)
 			{
-				result.Add(this.m_storage[topIndex - i]);
+				result.Add(this.storage[topIndex - i]);
 			}
 
 			return result;
@@ -75,7 +75,7 @@ namespace Menees.RpnCalc
 
 		public Value PeekAt(int offsetFromTop)
 		{
-			Value result = this.m_storage[this.TopIndex - offsetFromTop];
+			Value result = this.storage[this.TopIndex - offsetFromTop];
 			return result;
 		}
 
@@ -89,7 +89,7 @@ namespace Menees.RpnCalc
 			// That's what Stack<T> does, and it kind of makes sense.
 			for (int i = this.TopIndex; i >= 0; i--)
 			{
-				Value result = this.m_storage[i];
+				Value result = this.storage[i];
 				yield return result;
 			}
 		}
@@ -101,7 +101,7 @@ namespace Menees.RpnCalc
 
 		public void CopyTo(Value[] array, int index)
 		{
-			ICollection storageColl = this.m_storage;
+			ICollection storageColl = this.storage;
 			storageColl.CopyTo(array, index);
 
 			// Return the values in reverse order like GetEnumerator does.
@@ -117,7 +117,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_storage.Count;
+				return this.storage.Count;
 			}
 		}
 
@@ -152,7 +152,7 @@ namespace Menees.RpnCalc
 			this.BeginReset();
 			try
 			{
-				this.m_storage.Clear();
+				this.storage.Clear();
 
 				if (stackNode != null)
 				{
@@ -189,7 +189,7 @@ namespace Menees.RpnCalc
 			int index = this.Count;
 			foreach (Value val in values)
 			{
-				INode valueNode = stackNode.GetNode("Value" + index--, true);
+				INode valueNode = stackNode.GetNode(nameof(Value) + index--, true);
 				val.Save(valueNode, calc);
 			}
 		}
@@ -213,7 +213,7 @@ namespace Menees.RpnCalc
 		private void Storage_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			// Only send notifications if we're not in the middle of a reset operation.
-			if (this.m_resetLevel == 0)
+			if (this.resetLevel == 0)
 			{
 				var eh = this.CollectionChanged;
 				if (eh != null)
@@ -243,13 +243,13 @@ namespace Menees.RpnCalc
 
 		private void BeginReset()
 		{
-			this.m_resetLevel++;
+			this.resetLevel++;
 		}
 
 		private void EndReset()
 		{
-			this.m_resetLevel--;
-			if (this.m_resetLevel == 0)
+			this.resetLevel--;
+			if (this.resetLevel == 0)
 			{
 				this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 			}
@@ -259,8 +259,8 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private ObservableCollection<Value> m_storage = new ObservableCollection<Value>();
-		private int m_resetLevel;
+		private ObservableCollection<Value> storage = new ObservableCollection<Value>();
+		private int resetLevel;
 
 		#endregion
 	}

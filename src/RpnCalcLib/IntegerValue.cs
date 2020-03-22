@@ -16,7 +16,7 @@ namespace Menees.RpnCalc
 
 		public IntegerValue(BigInteger value)
 		{
-			this.m_value = value;
+			this.value = value;
 		}
 
 		#endregion
@@ -35,7 +35,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_value;
+				return this.value;
 			}
 		}
 
@@ -46,7 +46,7 @@ namespace Menees.RpnCalc
 		public override string ToString()
 		{
 			// Use the "round-trip" format, so we can see more than the 50 most significant digits.
-			return this.m_value.ToString("R", CultureInfo.CurrentCulture);
+			return this.value.ToString("R", CultureInfo.CurrentCulture);
 		}
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
@@ -56,12 +56,12 @@ namespace Menees.RpnCalc
 			result.Add(new DisplayFormat(this.ToString(calc)));
 
 			// BigInteger doesn't support the "N" format, so we'll only do it for "normal-sized" values.
-			if (this.m_value >= long.MinValue && this.m_value <= long.MaxValue)
+			if (this.value >= long.MinValue && this.value <= long.MaxValue)
 			{
-				result.Add(new DisplayFormat(Resources.DisplayFormat_Formatted, ((long)this.m_value).ToString("N0", CultureInfo.CurrentCulture)));
+				result.Add(new DisplayFormat(Resources.DisplayFormat_Formatted, ((long)this.value).ToString("N0", CultureInfo.CurrentCulture)));
 			}
 
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Hexadecimal, "0x" + this.m_value.ToString("X", CultureInfo.CurrentCulture)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Hexadecimal, "0x" + this.value.ToString("X", CultureInfo.CurrentCulture)));
 
 			return result;
 		}
@@ -71,8 +71,7 @@ namespace Menees.RpnCalc
 			bool result = false;
 			integerValue = null;
 
-			BigInteger value;
-			if (Utility.TryParse(text, out value))
+			if (Utility.TryParse(text, out BigInteger value))
 			{
 				integerValue = new IntegerValue(value);
 				result = true;
@@ -83,32 +82,32 @@ namespace Menees.RpnCalc
 
 		public override double ToDouble()
 		{
-			return (double)this.m_value;
+			return (double)this.value;
 		}
 
 		public override BigInteger ToInteger()
 		{
-			return this.m_value;
+			return this.value;
 		}
 
 		public static IntegerValue Add(IntegerValue x, IntegerValue y)
 		{
-			return new IntegerValue(x.m_value + y.m_value);
+			return new IntegerValue(x.value + y.value);
 		}
 
 		public static IntegerValue Subtract(IntegerValue x, IntegerValue y)
 		{
-			return new IntegerValue(x.m_value - y.m_value);
+			return new IntegerValue(x.value - y.value);
 		}
 
 		public static IntegerValue Multiply(IntegerValue x, IntegerValue y)
 		{
-			return new IntegerValue(x.m_value * y.m_value);
+			return new IntegerValue(x.value * y.value);
 		}
 
 		public static NumericValue Divide(IntegerValue x, IntegerValue y)
 		{
-			FractionValue fraction = new FractionValue(x.m_value, y.m_value);
+			FractionValue fraction = new FractionValue(x.value, y.value);
 			NumericValue result;
 			if (fraction.Denominator == 1)
 			{
@@ -124,31 +123,31 @@ namespace Menees.RpnCalc
 
 		public static IntegerValue Negate(IntegerValue x)
 		{
-			return new IntegerValue(BigInteger.Negate(x.m_value));
+			return new IntegerValue(BigInteger.Negate(x.value));
 		}
 
 		public static NumericValue Power(IntegerValue x, IntegerValue exponent)
 		{
-			if (exponent.m_value < 0 || exponent.m_value > int.MaxValue)
+			if (exponent.value < 0 || exponent.value > int.MaxValue)
 			{
 				return FractionValue.Power(
-					new FractionValue(x.m_value, BigInteger.One),
-					new FractionValue(exponent.m_value, BigInteger.One));
+					new FractionValue(x.value, BigInteger.One),
+					new FractionValue(exponent.value, BigInteger.One));
 			}
 			else
 			{
-				return new IntegerValue(BigInteger.Pow(x.m_value, (int)exponent.m_value));
+				return new IntegerValue(BigInteger.Pow(x.value, (int)exponent.value));
 			}
 		}
 
 		public static FractionValue Invert(IntegerValue x)
 		{
-			return new FractionValue(BigInteger.One, x.m_value);
+			return new FractionValue(BigInteger.One, x.value);
 		}
 
 		public static IntegerValue Modulus(IntegerValue x, IntegerValue y)
 		{
-			return new IntegerValue(x.m_value % y.m_value);
+			return new IntegerValue(x.value % y.value);
 		}
 
 		public static BigInteger Factorial(BigInteger x)
@@ -177,15 +176,14 @@ namespace Menees.RpnCalc
 
 		public override int GetHashCode()
 		{
-			return this.m_value.GetHashCode();
+			return this.value.GetHashCode();
 		}
 
 		public static int Compare(IntegerValue x, IntegerValue y)
 		{
-			int result;
-			if (!CompareWithNulls(x, y, out result))
+			if (!CompareWithNulls(x, y, out int result))
 			{
-				result = x.m_value.CompareTo(y.m_value);
+				result = x.value.CompareTo(y.value);
 			}
 
 			return result;
@@ -269,7 +267,7 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private BigInteger m_value;
+		private BigInteger value;
 
 		#endregion
 	}

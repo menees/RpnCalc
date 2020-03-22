@@ -17,7 +17,7 @@ namespace Menees.RpnCalc
 		internal EntryLineHistoryCollection(Calculator calc)
 			: base(new ObservableCollection<string>())
 		{
-			this.m_calc = calc;
+			this.calc = calc;
 		}
 
 		#endregion
@@ -29,32 +29,32 @@ namespace Menees.RpnCalc
 			// If the calc's entry line isn't equal to the currently selected position,
 			// then we'll re-use the currently selected position.
 			bool atCurrentPosition = false;
-			string currentCalcEntryLine = this.m_calc.EntryLine;
-			if (this.m_position >= 0 && this.m_position < this.Count)
+			string currentCalcEntryLine = this.calc.EntryLine;
+			if (this.position >= 0 && this.position < this.Count)
 			{
-				string currentPositionEntryLine = this.Items[this.m_position];
+				string currentPositionEntryLine = this.Items[this.position];
 				atCurrentPosition = currentCalcEntryLine == currentPositionEntryLine;
 			}
 
 			if (scrollUp)
 			{
-				if ((atCurrentPosition || this.m_position < 0) && this.m_position < (this.Count - 1))
+				if ((atCurrentPosition || this.position < 0) && this.position < (this.Count - 1))
 				{
-					this.m_position++;
+					this.position++;
 				}
 			}
 			else
 			{
-				if ((atCurrentPosition || this.m_position >= this.Count) && this.m_position > 0)
+				if ((atCurrentPosition || this.position >= this.Count) && this.position > 0)
 				{
-					this.m_position--;
+					this.position--;
 				}
 			}
 
-			if (this.m_position >= 0 && this.m_position < this.Count)
+			if (this.position >= 0 && this.position < this.Count)
 			{
-				string newEntryLine = this.Items[this.m_position];
-				this.m_calc.EntryLine = newEntryLine;
+				string newEntryLine = this.Items[this.position];
+				this.calc.EntryLine = newEntryLine;
 			}
 		}
 
@@ -62,7 +62,7 @@ namespace Menees.RpnCalc
 		{
 			// Clear the position first, so it will already be
 			// reset when the XxxChanged events fire.
-			this.m_position = c_initialPosition;
+			this.position = c_initialPosition;
 			this.Items.Clear();
 		}
 
@@ -90,7 +90,7 @@ namespace Menees.RpnCalc
 			// moving the most recent entry to the front of the
 			// history.  Once it's moved, there's little point in
 			// keeping the position where the item used to be.
-			this.m_position = c_initialPosition;
+			this.position = c_initialPosition;
 
 			// Purge old items, so the history doesn't grow forever.
 			this.RemoveOldItems();
@@ -111,13 +111,13 @@ namespace Menees.RpnCalc
 					}
 				}
 
-				this.m_position = historyNode.GetValue("Position", c_initialPosition);
+				this.position = historyNode.GetValue("Position", c_initialPosition);
 			}
 		}
 
 		internal void Save(INode historyNode)
 		{
-			historyNode.SetValue("Position", this.m_position);
+			historyNode.SetValue("Position", this.position);
 			int index = 1;
 			foreach (string entryLine in this.Items)
 			{
@@ -148,8 +148,8 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private Calculator m_calc;
-		private int m_position = c_initialPosition;
+		private Calculator calc;
+		private int position = c_initialPosition;
 
 		private const int c_initialPosition = -1;
 

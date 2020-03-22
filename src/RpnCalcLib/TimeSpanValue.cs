@@ -17,7 +17,7 @@ namespace Menees.RpnCalc
 
 		public TimeSpanValue(TimeSpan value)
 		{
-			this.m_value = value;
+			this.value = value;
 		}
 
 		#endregion
@@ -36,7 +36,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_value;
+				return this.value;
 			}
 		}
 
@@ -46,7 +46,7 @@ namespace Menees.RpnCalc
 
 		public override string ToString()
 		{
-			return this.m_value.ToString();
+			return this.value.ToString();
 		}
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
@@ -60,7 +60,7 @@ namespace Menees.RpnCalc
 			{
 				StringBuilder sb = new StringBuilder();
 
-				TimeSpan displayValue = this.m_value;
+				TimeSpan displayValue = this.value;
 				if (displayValue.Ticks < 0)
 				{
 					sb.Append("- ");
@@ -102,7 +102,6 @@ namespace Menees.RpnCalc
 			return result;
 		}
 
-
 		public static bool TryParse(string text, out TimeSpanValue timeSpanValue)
 		{
 			CultureInfo currentCulture = CultureInfo.CurrentCulture;
@@ -129,17 +128,17 @@ namespace Menees.RpnCalc
 
 		public static TimeSpanValue Add(TimeSpanValue x, TimeSpanValue y)
 		{
-			return new TimeSpanValue(x.m_value + y.m_value);
+			return new TimeSpanValue(x.value + y.value);
 		}
 
 		public static TimeSpanValue Subtract(TimeSpanValue x, TimeSpanValue y)
 		{
-			return new TimeSpanValue(x.m_value - y.m_value);
+			return new TimeSpanValue(x.value - y.value);
 		}
 
 		public static TimeSpanValue Multiply(TimeSpanValue x, DoubleValue y)
 		{
-			return new TimeSpanValue(TimeSpan.FromTicks((long)(x.m_value.Ticks * y.AsDouble)));
+			return new TimeSpanValue(TimeSpan.FromTicks((long)(x.value.Ticks * y.AsDouble)));
 		}
 
 		public static TimeSpanValue Multiply(DoubleValue x, TimeSpanValue y)
@@ -149,22 +148,22 @@ namespace Menees.RpnCalc
 
 		public static DoubleValue Divide(TimeSpanValue x, TimeSpanValue y)
 		{
-			return new DoubleValue((double)x.m_value.Ticks / (double)y.m_value.Ticks);
+			return new DoubleValue((double)x.value.Ticks / (double)y.value.Ticks);
 		}
 
 		public static TimeSpanValue Divide(TimeSpanValue x, DoubleValue y)
 		{
-			return new TimeSpanValue(TimeSpan.FromTicks((long)(x.m_value.Ticks / y.AsDouble)));
+			return new TimeSpanValue(TimeSpan.FromTicks((long)(x.value.Ticks / y.AsDouble)));
 		}
 
 		public static TimeSpanValue Negate(TimeSpanValue x)
 		{
-			return new TimeSpanValue(-x.m_value);
+			return new TimeSpanValue(-x.value);
 		}
 
 		public static TimeSpanValue Modulus(TimeSpanValue x, TimeSpanValue y)
 		{
-			return new TimeSpanValue(TimeSpan.FromTicks(x.m_value.Ticks % y.m_value.Ticks));
+			return new TimeSpanValue(TimeSpan.FromTicks(x.value.Ticks % y.value.Ticks));
 		}
 
 		public override bool Equals(object obj)
@@ -175,15 +174,14 @@ namespace Menees.RpnCalc
 
 		public override int GetHashCode()
 		{
-			return this.m_value.GetHashCode();
+			return this.value.GetHashCode();
 		}
 
 		public static int Compare(TimeSpanValue x, TimeSpanValue y)
 		{
-			int result;
-			if (!CompareWithNulls(x, y, out result))
+			if (!CompareWithNulls(x, y, out int result))
 			{
-				result = x.m_value.CompareTo(y.m_value);
+				result = x.value.CompareTo(y.value);
 			}
 
 			return result;
@@ -317,8 +315,7 @@ namespace Menees.RpnCalc
 
 			// Try to parse the value using our exact format strings first,
 			// and if those fail, then fall back to general case parsing.
-			TimeSpan value;
-			if (Utility.TryParseExact(text, minSecFormats, timeFmt, out value))
+			if (Utility.TryParseExact(text, minSecFormats, timeFmt, out TimeSpan value))
 			{
 				// In SL4, TryParseExact won't return a negative TimeSpan
 				// even if it matches the negative sign in the text.  So I
@@ -350,7 +347,7 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private TimeSpan m_value;
+		private TimeSpan value;
 
 		private static readonly string[] c_minSecFormats = new[]
 			{

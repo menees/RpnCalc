@@ -18,7 +18,7 @@ namespace Menees.RpnCalc
 
 		public EntryLineParser(Calculator calc)
 		{
-			this.m_calc = calc;
+			this.calc = calc;
 		}
 
 		public EntryLineParser(Calculator calc, string entryLine)
@@ -35,13 +35,13 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_entryLine;
+				return this.entryLine;
 			}
 
 			set
 			{
-				this.m_entryLine = value ?? string.Empty;
-				this.m_entryLineLength = this.m_entryLine.Length;
+				this.entryLine = value ?? string.Empty;
+				this.entryLineLength = this.entryLine.Length;
 
 				// Reset all members before we start tokenizing.
 				this.Reset();
@@ -62,7 +62,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				IList<string> result = (from t in this.m_tokens
+				IList<string> result = (from t in this.tokens
 										select t.Text).ToList();
 				return result;
 			}
@@ -72,16 +72,15 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_values.AsReadOnly();
+				return this.values.AsReadOnly();
 			}
 		}
-
 
 		public bool IsEntryLineComplete
 		{
 			get
 			{
-				return this.m_states.HasFlag(ParseStates.Complete);
+				return this.states.HasFlag(ParseStates.Complete);
 			}
 		}
 
@@ -89,7 +88,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_states.HasFlag(ParseStates.InComplex);
+				return this.states.HasFlag(ParseStates.InComplex);
 			}
 		}
 
@@ -97,7 +96,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_states.HasFlag(ParseStates.InDateTime);
+				return this.states.HasFlag(ParseStates.InDateTime);
 			}
 		}
 
@@ -105,7 +104,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_states.HasFlag(ParseStates.InNegatableScalarValue);
+				return this.states.HasFlag(ParseStates.InNegatableScalarValue);
 			}
 		}
 
@@ -113,7 +112,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return !string.IsNullOrEmpty(this.m_errorMessage);
+				return !string.IsNullOrEmpty(this.errorMessage);
 			}
 		}
 
@@ -121,7 +120,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_errorMessage ?? string.Empty;
+				return this.errorMessage ?? string.Empty;
 			}
 		}
 
@@ -132,15 +131,15 @@ namespace Menees.RpnCalc
 		public bool GetErrorLocation(out int start, out int length)
 		{
 			bool result = false;
-			start = this.m_entryLineLength;
+			start = this.entryLineLength;
 			length = 0;
 
 			// Assume that the first unparsed token is the one with the error
 			// since that's where then Parse() method stops processing.
-			int valueCount = this.m_values.Count;
-			if (this.HasError && valueCount < this.m_tokens.Count)
+			int valueCount = this.values.Count;
+			if (this.HasError && valueCount < this.tokens.Count)
 			{
-				Token errorToken = this.m_tokens[valueCount];
+				Token errorToken = this.tokens[valueCount];
 				start = errorToken.StartPosition;
 				length = errorToken.Text.Length;
 				result = true;
@@ -155,22 +154,22 @@ namespace Menees.RpnCalc
 
 		private void Reset()
 		{
-			this.m_states = ParseStates.None;
-			this.m_tokens.Clear();
-			this.m_values.Clear();
-			this.m_errorMessage = null;
-			this.m_position = 0;
+			this.states = ParseStates.None;
+			this.tokens.Clear();
+			this.values.Clear();
+			this.errorMessage = null;
+			this.position = 0;
 		}
 
 		private void Tokenize()
 		{
-			if (!Utility.IsNullOrWhiteSpace(this.m_entryLine))
+			if (!Utility.IsNullOrWhiteSpace(this.entryLine))
 			{
 				char ch = this.SkipWhitespace();
 				while (ch != NULL)
 				{
 					string tokenText = null;
-					int tokenStartPosition = this.m_position - 1;
+					int tokenStartPosition = this.position - 1;
 					ValueType? tokenValueType = null;
 
 					if (ch == ComplexValue.StartDelimiter)
@@ -204,7 +203,7 @@ namespace Menees.RpnCalc
 
 					if (!string.IsNullOrEmpty(tokenText))
 					{
-						this.m_tokens.Add(new Token(tokenText, tokenStartPosition, tokenValueType));
+						this.tokens.Add(new Token(tokenText, tokenStartPosition, tokenValueType));
 					}
 
 					ch = this.SkipWhitespace();
@@ -217,7 +216,7 @@ namespace Menees.RpnCalc
 			char ch = this.PeekChar();
 			if (ch != NULL)
 			{
-				this.m_position++;
+				this.position++;
 			}
 
 			return ch;
@@ -225,17 +224,17 @@ namespace Menees.RpnCalc
 
 		private void UngetChar()
 		{
-			if (this.m_position > 0)
+			if (this.position > 0)
 			{
-				this.m_position--;
+				this.position--;
 			}
 		}
 
 		private char PeekChar()
 		{
-			if (this.m_position < this.m_entryLineLength)
+			if (this.position < this.entryLineLength)
 			{
-				return this.m_entryLine[this.m_position];
+				return this.entryLine[this.position];
 			}
 			else
 			{
@@ -285,39 +284,36 @@ namespace Menees.RpnCalc
 
 		private void Parse()
 		{
-			foreach (Token token in this.m_tokens)
+			foreach (Token token in this.tokens)
 			{
 				string text = token.Text;
 				Debug.Assert(!string.IsNullOrEmpty(text), "Token.Text should always be non-empty.");
 
-				int startingValueCount = this.m_values.Count;
+				int startingValueCount = this.values.Count;
 				if (token.ValueType.HasValue)
 				{
 					// Handles: Complex, DateTime, Binary
-					Value value;
-					if (Value.TryParse(token.ValueType.Value, text, this.m_calc, out value))
+					if (Value.TryParse(token.ValueType.Value, text, this.calc, out Value value))
 					{
-						this.m_values.Add(value);
+						this.values.Add(value);
 					}
 				}
 				else if (ContainsFractionValueSeparator(text))
 				{
 					// Handles: Fraction
-					FractionValue value;
-					if (FractionValue.TryParse(text, out value))
+					if (FractionValue.TryParse(text, out FractionValue value))
 					{
-						this.m_values.Add(value);
+						this.values.Add(value);
 					}
 				}
 				else
 				{
 					// Handles: TimeSpan, Integer, Double
-					Value value;
 					foreach (ValueType type in c_ambiguousValueTypes)
 					{
-						if (Value.TryParse(type, text, this.m_calc, out value))
+						if (Value.TryParse(type, text, this.calc, out Value value))
 						{
-							this.m_values.Add(value);
+							this.values.Add(value);
 							break; // Quit the inner c_ambiguousValueTypes loop.
 						}
 					}
@@ -325,10 +321,10 @@ namespace Menees.RpnCalc
 
 				// If we weren't able to parse the current token, then stop.
 				// The GetErrorLocation() method depends on this behavior.
-				if (startingValueCount == this.m_values.Count)
+				if (startingValueCount == this.values.Count)
 				{
 					// Use the same "helpful" error message that the HP48 uses.
-					this.m_errorMessage = Resources.EntryLineParser_InvalidSyntax;
+					this.errorMessage = Resources.EntryLineParser_InvalidSyntax;
 					break; // Quit the outer m_tokens loop.
 				}
 			}
@@ -347,17 +343,17 @@ namespace Menees.RpnCalc
 
 		private void SetStates()
 		{
-			int tokenCount = this.m_tokens.Count;
-			if (tokenCount == this.m_values.Count)
+			int tokenCount = this.tokens.Count;
+			if (tokenCount == this.values.Count)
 			{
 				// We were able to completely parse all the tokens
 				// (although the last one may not have an ending delimiter).
-				this.m_states |= ParseStates.Complete;
+				this.states |= ParseStates.Complete;
 			}
 
 			if (tokenCount > 0)
 			{
-				Token lastToken = this.m_tokens[tokenCount - 1];
+				Token lastToken = this.tokens[tokenCount - 1];
 
 				string text = lastToken.Text;
 				char firstChar = text[0];
@@ -365,14 +361,14 @@ namespace Menees.RpnCalc
 				if (firstChar == ComplexValue.StartDelimiter && lastChar != ComplexValue.EndDelimiter)
 				{
 					// The last token begins with '(' but doesn't end with ')'.
-					this.m_states |= ParseStates.InComplex;
+					this.states |= ParseStates.InComplex;
 				}
 				else if (firstChar == DateTimeValue.StartDelimiter && lastChar != DateTimeValue.EndDelimiter)
 				{
 					// The last token begins with '"' but doesn't end with '"'.
-					this.m_states |= ParseStates.InDateTime;
+					this.states |= ParseStates.InDateTime;
 				}
-				else if (!char.IsWhiteSpace(this.m_entryLine[this.m_entryLineLength - 1]))
+				else if (!char.IsWhiteSpace(this.entryLine[this.entryLineLength - 1]))
 				{
 					// The entry line doesn't end with whitespace, so assume the
 					// caret position is at the end of the last token.  Then try to
@@ -380,12 +376,12 @@ namespace Menees.RpnCalc
 					if (this.IsEntryLineComplete)
 					{
 						// We have a parsed entry line, so we'll use the last value's type.
-						Value lastValue = this.m_values[this.m_values.Count - 1];
+						Value lastValue = this.values[this.values.Count - 1];
 						ValueType type = lastValue.ValueType;
 						if (type == ValueType.Integer || type == ValueType.Double ||
 							type == ValueType.Fraction || type == ValueType.TimeSpan)
 						{
-							this.m_states |= ParseStates.InNegatableScalarValue;
+							this.states |= ParseStates.InNegatableScalarValue;
 						}
 					}
 					else
@@ -399,7 +395,7 @@ namespace Menees.RpnCalc
 						if (ContainsFractionValueSeparator(text) ||
 							text.IndexOf(TimeSpanValue.FieldSeparator) >= 0)
 						{
-							this.m_states |= ParseStates.InNegatableScalarValue;
+							this.states |= ParseStates.InNegatableScalarValue;
 						}
 					}
 				}
@@ -470,16 +466,16 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private Calculator m_calc;
-		private string m_entryLine;
-		private int m_entryLineLength;
+		private Calculator calc;
+		private string entryLine;
+		private int entryLineLength;
 
 		// If you add a member here, add it to the Reset() method too.
-		private int m_position;
-		private List<Token> m_tokens = new List<Token>();
-		private List<Value> m_values = new List<Value>();
-		private ParseStates m_states;
-		private string m_errorMessage;
+		private int position;
+		private List<Token> tokens = new List<Token>();
+		private List<Value> values = new List<Value>();
+		private ParseStates states;
+		private string errorMessage;
 
 		private const char NULL = '\0';
 
@@ -496,7 +492,7 @@ namespace Menees.RpnCalc
 			// TimeSpans can use culture-specific separators,
 			// but they shouldn't conflict with a Double's format.
 			ValueType.TimeSpan,
-			ValueType.Double
+			ValueType.Double,
 		};
 
 		#endregion

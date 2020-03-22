@@ -56,7 +56,6 @@ namespace Menees.RpnCalc
 		public static bool TryParse(ValueType type, string text, Calculator calc, out Value value)
 		{
 			// NOTE: calc can be null.
-
 			bool result;
 
 			switch (type)
@@ -424,13 +423,12 @@ namespace Menees.RpnCalc
 
 			if (valueNode != null)
 			{
-				string typeText = valueNode.GetValue("ValueType", null);
+				string typeText = valueNode.GetValue(nameof(ValueType), null);
 				string valueText = valueNode.GetValue("EntryValue", null);
 
 				if (typeText != null && valueText != null)
 				{
-					ValueType type;
-					if (Utility.TryParse(typeText, false, out type))
+					if (Utility.TryParse(typeText, false, out ValueType type))
 					{
 						TryParse(type, valueText, calc, out result);
 					}
@@ -442,7 +440,7 @@ namespace Menees.RpnCalc
 
 		internal void Save(INode valueNode, Calculator calc)
 		{
-			valueNode.SetValue("ValueType", this.ValueType);
+			valueNode.SetValue(nameof(this.ValueType), this.ValueType);
 			valueNode.SetValue("EntryValue", this.GetEntryValue(calc));
 		}
 
@@ -514,7 +512,7 @@ namespace Menees.RpnCalc
 
 			// Return -1, 0, or 1 using the null semantics required by IComparable<T>.CompareTo.
 			// Any object compares greater than a null reference, and two null references compare
-			// equal to each other. 
+			// equal to each other.
 			if (x == null)
 			{
 				atLeastOneNull = true;

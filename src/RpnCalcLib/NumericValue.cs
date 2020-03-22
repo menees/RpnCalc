@@ -236,7 +236,6 @@ namespace Menees.RpnCalc
 			//  Binary --> Integer --> Fraction --> Double --> Complex.
 			// A conversion from Integer or Fraction to Double can fail if the value has
 			// more than 308 digits, and it will lose precision if it has more than 15 digits.
-
 			if (xType < yType)
 			{
 				x = ChangeType(x, yType);

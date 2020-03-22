@@ -17,13 +17,15 @@
 
 		int GetValue(string name, int defaultValue);
 
-		TEnum GetValue<TEnum>(string name, TEnum defaultValue) where TEnum : struct;
+		TEnum GetValue<TEnum>(string name, TEnum defaultValue)
+			where TEnum : struct;
 
 		void SetValue(string name, string value);
 
 		void SetValue(string name, int value);
 
-		void SetValue<TEnum>(string name, TEnum value) where TEnum : struct;
+		void SetValue<TEnum>(string name, TEnum value)
+			where TEnum : struct;
 
 		INode GetNode(string name, bool createIfNotFound);
 

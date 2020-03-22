@@ -1,62 +1,70 @@
-﻿#region Using Directives
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Globalization;
-
-#endregion
-
-namespace Menees.RpnCalc
+﻿namespace Menees.RpnCalc
 {
+	#region Using Directives
+
+	using System;
+	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
+	using System.Collections.Specialized;
+	using System.ComponentModel;
+	using System.Globalization;
+	using System.Linq;
+	using System.Net;
+	using System.Windows;
+	using System.Windows.Controls;
+	using System.Windows.Documents;
+	using System.Windows.Input;
+	using System.Windows.Media;
+	using System.Windows.Media.Animation;
+	using System.Windows.Shapes;
+
+	#endregion
+
 	public partial class DisplayStack
 	{
-		#region Public Properties
+		#region Private Data Members
 
-		public Calculator Calculator
-		{
-			get
-			{
-				return this.m_calc;
-			}
-
-			set
-			{
-				if (this.m_calc != value)
-				{
-					if (this.m_calc != null)
-					{
-						this.m_calc.DisplayFormatChanged -= this.Calc_DisplayFormatChanged;
-						this.m_calc.Stack.CollectionChanged -= this.Calc_StackChanged;
-					}
-
-					this.m_calc = value;
-
-					if (this.m_calc != null)
-					{
-						this.m_calc.DisplayFormatChanged += this.Calc_DisplayFormatChanged;
-						this.m_calc.Stack.CollectionChanged += this.Calc_StackChanged;
-					}
-				}
-			}
-		}
+		private readonly ObservableCollection<DisplayStackItem> displayItems = new ObservableCollection<DisplayStackItem>();
+		private Calculator calc;
+		private int numberOfDisplayableItems;
 
 		#endregion
 
 		#region Public Events
 
 		public event EventHandler ExecutedCommand;
+
+		#endregion
+
+		#region Public Properties
+
+		public Calculator Calculator
+		{
+			get
+			{
+				return this.calc;
+			}
+
+			set
+			{
+				if (this.calc != value)
+				{
+					if (this.calc != null)
+					{
+						this.calc.DisplayFormatChanged -= this.Calc_DisplayFormatChanged;
+						this.calc.Stack.CollectionChanged -= this.Calc_StackChanged;
+					}
+
+					this.calc = value;
+
+					if (this.calc != null)
+					{
+						this.calc.DisplayFormatChanged += this.Calc_DisplayFormatChanged;
+						this.calc.Stack.CollectionChanged += this.Calc_StackChanged;
+					}
+				}
+			}
+		}
 
 		#endregion
 
@@ -69,11 +77,11 @@ namespace Menees.RpnCalc
 			// Note: This can update the number of display items.
 			this.m_listBox.UpdateLayout();
 
-			int numItems = this.m_displayItems.Count;
+			int numItems = this.displayItems.Count;
 			if (numItems > 0)
 			{
 				// Make sure StackTop is scrolled into view.
-				this.m_listBox.ScrollIntoView(this.m_displayItems[numItems - 1]);
+				this.m_listBox.ScrollIntoView(this.displayItems[numItems - 1]);
 			}
 		}
 
@@ -81,38 +89,38 @@ namespace Menees.RpnCalc
 
 		#region Private Event Handlers
 
-		void DisplayStack_Loaded(object sender, RoutedEventArgs e)
+		private void DisplayStack_Loaded(object sender, RoutedEventArgs e)
 		{
 			this.UpdateDummyItems();
 		}
 
-		void DisplayStack_SizeChanged(object sender, SizeChangedEventArgs e)
+		private void DisplayStack_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
 			// Force this to be recalculated using the current size.
-			this.m_numberOfDisplayableItems = 0;
+			this.numberOfDisplayableItems = 0;
 
 			this.UpdateDummyItems();
 		}
 
-		void Calc_DisplayFormatChanged(object sender, DependencyPropertyChangedEventArgs e)
+		private void Calc_DisplayFormatChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			foreach (DisplayStackItem item in this.m_displayItems)
+			foreach (DisplayStackItem item in this.displayItems)
 			{
 				item.RefreshDisplayValues();
 			}
 		}
 
-		void Calc_StackChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void Calc_StackChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			switch (e.Action)
 			{
 				case NotifyCollectionChangedAction.Add:
-					DisplayStackItem item = new DisplayStackItem(this.m_calc, (Value)e.NewItems[0], 0);
-					this.m_displayItems.Add(item);
+					DisplayStackItem item = new DisplayStackItem(this.calc, (Value)e.NewItems[0], 0);
+					this.displayItems.Add(item);
 					this.ResetStackPositions();
 					break;
 				case NotifyCollectionChangedAction.Remove:
-					this.m_displayItems.RemoveAt(this.m_displayItems.Count - 1);
+					this.displayItems.RemoveAt(this.displayItems.Count - 1);
 					this.ResetStackPositions();
 					break;
 				case NotifyCollectionChangedAction.Replace:
@@ -128,16 +136,15 @@ namespace Menees.RpnCalc
 
 		private void ContextMenu_Opened(object sender, RoutedEventArgs e)
 		{
-			ContextMenu menu = sender as ContextMenu;
-			if (menu != null)
+			if (sender is ContextMenu menu)
 			{
 				int index = this.m_listBox.SelectedIndex;
-				int numDisplayItems = this.m_displayItems.Count;
+				int numDisplayItems = this.displayItems.Count;
 
 				bool isDummyItem = true;
 				if (index >= 0 && index < numDisplayItems)
 				{
-					isDummyItem = this.m_displayItems[index].IsDummyItem;
+					isDummyItem = this.displayItems[index].IsDummyItem;
 				}
 
 				bool hasSelectedValue = !isDummyItem;
@@ -207,22 +214,22 @@ namespace Menees.RpnCalc
 			this.SizeChanged += this.DisplayStack_SizeChanged;
 
 			// Hook the list box we're wrapping to our private list of DisplayStackItems.
-			this.m_listBox.ItemsSource = this.m_displayItems;
+			this.m_listBox.ItemsSource = this.displayItems;
 		}
 
 		private void UpdateDummyItems()
 		{
-			int minItems = Math.Max(1, this.m_numberOfDisplayableItems);
-			while (this.m_displayItems.Count < minItems)
+			int minItems = Math.Max(1, this.numberOfDisplayableItems);
+			while (this.displayItems.Count < minItems)
 			{
-				this.m_displayItems.Insert(0, new DisplayStackItem(this.m_calc, null, this.m_displayItems.Count));
+				this.displayItems.Insert(0, new DisplayStackItem(this.calc, null, this.displayItems.Count));
 			}
 
-			while (this.m_displayItems.Count > minItems)
+			while (this.displayItems.Count > minItems)
 			{
-				if (this.m_displayItems[0].IsDummyItem)
+				if (this.displayItems[0].IsDummyItem)
 				{
-					this.m_displayItems.RemoveAt(0);
+					this.displayItems.RemoveAt(0);
 				}
 				else
 				{
@@ -231,7 +238,7 @@ namespace Menees.RpnCalc
 				}
 			}
 
-			if (this.m_numberOfDisplayableItems == 0)
+			if (this.numberOfDisplayableItems == 0)
 			{
 				// Silverlight rendering is asynchronous, so this will calculate on
 				// another thread and then call back into here when finished.
@@ -253,7 +260,7 @@ namespace Menees.RpnCalc
 			{
 				// In the VS 2013 designer for WPF this method would occasionally throw a
 				// NullReferenceException so we'll just use a hardcoded number of items.
-				this.m_numberOfDisplayableItems = 15;
+				this.numberOfDisplayableItems = 15;
 			}
 			else
 			{
@@ -263,7 +270,7 @@ namespace Menees.RpnCalc
 				// will always put in at least one item before it calls us.
 				double averageItemHeight = 22;
 
-				int numItems = this.m_displayItems.Count;
+				int numItems = this.displayItems.Count;
 				if (numItems > 0)
 				{
 					double totalItemHeight = 0;
@@ -282,9 +289,9 @@ namespace Menees.RpnCalc
 				Thickness border = this.m_listBox.BorderThickness;
 				double listBoxClientHeight = this.m_listBox.ActualHeight - pad.Top - pad.Bottom - border.Top - border.Bottom;
 				int numberOfDisplayableItems = (int)(listBoxClientHeight / averageItemHeight);
-				if (numberOfDisplayableItems != this.m_numberOfDisplayableItems)
+				if (numberOfDisplayableItems != this.numberOfDisplayableItems)
 				{
-					this.m_numberOfDisplayableItems = numberOfDisplayableItems;
+					this.numberOfDisplayableItems = numberOfDisplayableItems;
 
 					// Since the number of displayable items changed, we may
 					// need to update the number of dummy items we're using.
@@ -295,24 +302,24 @@ namespace Menees.RpnCalc
 
 		private ListBoxItem GetListBoxItem(int itemIndex)
 		{
-			ListBoxItem result = (ListBoxItem)(this.m_listBox.ItemContainerGenerator.ContainerFromIndex(itemIndex));
+			ListBoxItem result = (ListBoxItem)this.m_listBox.ItemContainerGenerator.ContainerFromIndex(itemIndex);
 			return result;
 		}
 
 		private void ResetDisplayItems()
 		{
-			this.m_displayItems.Clear();
+			this.displayItems.Clear();
 
 			// The stack gives us its items from StackTop to StackBottom,
 			// which visually is from down to up, so we'll add them in reverse
 			// order and number them by their stack index.
-			ValueStack stack = this.m_calc.Stack;
+			ValueStack stack = this.calc.Stack;
 			var values = stack.PeekRange(stack.Count);
 			for (int i = values.Count - 1; i >= 0; i--)
 			{
 				Value value = values[i];
-				var item = new DisplayStackItem(this.m_calc, value, i);
-				this.m_displayItems.Add(item);
+				var item = new DisplayStackItem(this.calc, value, i);
+				this.displayItems.Add(item);
 			}
 		}
 
@@ -321,8 +328,8 @@ namespace Menees.RpnCalc
 			// The display items are ordered just like you see
 			// them, so we have to update the positions in
 			// reverse order to have "1:" at the bottom.
-			int position = this.m_displayItems.Count;
-			foreach (DisplayStackItem item in this.m_displayItems)
+			int position = this.displayItems.Count;
+			foreach (DisplayStackItem item in this.displayItems)
 			{
 				item.Position = --position;
 			}
@@ -340,26 +347,18 @@ namespace Menees.RpnCalc
 		private void ExecuteCommandForSelectedPosition(string command, int positionAdjustment)
 		{
 			int index = this.m_listBox.SelectedIndex;
-			if (index >= 0 && index < this.m_displayItems.Count)
+			if (index >= 0 && index < this.displayItems.Count)
 			{
-				DisplayStackItem displayItem = this.m_displayItems[index];
+				DisplayStackItem displayItem = this.displayItems[index];
 				if (!displayItem.IsDummyItem)
 				{
 					int commandParameter = displayItem.Position + positionAdjustment;
-					this.m_calc.ExecuteCommand(command, commandParameter);
+					this.calc.ExecuteCommand(command, commandParameter);
 
 					this.ExecutedCommand?.Invoke(this, EventArgs.Empty);
 				}
 			}
 		}
-
-		#endregion
-
-		#region Private Data Members
-
-		private Calculator m_calc;
-		private ObservableCollection<DisplayStackItem> m_displayItems = new ObservableCollection<DisplayStackItem>();
-		private int m_numberOfDisplayableItems;
 
 		#endregion
 	}

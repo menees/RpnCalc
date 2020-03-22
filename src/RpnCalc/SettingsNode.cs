@@ -14,7 +14,7 @@ namespace Menees.RpnCalc
 	{
 		#region Private Data Members
 
-		private ISettingsNode node;
+		private readonly ISettingsNode node;
 
 		#endregion
 
@@ -39,7 +39,8 @@ namespace Menees.RpnCalc
 			return this.node.GetValue(name, defaultValue);
 		}
 
-		public TEnum GetValue<TEnum>(string name, TEnum defaultValue) where TEnum : struct
+		public TEnum GetValue<TEnum>(string name, TEnum defaultValue)
+			where TEnum : struct
 		{
 			return this.node.GetValue(name, defaultValue);
 		}
@@ -54,7 +55,8 @@ namespace Menees.RpnCalc
 			this.node.SetValue(name, value);
 		}
 
-		public void SetValue<TEnum>(string name, TEnum value) where TEnum : struct
+		public void SetValue<TEnum>(string name, TEnum value)
+			where TEnum : struct
 		{
 			this.node.SetValue(name, value);
 		}

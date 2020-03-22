@@ -17,7 +17,7 @@ namespace Menees.RpnCalc.Internal
 		public EntryCommands(Calculator calc, StackCommands stackCommands)
 			: base(calc)
 		{
-			this.m_stackCommands = stackCommands;
+			this.stackCommands = stackCommands;
 		}
 
 		#endregion
@@ -83,7 +83,7 @@ namespace Menees.RpnCalc.Internal
 			if (string.IsNullOrEmpty(entryLine))
 			{
 				// If they hit Enter with an empty entry line, then duplicate the top item.
-				this.m_stackCommands.Dup(cmd);
+				this.stackCommands.Dup(cmd);
 
 				return null;
 			}
@@ -131,7 +131,7 @@ namespace Menees.RpnCalc.Internal
 
 		#region Private Data Members
 
-		private StackCommands m_stackCommands;
+		private StackCommands stackCommands;
 
 		#endregion
 	}

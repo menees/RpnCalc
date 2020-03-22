@@ -15,7 +15,7 @@ namespace Menees.RpnCalc
 
 		public DoubleValue(double value)
 		{
-			this.m_value = value;
+			this.value = value;
 		}
 
 		#endregion
@@ -34,7 +34,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_value;
+				return this.value;
 			}
 		}
 
@@ -44,12 +44,12 @@ namespace Menees.RpnCalc
 
 		public override string ToString()
 		{
-			return this.m_value.ToString(CultureInfo.CurrentCulture);
+			return this.value.ToString(CultureInfo.CurrentCulture);
 		}
 
 		public override string ToString(Calculator calc)
 		{
-			return Format(this.m_value, calc);
+			return Format(this.value, calc);
 		}
 
 		public override string GetEntryValue(Calculator calc)
@@ -61,7 +61,7 @@ namespace Menees.RpnCalc
 			// can use up to 17 digits in certain cases.  That helps us minimize round-off
 			// errors when we save and re-load the stack from XML (since saving uses
 			// GetEntryValue).
-			string result = GetFormat(this.m_value, "R");
+			string result = GetFormat(this.value, "R");
 			return result;
 		}
 
@@ -69,10 +69,10 @@ namespace Menees.RpnCalc
 		{
 			List<DisplayFormat> result = new List<DisplayFormat>(4);
 
-			result.Add(new DisplayFormat(GetStandardFormat(this.m_value)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Formatted, GetFormat(this.m_value, "N")));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Fixed, GetFixedFormat(this.m_value, calc)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Scientific, GetScientificFormat(this.m_value, calc)));
+			result.Add(new DisplayFormat(GetStandardFormat(this.value)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Formatted, GetFormat(this.value, "N")));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Fixed, GetFixedFormat(this.value, calc)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Scientific, GetScientificFormat(this.value, calc)));
 
 			return result;
 		}
@@ -102,8 +102,7 @@ namespace Menees.RpnCalc
 			bool result = false;
 			doubleValue = null;
 
-			double value;
-			if (double.TryParse(text, out value))
+			if (double.TryParse(text, out double value))
 			{
 				doubleValue = new DoubleValue(value);
 				result = true;
@@ -114,52 +113,52 @@ namespace Menees.RpnCalc
 
 		public override double ToDouble()
 		{
-			return this.m_value;
+			return this.value;
 		}
 
 		public override BigInteger ToInteger()
 		{
-			return (BigInteger)this.m_value;
+			return (BigInteger)this.value;
 		}
 
 		public static DoubleValue Add(DoubleValue x, DoubleValue y)
 		{
-			return new DoubleValue(x.m_value + y.m_value);
+			return new DoubleValue(x.value + y.value);
 		}
 
 		public static DoubleValue Subtract(DoubleValue x, DoubleValue y)
 		{
-			return new DoubleValue(x.m_value - y.m_value);
+			return new DoubleValue(x.value - y.value);
 		}
 
 		public static DoubleValue Multiply(DoubleValue x, DoubleValue y)
 		{
-			return new DoubleValue(x.m_value * y.m_value);
+			return new DoubleValue(x.value * y.value);
 		}
 
 		public static DoubleValue Divide(DoubleValue x, DoubleValue y)
 		{
-			if (y.m_value == 0)
+			if (y.value == 0)
 			{
 				throw new DivideByZeroException();
 			}
 
-			return new DoubleValue(x.m_value / y.m_value);
+			return new DoubleValue(x.value / y.value);
 		}
 
 		public static DoubleValue Negate(DoubleValue x)
 		{
-			return new DoubleValue(-x.m_value);
+			return new DoubleValue(-x.value);
 		}
 
 		public static NumericValue Power(DoubleValue x, DoubleValue exponent)
 		{
-			double result = Math.Pow(x.m_value, exponent.m_value);
-			if (double.IsNaN(result) && x.m_value < 0)
+			double result = Math.Pow(x.value, exponent.value);
+			if (double.IsNaN(result) && x.value < 0)
 			{
 				// They tried to take a fractional root of a negative number,
 				// so we have to return a complex number instead.
-				return ComplexValue.Power(new ComplexValue(x.m_value, 0), exponent);
+				return ComplexValue.Power(new ComplexValue(x.value, 0), exponent);
 			}
 			else
 			{
@@ -169,22 +168,22 @@ namespace Menees.RpnCalc
 
 		public static DoubleValue Invert(DoubleValue x)
 		{
-			if (x.m_value == 0)
+			if (x.value == 0)
 			{
 				throw new DivideByZeroException();
 			}
 
-			return new DoubleValue(1.0 / x.m_value);
+			return new DoubleValue(1.0 / x.value);
 		}
 
 		public static DoubleValue Modulus(DoubleValue x, DoubleValue y)
 		{
-			if (y.m_value == 0)
+			if (y.value == 0)
 			{
 				throw new DivideByZeroException();
 			}
 
-			return new DoubleValue(x.m_value % y.m_value);
+			return new DoubleValue(x.value % y.value);
 		}
 
 		public override bool Equals(object obj)
@@ -195,15 +194,14 @@ namespace Menees.RpnCalc
 
 		public override int GetHashCode()
 		{
-			return this.m_value.GetHashCode();
+			return this.value.GetHashCode();
 		}
 
 		public static int Compare(DoubleValue x, DoubleValue y)
 		{
-			int result;
-			if (!CompareWithNulls(x, y, out result))
+			if (!CompareWithNulls(x, y, out int result))
 			{
-				result = x.m_value.CompareTo(y.m_value);
+				result = x.value.CompareTo(y.value);
 			}
 
 			return result;
@@ -309,17 +307,16 @@ namespace Menees.RpnCalc
 			// makes 1 degree equal to 69 statute miles.  (nautical miles are interesting: 1 minute = 1 nautical mile,
 			// so the world is 60*360 nautical miles North South, and around the equator or 21600.
 			//
-			// decimals degrees miles-statute feet inches 
-			// 0 1 69 364320 4371840 
-			// 1 0.1 6.9 36432 437184 
-			// 2 0.01 0.69 3643.2 43718.4 
-			// 3 0.001 0.069 364.32 4371.84 
-			// 4 0.0001 0.0069 36.432 437.184 
-			// 5 0.00001 0.00069 3.6432 43.7184 
-			// 6 0.000001 0.000069 0.36432 4.37184 
+			// decimals degrees miles-statute feet inches
+			// 0 1 69 364320 4371840
+			// 1 0.1 6.9 36432 437184
+			// 2 0.01 0.69 3643.2 43718.4
+			// 3 0.001 0.069 364.32 4371.84
+			// 4 0.0001 0.0069 36.432 437.184
+			// 5 0.00001 0.00069 3.6432 43.7184
+			// 6 0.000001 0.000069 0.36432 4.37184
 			// The difference between 48.898748 and 48.898749 is 4.4 inches.
 			// Four digits, or around 36 feet, is really about all you need for normal navigation.
-
 			return GetFormat(value, "G12");
 		}
 
@@ -343,7 +340,7 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private double m_value;
+		private double value;
 
 		#endregion
 	}

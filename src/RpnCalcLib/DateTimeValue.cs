@@ -15,7 +15,7 @@ namespace Menees.RpnCalc
 
 		public DateTimeValue(DateTime value)
 		{
-			this.m_value = value;
+			this.value = value;
 		}
 
 		#endregion
@@ -34,7 +34,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_value;
+				return this.value;
 			}
 		}
 
@@ -44,21 +44,21 @@ namespace Menees.RpnCalc
 
 		public override string ToString()
 		{
-			bool hasDate = this.m_value.Date != DateTime.MinValue;
-			bool hasTime = this.m_value.TimeOfDay != TimeSpan.Zero;
+			bool hasDate = this.value.Date != DateTime.MinValue;
+			bool hasTime = this.value.TimeOfDay != TimeSpan.Zero;
 
 			string result;
 			if (hasDate && hasTime)
 			{
-				result = this.m_value.ToString();
+				result = this.value.ToString();
 			}
 			else if (hasTime)
 			{
-				result = this.m_value.ToLongTimeString();
+				result = this.value.ToLongTimeString();
 			}
 			else
 			{
-				result = this.m_value.ToShortDateString();
+				result = this.value.ToShortDateString();
 			}
 
 			return result;
@@ -75,8 +75,8 @@ namespace Menees.RpnCalc
 			List<DisplayFormat> result = new List<DisplayFormat>(3);
 
 			result.Add(new DisplayFormat(this.ToString(calc)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_LongDateTime, this.m_value.ToString("F", CultureInfo.CurrentCulture)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_ShortDateTime, this.m_value.ToString("G", CultureInfo.CurrentCulture)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_LongDateTime, this.value.ToString("F", CultureInfo.CurrentCulture)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_ShortDateTime, this.value.ToString("G", CultureInfo.CurrentCulture)));
 
 			return result;
 		}
@@ -91,10 +91,9 @@ namespace Menees.RpnCalc
 				// Remove the delimiters if both are present.
 				text = Utility.StripDelimiters(text, StartDelimiter, EndDelimiter);
 
-				DateTime value;
 				if (DateTime.TryParse(text, DateTimeFormatInfo.CurrentInfo,
 					DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeLocal | DateTimeStyles.NoCurrentDateDefault,
-					out value))
+					out DateTime value))
 				{
 					dateTimeValue = new DateTimeValue(value);
 					result = true;
@@ -106,17 +105,17 @@ namespace Menees.RpnCalc
 
 		public static DateTimeValue Add(DateTimeValue x, TimeSpanValue y)
 		{
-			return new DateTimeValue(x.m_value + y.AsTimeSpan);
+			return new DateTimeValue(x.value + y.AsTimeSpan);
 		}
 
 		public static TimeSpanValue Subtract(DateTimeValue x, DateTimeValue y)
 		{
-			return new TimeSpanValue(x.m_value - y.m_value);
+			return new TimeSpanValue(x.value - y.value);
 		}
 
 		public static DateTimeValue Subtract(DateTimeValue x, TimeSpanValue y)
 		{
-			return new DateTimeValue(x.m_value - y.AsTimeSpan);
+			return new DateTimeValue(x.value - y.AsTimeSpan);
 		}
 
 		public override bool Equals(object obj)
@@ -127,15 +126,14 @@ namespace Menees.RpnCalc
 
 		public override int GetHashCode()
 		{
-			return this.m_value.GetHashCode();
+			return this.value.GetHashCode();
 		}
 
 		public static int Compare(DateTimeValue x, DateTimeValue y)
 		{
-			int result;
-			if (!CompareWithNulls(x, y, out result))
+			if (!CompareWithNulls(x, y, out int result))
 			{
-				result = x.m_value.CompareTo(y.m_value);
+				result = x.value.CompareTo(y.value);
 			}
 
 			return result;
@@ -211,7 +209,7 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private DateTime m_value;
+		private DateTime value;
 
 		#endregion
 	}

@@ -41,7 +41,7 @@ namespace Menees.RpnCalc.Internal
 
 		public static void MaxDouble(Command cmd)
 		{
-			cmd.Commit(new DoubleValue(Double.MaxValue));
+			cmd.Commit(new DoubleValue(double.MaxValue));
 		}
 
 		public static void MaxInteger(Command cmd)
@@ -61,7 +61,7 @@ namespace Menees.RpnCalc.Internal
 
 		public static void MinDouble(Command cmd)
 		{
-			cmd.Commit(new DoubleValue(Double.MinValue));
+			cmd.Commit(new DoubleValue(double.MinValue));
 		}
 
 		public static void MinInteger(Command cmd)

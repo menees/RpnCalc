@@ -63,33 +63,25 @@ namespace Menees.RpnCalc.Internal
 
 		public void RotateLeft(Command cmd)
 		{
-			int numBits;
-			BinaryValue value;
-			this.RequireIntegerAndBinary(cmd, out numBits, out value);
+			this.RequireIntegerAndBinary(cmd, out int numBits, out BinaryValue value);
 			cmd.Commit(BinaryValue.RotateLeft(value, numBits, this.Calc));
 		}
 
 		public void RotateRight(Command cmd)
 		{
-			int numBits;
-			BinaryValue value;
-			this.RequireIntegerAndBinary(cmd, out numBits, out value);
+			this.RequireIntegerAndBinary(cmd, out int numBits, out BinaryValue value);
 			cmd.Commit(BinaryValue.RotateRight(value, numBits, this.Calc));
 		}
 
 		public void ShiftLeft(Command cmd)
 		{
-			int numBits;
-			BinaryValue value;
-			this.RequireIntegerAndBinary(cmd, out numBits, out value);
+			this.RequireIntegerAndBinary(cmd, out int numBits, out BinaryValue value);
 			cmd.Commit(BinaryValue.ShiftLeft(value, numBits, this.Calc));
 		}
 
 		public void ShiftRight(Command cmd)
 		{
-			int numBits;
-			BinaryValue value;
-			this.RequireIntegerAndBinary(cmd, out numBits, out value);
+			this.RequireIntegerAndBinary(cmd, out int numBits, out BinaryValue value);
 			cmd.Commit(BinaryValue.ShiftRight(value, numBits, this.Calc));
 		}
 

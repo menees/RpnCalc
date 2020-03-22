@@ -17,12 +17,12 @@ namespace Menees.RpnCalc
 
 		public ComplexValue(Complex value)
 		{
-			this.m_value = value;
+			this.value = value;
 		}
 
 		public ComplexValue(double real, double imaginary)
 		{
-			this.m_value = new Complex(real, imaginary);
+			this.value = new Complex(real, imaginary);
 		}
 
 		#endregion
@@ -41,7 +41,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_value;
+				return this.value;
 			}
 		}
 
@@ -51,7 +51,7 @@ namespace Menees.RpnCalc
 
 		public override string ToString()
 		{
-			return this.m_value.ToString();
+			return this.value.ToString();
 		}
 
 		public override string ToString(Calculator calc)
@@ -60,11 +60,11 @@ namespace Menees.RpnCalc
 
 			if (calc.ComplexFormat == ComplexFormat.Polar)
 			{
-				result = GetPolarFormat(this.m_value, calc);
+				result = GetPolarFormat(this.value, calc);
 			}
 			else
 			{
-				result = GetRectangularFormat(this.m_value, calc);
+				result = GetRectangularFormat(this.value, calc);
 			}
 
 			return result;
@@ -74,9 +74,9 @@ namespace Menees.RpnCalc
 		{
 			List<DisplayFormat> result = new List<DisplayFormat>(3);
 
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Algebraic, GetAlgebraicFormat(this.m_value, calc)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Rectangular, GetRectangularFormat(this.m_value, calc)));
-			result.Add(new DisplayFormat(Resources.DisplayFormat_Polar, GetPolarFormat(this.m_value, calc)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Algebraic, GetAlgebraicFormat(this.value, calc)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Rectangular, GetRectangularFormat(this.value, calc)));
+			result.Add(new DisplayFormat(Resources.DisplayFormat_Polar, GetPolarFormat(this.value, calc)));
 
 			return result;
 		}
@@ -108,9 +108,8 @@ namespace Menees.RpnCalc
 						inPolarFormat = true;
 					}
 
-					double part0Value, part1Value;
-					if (double.TryParse(part0, out part0Value) &&
-						double.TryParse(part1, out part1Value))
+					if (double.TryParse(part0, out double part0Value) &&
+						double.TryParse(part1, out double part1Value))
 					{
 						Complex value;
 						if (inPolarFormat)
@@ -138,9 +137,9 @@ namespace Menees.RpnCalc
 
 		public override double ToDouble()
 		{
-			if (this.m_value.Imaginary == 0)
+			if (this.value.Imaginary == 0)
 			{
-				return this.m_value.Real;
+				return this.value.Real;
 			}
 			else
 			{
@@ -150,9 +149,9 @@ namespace Menees.RpnCalc
 
 		public override BigInteger ToInteger()
 		{
-			if (this.m_value.Imaginary == 0)
+			if (this.value.Imaginary == 0)
 			{
-				return (BigInteger)this.m_value.Real;
+				return (BigInteger)this.value.Real;
 			}
 			else
 			{
@@ -162,32 +161,32 @@ namespace Menees.RpnCalc
 
 		public override Complex ToComplex()
 		{
-			return this.m_value;
+			return this.value;
 		}
 
 		public static ComplexValue Add(ComplexValue x, ComplexValue y)
 		{
-			return new ComplexValue(x.m_value + y.m_value);
+			return new ComplexValue(x.value + y.value);
 		}
 
 		public static ComplexValue Subtract(ComplexValue x, ComplexValue y)
 		{
-			return new ComplexValue(x.m_value - y.m_value);
+			return new ComplexValue(x.value - y.value);
 		}
 
 		public static ComplexValue Multiply(ComplexValue x, ComplexValue y)
 		{
-			return new ComplexValue(x.m_value * y.m_value);
+			return new ComplexValue(x.value * y.value);
 		}
 
 		public static ComplexValue Divide(ComplexValue x, ComplexValue y)
 		{
-			return new ComplexValue(x.m_value / y.m_value);
+			return new ComplexValue(x.value / y.value);
 		}
 
 		public static ComplexValue Negate(ComplexValue x)
 		{
-			return new ComplexValue(Complex.Negate(x.m_value));
+			return new ComplexValue(Complex.Negate(x.value));
 		}
 
 		public static ComplexValue Power(ComplexValue x, DoubleValue exponent)
@@ -196,28 +195,28 @@ namespace Menees.RpnCalc
 			// For example, Complex.Pow((-8,0), 1/3) returns (1, 1.73205080756888)
 			// instead of the principal root of -2.  Oh well.  It's a valid answer; it's
 			// just not the expected one.
-			return new ComplexValue(Complex.Pow(x.m_value, exponent.AsDouble));
+			return new ComplexValue(Complex.Pow(x.value, exponent.AsDouble));
 		}
 
 		public static ComplexValue Power(ComplexValue x, ComplexValue exponent)
 		{
-			return new ComplexValue(Complex.Pow(x.m_value, exponent.m_value));
+			return new ComplexValue(Complex.Pow(x.value, exponent.value));
 		}
 
 		public static ComplexValue Invert(ComplexValue x)
 		{
-			return new ComplexValue(Complex.One / x.m_value);
+			return new ComplexValue(Complex.One / x.value);
 		}
 
 		public override bool Equals(object obj)
 		{
 			ComplexValue value = obj as ComplexValue;
-			return value != null && value.m_value == this.m_value;
+			return value != null && value.value == this.value;
 		}
 
 		public override int GetHashCode()
 		{
-			return this.m_value.GetHashCode();
+			return this.value.GetHashCode();
 		}
 
 		#endregion
@@ -257,10 +256,9 @@ namespace Menees.RpnCalc
 		public static bool operator ==(ComplexValue x, ComplexValue y)
 		{
 			bool result;
-			int compareResult;
-			if (!CompareWithNulls(x, y, out compareResult))
+			if (!CompareWithNulls(x, y, out int compareResult))
 			{
-				result = x.m_value == y.m_value;
+				result = x.value == y.value;
 			}
 			else
 			{
@@ -352,7 +350,7 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private Complex m_value;
+		private Complex value;
 
 		#endregion
 	}

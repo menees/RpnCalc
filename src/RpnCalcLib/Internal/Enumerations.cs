@@ -12,7 +12,7 @@ namespace Menees.RpnCalc.Internal
 	{
 		None,
 		Committed,
-		Cancelled
+		Cancelled,
 	}
 
 	#endregion

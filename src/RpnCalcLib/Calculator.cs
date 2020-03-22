@@ -24,7 +24,7 @@ namespace Menees.RpnCalc
 			var stackCommands = new StackCommands(this);
 
 			// Add the Commands in the order they're most likely to be used.
-			this.m_commands = new Commands[]
+			this.commands = new Commands[]
 			{
 				stackCommands,
 				new EntryCommands(this, stackCommands),
@@ -34,10 +34,10 @@ namespace Menees.RpnCalc
 				new TimeSpanCommands(this),
 				new DateTimeCommands(this),
 				new ConstantCommands(this),
-				new ComplexCommands(this)
+				new ComplexCommands(this),
 			};
 
-			this.m_history = new EntryLineHistoryCollection(this);
+			this.history = new EntryLineHistoryCollection(this);
 		}
 
 		#endregion
@@ -59,7 +59,7 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty AngleModeProperty = DependencyProperty.Register(
-			"AngleMode", typeof(AngleMode), typeof(Calculator),
+			nameof(AngleMode), typeof(AngleMode), typeof(Calculator),
 			new PropertyMetadata(AngleMode.Degrees, OnDisplayFormatChanged));
 
 		public BinaryFormat BinaryFormat
@@ -77,7 +77,7 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty BinaryFormatProperty = DependencyProperty.Register(
-			"BinaryFormat", typeof(BinaryFormat), typeof(Calculator),
+			nameof(BinaryFormat), typeof(BinaryFormat), typeof(Calculator),
 			new PropertyMetadata(BinaryFormat.Decimal, OnDisplayFormatChanged));
 
 		public int BinaryWordSize
@@ -95,7 +95,7 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty BinaryWordSizeProperty = DependencyProperty.Register(
-			"BinaryWordSize", typeof(int), typeof(Calculator),
+			nameof(BinaryWordSize), typeof(int), typeof(Calculator),
 			new PropertyMetadata(IntPtr.Size * 8, OnDisplayFormatChanged));
 
 		public ComplexFormat ComplexFormat
@@ -113,7 +113,7 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty ComplexFormatProperty = DependencyProperty.Register(
-			"ComplexFormat", typeof(ComplexFormat), typeof(Calculator),
+			nameof(ComplexFormat), typeof(ComplexFormat), typeof(Calculator),
 			new PropertyMetadata(ComplexFormat.Rectangular, OnDisplayFormatChanged));
 
 		public DecimalFormat DecimalFormat
@@ -131,7 +131,7 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty DecimalFormatProperty = DependencyProperty.Register(
-			"DecimalFormat", typeof(DecimalFormat), typeof(Calculator),
+			nameof(DecimalFormat), typeof(DecimalFormat), typeof(Calculator),
 			new PropertyMetadata(DecimalFormat.Standard, OnDisplayFormatChanged));
 
 		public string EntryLine
@@ -149,7 +149,7 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty EntryLineProperty = DependencyProperty.Register(
-			"EntryLine", typeof(string), typeof(Calculator),
+			nameof(EntryLine), typeof(string), typeof(Calculator),
 			new PropertyMetadata(string.Empty));
 
 		public FractionFormat FractionFormat
@@ -167,7 +167,7 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty FractionFormatProperty = DependencyProperty.Register(
-			"FractionFormat", typeof(FractionFormat), typeof(Calculator),
+			nameof(FractionFormat), typeof(FractionFormat), typeof(Calculator),
 			new PropertyMetadata(FractionFormat.Mixed, OnDisplayFormatChanged));
 
 		public int FixedDecimalDigits
@@ -185,7 +185,7 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty FixedDecimalDigitsProperty = DependencyProperty.Register(
-			"FixedDecimalDigits", typeof(int), typeof(Calculator),
+			nameof(FixedDecimalDigits), typeof(int), typeof(Calculator),
 			new PropertyMetadata(6, OnDisplayFormatChanged));
 
 		public string ErrorMessage
@@ -206,14 +206,14 @@ namespace Menees.RpnCalc
 		}
 
 		public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register(
-			"ErrorMessage", typeof(string), typeof(Calculator),
+			nameof(ErrorMessage), typeof(string), typeof(Calculator),
 			new PropertyMetadata(null));
 
 		public ValueStack Stack
 		{
 			get
 			{
-				return this.m_stack;
+				return this.stack;
 			}
 		}
 
@@ -221,7 +221,7 @@ namespace Menees.RpnCalc
 		{
 			get
 			{
-				return this.m_history;
+				return this.history;
 			}
 		}
 
@@ -231,14 +231,14 @@ namespace Menees.RpnCalc
 
 		public void Load(INode root)
 		{
-			this.AngleMode = root.GetValue("AngleMode", this.AngleMode);
-			this.BinaryFormat = root.GetValue("BinaryFormat", this.BinaryFormat);
-			this.BinaryWordSize = root.GetValue("BinaryWordSize", this.BinaryWordSize);
-			this.EntryLine = root.GetValue("EntryLine", this.EntryLine);
-			this.ComplexFormat = root.GetValue("ComplexFormat", this.ComplexFormat);
-			this.DecimalFormat = root.GetValue("DecimalFormat", this.DecimalFormat);
-			this.FixedDecimalDigits = root.GetValue("FixedDecimalDigits", this.FixedDecimalDigits);
-			this.FractionFormat = root.GetValue("FractionFormat", this.FractionFormat);
+			this.AngleMode = root.GetValue(nameof(this.AngleMode), this.AngleMode);
+			this.BinaryFormat = root.GetValue(nameof(this.BinaryFormat), this.BinaryFormat);
+			this.BinaryWordSize = root.GetValue(nameof(this.BinaryWordSize), this.BinaryWordSize);
+			this.EntryLine = root.GetValue(nameof(this.EntryLine), this.EntryLine);
+			this.ComplexFormat = root.GetValue(nameof(this.ComplexFormat), this.ComplexFormat);
+			this.DecimalFormat = root.GetValue(nameof(this.DecimalFormat), this.DecimalFormat);
+			this.FixedDecimalDigits = root.GetValue(nameof(this.FixedDecimalDigits), this.FixedDecimalDigits);
+			this.FractionFormat = root.GetValue(nameof(this.FractionFormat), this.FractionFormat);
 
 			// I'm intentionally not loading an error message.
 
@@ -246,30 +246,29 @@ namespace Menees.RpnCalc
 			// We need the settings first, so we can parse the inputs the same
 			// way we saved them.  This matters in some cases (e.g., if a complex
 			// number is saved out with modes Polar & Degrees).
-			INode stackNode = root.GetNode("Stack", false);
+			INode stackNode = root.GetNode(nameof(this.Stack), false);
 			this.Stack.Load(stackNode, this);
 
-			INode historyNode = root.GetNode("EntryLineHistory", false);
+			INode historyNode = root.GetNode(nameof(this.EntryLineHistory), false);
 			this.EntryLineHistory.Load(historyNode);
 		}
 
 		public void Save(INode root)
 		{
-			root.SetValue("AngleMode", this.AngleMode);
-			root.SetValue("BinaryFormat", this.BinaryFormat);
-			root.SetValue("BinaryWordSize", this.BinaryWordSize);
-			root.SetValue("EntryLine", this.EntryLine);
-			root.SetValue("ComplexFormat", this.ComplexFormat);
-			root.SetValue("DecimalFormat", this.DecimalFormat);
-			root.SetValue("FixedDecimalDigits", this.FixedDecimalDigits);
-			root.SetValue("FractionFormat", this.FractionFormat);
+			root.SetValue(nameof(this.AngleMode), this.AngleMode);
+			root.SetValue(nameof(this.BinaryFormat), this.BinaryFormat);
+			root.SetValue(nameof(this.BinaryWordSize), this.BinaryWordSize);
+			root.SetValue(nameof(this.EntryLine), this.EntryLine);
+			root.SetValue(nameof(this.ComplexFormat), this.ComplexFormat);
+			root.SetValue(nameof(this.DecimalFormat), this.DecimalFormat);
+			root.SetValue(nameof(this.FixedDecimalDigits), this.FixedDecimalDigits);
+			root.SetValue(nameof(this.FractionFormat), this.FractionFormat);
 
 			// I'm intentionally not saving the error message.
-
-			INode stackNode = root.GetNode("Stack", true);
+			INode stackNode = root.GetNode(nameof(this.Stack), true);
 			this.Stack.Save(stackNode, this);
 
-			INode historyNode = root.GetNode("EntryLineHistory", true);
+			INode historyNode = root.GetNode(nameof(this.EntryLineHistory), true);
 			this.EntryLineHistory.Save(historyNode);
 		}
 
@@ -326,9 +325,9 @@ namespace Menees.RpnCalc
 
 		internal void PushLastArgs()
 		{
-			if (this.m_lastCommand != null)
+			if (this.lastCommand != null)
 			{
-				this.m_lastCommand.PushLastArgs();
+				this.lastCommand.PushLastArgs();
 			}
 		}
 
@@ -351,7 +350,7 @@ namespace Menees.RpnCalc
 		{
 			Func<Command, object> command = null;
 
-			foreach (Commands cmds in this.m_commands)
+			foreach (Commands cmds in this.commands)
 			{
 				command = findCommand(cmds, commandName);
 				if (command != null)
@@ -400,7 +399,7 @@ namespace Menees.RpnCalc
 				// needs access to the previous command's args.
 				if (cmd.State == CommandState.Committed)
 				{
-					this.m_lastCommand = cmd;
+					this.lastCommand = cmd;
 				}
 			}
 			catch (TargetInvocationException invEx)
@@ -582,12 +581,10 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private ValueStack m_stack = new ValueStack();
-		private Command m_lastCommand;
-		private Commands[] m_commands;
-		private EntryLineHistoryCollection m_history;
-
-		private const string c_storageFileName = "RpnCalc.xml";
+		private ValueStack stack = new ValueStack();
+		private Command lastCommand;
+		private Commands[] commands;
+		private EntryLineHistoryCollection history;
 
 #if DEBUG
 		private const bool c_exceptionMessageResourcesAreAvailable = false;

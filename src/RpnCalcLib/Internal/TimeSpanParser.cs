@@ -111,11 +111,10 @@ namespace Menees.RpnCalc.Internal
 				ValidateTokens(nenwsTokens.Skip(1), x => x == null || !x.Contains(negativeSign)) &&
 				ValidateTokens(dhmsTokens.Take(3), x => x == null || !x.Contains(decimalSeparator)))
 			{
-				long daysTicks, hoursTicks, minutesTicks, secondsTicks;
-				if (GetTicks(dhmsTokens[0], TimeSpan.TicksPerDay, false, out daysTicks) &&
-					GetTicks(dhmsTokens[1], TimeSpan.TicksPerHour, false, out hoursTicks) &&
-					GetTicks(dhmsTokens[2], TimeSpan.TicksPerMinute, false, out minutesTicks) &&
-					GetTicks(dhmsTokens[3], TimeSpan.TicksPerSecond, true, out secondsTicks))
+				if (GetTicks(dhmsTokens[0], TimeSpan.TicksPerDay, false, out long daysTicks) &&
+					GetTicks(dhmsTokens[1], TimeSpan.TicksPerHour, false, out long hoursTicks) &&
+					GetTicks(dhmsTokens[2], TimeSpan.TicksPerMinute, false, out long minutesTicks) &&
+					GetTicks(dhmsTokens[3], TimeSpan.TicksPerSecond, true, out long secondsTicks))
 				{
 					// Negative on the first token means the whole TimeSpan should be negative.
 					// We have to check if the token text starts with a negative sign because the
@@ -157,8 +156,7 @@ namespace Menees.RpnCalc.Internal
 			}
 			else if (allowFractionalParts)
 			{
-				double value;
-				if (double.TryParse(text, out value))
+				if (double.TryParse(text, out double value))
 				{
 					ticks = (long)(multiplier * Math.Abs(value));
 					result = true;
@@ -166,8 +164,7 @@ namespace Menees.RpnCalc.Internal
 			}
 			else
 			{
-				int value;
-				if (int.TryParse(text, out value))
+				if (int.TryParse(text, out int value))
 				{
 					ticks = multiplier * Math.Abs(value);
 					result = true;

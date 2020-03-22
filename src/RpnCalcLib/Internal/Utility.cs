@@ -69,8 +69,7 @@ namespace Menees.RpnCalc.Internal
 
 			// Use long's TryParse routine first because it will handle most common
 			// input values more quickly and thoroughly than my code below will.
-			long longValue;
-			if (long.TryParse(text, style, provider, out longValue))
+			if (long.TryParse(text, style, provider, out long longValue))
 			{
 				value = longValue;
 				parsedSuccessfully = true;
@@ -84,7 +83,7 @@ namespace Menees.RpnCalc.Internal
 				// to try to handle all of the supported NumberStyles and formats.
 				// Note: According to Int64.TryParse, .NET looks for patterns
 				// in the following order, so I'll stick to that too roughly:
-				// [ws][$][sign][digits,]digits[.fractional_digits][e[sign]exponential_digits][ws] 
+				// [ws][$][sign][digits,]digits[.fractional_digits][e[sign]exponential_digits][ws]
 				NumberFormatInfo numFmt = NumberFormatInfo.GetInstance(provider);
 				if (style.HasFlag(NumberStyles.AllowLeadingWhite))
 				{
@@ -114,7 +113,6 @@ namespace Menees.RpnCalc.Internal
 				}
 
 				// Note: I'm ignoring NumberStyles.AllowParentheses.
-
 				if (style.HasFlag(NumberStyles.AllowThousands))
 				{
 					// This is weak.  I'm not checking group sizes at all.
@@ -229,7 +227,6 @@ namespace Menees.RpnCalc.Internal
 				// to invoke just by the start delimiter.  So by stripping
 				// partially applied delimiters here (e.g., start without end)
 				// we get HP48's entry parsing behavior.
-
 				if (text[length - 1] == end)
 				{
 					length--;
@@ -277,8 +274,7 @@ namespace Menees.RpnCalc.Internal
 
 		public static bool IsInteger(double doubleValue)
 		{
-			BigInteger integerValue;
-			return IsInteger(doubleValue, out integerValue);
+			return IsInteger(doubleValue, out BigInteger integerValue);
 		}
 
 		public static bool IsInteger(double doubleValue, out BigInteger integerValue)
@@ -330,7 +326,7 @@ namespace Menees.RpnCalc.Internal
 			}
 			else
 			{
-				// An epsilon of 1e-10 is necessary because the loop gets fairly 
+				// An epsilon of 1e-10 is necessary because the loop gets fairly
 				// inaccurate for non-integers... (e.g. gcd(1821.204, 99))
 				double remainder;
 				int iteration = 0;
@@ -428,8 +424,7 @@ namespace Menees.RpnCalc.Internal
 					// Text is something like "123.4" or "123.000", so see if everything
 					// after the decimal point parses to zero.
 					string textAfterDecimal = text.Substring(decimalPointPos + 1);
-					BigInteger valueAfterDecimal;
-					if (TryParse(textAfterDecimal, NumberStyles.None, numFmt, out valueAfterDecimal)
+					if (TryParse(textAfterDecimal, NumberStyles.None, numFmt, out BigInteger valueAfterDecimal)
 						&& valueAfterDecimal == BigInteger.Zero)
 					{
 						// Just keep the text before the "." and any trailing zeros.
@@ -596,7 +591,8 @@ namespace Menees.RpnCalc.Internal
 #endif
 		}
 
-		public static bool TryParse<TEnum>(string value, bool ignoreCase, out TEnum result) where TEnum : struct
+		public static bool TryParse<TEnum>(string value, bool ignoreCase, out TEnum result)
+			where TEnum : struct
 		{
 #if WINDOWS_PHONE
             bool parsed = false;

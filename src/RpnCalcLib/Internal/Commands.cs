@@ -18,7 +18,7 @@ namespace Menees.RpnCalc.Internal
 
 		protected Commands(Calculator calc)
 		{
-			this.m_calc = calc;
+			this.calc = calc;
 		}
 
 		#endregion
@@ -45,7 +45,7 @@ namespace Menees.RpnCalc.Internal
 		{
 			get
 			{
-				return this.m_calc;
+				return this.calc;
 			}
 		}
 
@@ -53,7 +53,7 @@ namespace Menees.RpnCalc.Internal
 		{
 			get
 			{
-				return this.m_calc.Stack;
+				return this.calc.Stack;
 			}
 		}
 
@@ -63,7 +63,7 @@ namespace Menees.RpnCalc.Internal
 
 		protected void RequireArgs(int requiredArgCount)
 		{
-			if (this.m_calc.Stack.Count < requiredArgCount)
+			if (this.calc.Stack.Count < requiredArgCount)
 			{
 				string message;
 				switch (requiredArgCount)
@@ -105,7 +105,7 @@ namespace Menees.RpnCalc.Internal
 
 		protected void RequireType(int offsetFromTop, params ValueType[] supportedTypes)
 		{
-			Value value = this.m_calc.Stack.PeekAt(offsetFromTop);
+			Value value = this.calc.Stack.PeekAt(offsetFromTop);
 
 			if (!supportedTypes.Contains(value.ValueType))
 			{
@@ -119,7 +119,7 @@ namespace Menees.RpnCalc.Internal
 
 		protected void RequireScalarNumericType(int offsetFromTop)
 		{
-			Value value = this.m_calc.Stack.PeekAt(offsetFromTop);
+			Value value = this.calc.Stack.PeekAt(offsetFromTop);
 
 			if (!c_scalarNumericTypes.Contains(value.ValueType))
 			{
@@ -132,7 +132,7 @@ namespace Menees.RpnCalc.Internal
 
 		protected void RequireComplexNumericType(int offsetFromTop)
 		{
-			Value value = this.m_calc.Stack.PeekAt(offsetFromTop);
+			Value value = this.calc.Stack.PeekAt(offsetFromTop);
 
 			if (!c_complexNumericTypes.Contains(value.ValueType))
 			{
@@ -146,7 +146,7 @@ namespace Menees.RpnCalc.Internal
 
 		protected void RequireMatchingTypes(int offsetFromTop1, int offsetFromTop2)
 		{
-			ValueStack stack = this.m_calc.Stack;
+			ValueStack stack = this.calc.Stack;
 			Value value1 = stack.PeekAt(offsetFromTop1);
 			Value value2 = stack.PeekAt(offsetFromTop2);
 
@@ -212,13 +212,17 @@ namespace Menees.RpnCalc.Internal
 
 		#region Private Data Members
 
-		private Calculator m_calc;
+		private Calculator calc;
 
 		private static readonly ValueType[] c_scalarNumericTypes =
-		{ ValueType.Integer, ValueType.Double, ValueType.Fraction, ValueType.Binary };
+		{
+			ValueType.Integer, ValueType.Double, ValueType.Fraction, ValueType.Binary,
+		};
 
 		private static readonly ValueType[] c_complexNumericTypes =
-		{ ValueType.Integer, ValueType.Double, ValueType.Complex, ValueType.Fraction, ValueType.Binary };
+		{
+			ValueType.Integer, ValueType.Double, ValueType.Complex, ValueType.Fraction, ValueType.Binary,
+		};
 
 		private static readonly Type[] c_commandType = { typeof(Command) };
 		private static readonly Type[] c_commandAndIntTypes = { typeof(Command), typeof(int) };

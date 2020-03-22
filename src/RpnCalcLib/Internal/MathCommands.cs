@@ -175,16 +175,14 @@ namespace Menees.RpnCalc.Internal
 
 		public void Gcd(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoScalarNumericValues(cmd, out x, out y);
+			this.UseTopTwoScalarNumericValues(cmd, out NumericValue x, out NumericValue y);
 			NumericValue result = NumericValue.Gcd(x, y);
 			cmd.Commit(result);
 		}
 
 		public void Hyp(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoNumericValues(cmd, out x, out y);
+			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 			Value xSq = Value.Multiply(x, x, this.Calc);
 			Value ySq = Value.Multiply(y, y, this.Calc);
 			Value sum = Value.Add(xSq, ySq, this.Calc);
@@ -218,8 +216,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void Lcm(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoScalarNumericValues(cmd, out x, out y);
+			this.UseTopTwoScalarNumericValues(cmd, out NumericValue x, out NumericValue y);
 			NumericValue result = NumericValue.Lcm(x, y, this.Calc);
 			cmd.Commit(result);
 		}
@@ -230,7 +227,7 @@ namespace Menees.RpnCalc.Internal
 				cmd,
 				new TrancendentalOperations(
 					Complex.Log,
-				Math.Log, BigInteger.Log));
+					Math.Log, BigInteger.Log));
 		}
 
 		public void Log(Command cmd)
@@ -254,8 +251,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void Mod(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoNumericValues(cmd, out x, out y);
+			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 			NumericValue result = NumericValue.Modulus(y, x, this.Calc);
 			cmd.Commit(result);
 		}
@@ -278,8 +274,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void Percent(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoNumericValues(cmd, out x, out y);
+			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return y% of x => xy/100
 			Value result = Value.Divide(Value.Multiply(x, y, this.Calc), c_oneHundred, this.Calc);
@@ -288,8 +283,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void PercentChange(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoNumericValues(cmd, out x, out y);
+			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return % change from y to x as a percentage of y => 100(x-y)/y
 			Value result = Value.Divide(Value.Multiply(c_oneHundred, Value.Subtract(x, y, this.Calc), this.Calc), y, this.Calc);
@@ -298,8 +292,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void PercentTotal(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoNumericValues(cmd, out x, out y);
+			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return % of the total y represented by x => 100x/y
 			Value result = Value.Divide(Value.Multiply(c_oneHundred, x, this.Calc), y, this.Calc);
@@ -314,8 +307,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void Power(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoNumericValues(cmd, out x, out y);
+			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 			NumericValue result = NumericValue.Power(y, x);
 			cmd.Commit(result);
 		}
@@ -334,8 +326,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void RandomBetween(Command cmd)
 		{
-			NumericValue first, second;
-			this.UseTopTwoScalarNumericValues(cmd, out first, out second);
+			this.UseTopTwoScalarNumericValues(cmd, out NumericValue first, out NumericValue second);
 			double min = second.ToDouble();
 			double max = first.ToDouble();
 			double range = max - min;
@@ -429,8 +420,7 @@ namespace Menees.RpnCalc.Internal
 
 		public void XRoot(Command cmd)
 		{
-			NumericValue x, y;
-			this.UseTopTwoNumericValues(cmd, out x, out y);
+			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 			NumericValue invX = NumericValue.Invert(x);
 			NumericValue result = NumericValue.Power(y, invX);
 			cmd.Commit(result);
@@ -460,17 +450,17 @@ namespace Menees.RpnCalc.Internal
 		{
 			get
 			{
-				if (this.m_randomizer == null)
+				if (this.randomizer == null)
 				{
-					this.m_randomizer = new Random();
+					this.randomizer = new Random();
 				}
 
-				return this.m_randomizer;
+				return this.randomizer;
 			}
 
 			set
 			{
-				this.m_randomizer = value;
+				this.randomizer = value;
 			}
 		}
 
@@ -554,8 +544,7 @@ namespace Menees.RpnCalc.Internal
 
 		private void CombPerm(Command cmd, Func<BigInteger, BigInteger, BigInteger> getDenominator)
 		{
-			NumericValue first, second;
-			this.UseTopTwoScalarNumericValues(cmd, out first, out second);
+			this.UseTopTwoScalarNumericValues(cmd, out NumericValue first, out NumericValue second);
 			BigInteger r = RequireInteger(first);
 			BigInteger n = RequireInteger(second);
 			if (n < r)
@@ -574,8 +563,7 @@ namespace Menees.RpnCalc.Internal
 			this.RequireArgs(2);
 			this.RequireComplexNumericType(1);
 			this.RequireScalarNumericType(0);
-			NumericValue value, numPlaces;
-			this.UseTopTwoNumericValues(cmd, out numPlaces, out value);
+			this.UseTopTwoNumericValues(cmd, out NumericValue numPlaces, out NumericValue value);
 			int digits = (int)numPlaces.ToInteger();
 
 			NumericValue result = value;
@@ -629,11 +617,11 @@ namespace Menees.RpnCalc.Internal
 			}
 			else if (value > c_nearOverflow)
 			{
-				result = Double.PositiveInfinity;
+				result = double.PositiveInfinity;
 			}
 			else if (value < -c_nearOverflow)
 			{
-				result = Double.NegativeInfinity;
+				result = double.NegativeInfinity;
 			}
 
 			return result;
@@ -716,7 +704,7 @@ namespace Menees.RpnCalc.Internal
 
 		#region Private Data Members
 
-		private Random m_randomizer;
+		private Random randomizer;
 
 		private const double c_radianToDegreeMultiplier = 180.0 / Math.PI;
 		private static readonly IntegerValue c_oneHundred = new IntegerValue(100);

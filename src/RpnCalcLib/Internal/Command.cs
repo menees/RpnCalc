@@ -18,7 +18,7 @@ namespace Menees.RpnCalc.Internal
 
 		public Command(Calculator calc)
 		{
-			this.m_calc = calc;
+			this.calc = calc;
 		}
 
 		#endregion
@@ -33,8 +33,8 @@ namespace Menees.RpnCalc.Internal
 
 		public IList<Value> UseTopValues(int count)
 		{
-			IList<Value> result = this.m_calc.Stack.PeekRange(count);
-			this.m_topValuesUsedCount = count;
+			IList<Value> result = this.calc.Stack.PeekRange(count);
+			this.topValuesUsedCount = count;
 			return result;
 		}
 
@@ -43,8 +43,8 @@ namespace Menees.RpnCalc.Internal
 		/// </summary>
 		public void SetLastArgs(IList<Value> lastArgs)
 		{
-			this.m_lastArgs = lastArgs;
-			this.m_topValuesUsedCount = 0;
+			this.lastArgs = lastArgs;
+			this.topValuesUsedCount = 0;
 		}
 
 		public void Commit(params Value[] valuesToPush)
@@ -54,10 +54,10 @@ namespace Menees.RpnCalc.Internal
 
 		public void Cancel()
 		{
-			Debug.Assert(this.m_state != CommandState.Committed, "Cancel shouldn't be called on a command that has already been committed.");
-			this.m_state = CommandState.Cancelled;
-			this.m_topValuesUsedCount = 0;
-			this.m_lastArgs = null;
+			Debug.Assert(this.state != CommandState.Committed, "Cancel shouldn't be called on a command that has already been committed.");
+			this.state = CommandState.Cancelled;
+			this.topValuesUsedCount = 0;
+			this.lastArgs = null;
 		}
 
 		#endregion
@@ -68,7 +68,7 @@ namespace Menees.RpnCalc.Internal
 		{
 			get
 			{
-				return this.m_state;
+				return this.state;
 			}
 		}
 
@@ -78,9 +78,9 @@ namespace Menees.RpnCalc.Internal
 
 		internal void PushLastArgs()
 		{
-			if (this.m_lastArgs != null)
+			if (this.lastArgs != null)
 			{
-				this.m_calc.Stack.PushRange(this.m_lastArgs.Reverse());
+				this.calc.Stack.PushRange(this.lastArgs.Reverse());
 
 				// Don't null out m_lastArgs.  We'll keep the args
 				// around in case the user hits LAST again.
@@ -94,16 +94,16 @@ namespace Menees.RpnCalc.Internal
 			// will cause no "significant" data loss.
 			var actualValuesToPush = ValidateAndReduce(valuesToPush);
 
-			ValueStack stack = this.m_calc.Stack;
+			ValueStack stack = this.calc.Stack;
 
-			if (this.m_topValuesUsedCount > 0)
+			if (this.topValuesUsedCount > 0)
 			{
-				this.m_lastArgs = stack.PopRange(this.m_topValuesUsedCount);
+				this.lastArgs = stack.PopRange(this.topValuesUsedCount);
 			}
 
 			stack.PushRange(actualValuesToPush);
 
-			this.m_state = state;
+			this.state = state;
 		}
 
 		#endregion
@@ -113,7 +113,10 @@ namespace Menees.RpnCalc.Internal
 		private static IEnumerable<Value> ValidateAndReduce(Value[] valuesToPush)
 		{
 			int numValuesToPush = valuesToPush.Length;
-			if (numValuesToPush == 0) return valuesToPush;
+			if (numValuesToPush == 0)
+			{
+				return valuesToPush;
+			}
 
 			// This method does value type reduction, which is something
 			// the HP48 doesn't do.  It's usually a good thing:
@@ -144,7 +147,7 @@ namespace Menees.RpnCalc.Internal
 						break;
 					case ValueType.Double:
 						DoubleValue doubleValue = (DoubleValue)value;
-						Double dbl = doubleValue.AsDouble;
+						double dbl = doubleValue.AsDouble;
 						Validate(dbl);
 
 						// Reduce to an integer if there's no fractional part.
@@ -175,7 +178,7 @@ namespace Menees.RpnCalc.Internal
 
 		private static void Validate(double value)
 		{
-			if (Double.IsInfinity(value) || Double.IsNaN(value))
+			if (double.IsInfinity(value) || double.IsNaN(value))
 			{
 				throw new NotFiniteNumberException();
 			}
@@ -185,8 +188,7 @@ namespace Menees.RpnCalc.Internal
 		{
 			NumericValue result;
 
-			BigInteger integerValue;
-			if (Utility.IsInteger(rawValue, out integerValue))
+			if (Utility.IsInteger(rawValue, out BigInteger integerValue))
 			{
 				result = new IntegerValue(integerValue);
 			}
@@ -243,15 +245,14 @@ namespace Menees.RpnCalc.Internal
 			return result;
 		}
 
-
 		#endregion
 
 		#region Private Data Members
 
-		private Calculator m_calc;
-		private int m_topValuesUsedCount;
-		private IList<Value> m_lastArgs;
-		private CommandState m_state;
+		private Calculator calc;
+		private int topValuesUsedCount;
+		private IList<Value> lastArgs;
+		private CommandState state;
 
 		#endregion
 	}

@@ -19,13 +19,13 @@ namespace Menees.RpnCalc
 		// This overload is provided for CLS compliance.
 		public BinaryValue(long value)
 		{
-			this.m_value = unchecked((ulong)value);
+			this.value = unchecked((ulong)value);
 		}
 
 		[CLSCompliant(false)]
 		public BinaryValue(ulong value)
 		{
-			this.m_value = value;
+			this.value = value;
 		}
 
 		#endregion
@@ -46,7 +46,7 @@ namespace Menees.RpnCalc
 
 		public override string ToString()
 		{
-			return GetDecimalFormat(this.m_value);
+			return GetDecimalFormat(this.value);
 		}
 
 		public override string ToString(Calculator calc)
@@ -111,8 +111,7 @@ namespace Menees.RpnCalc
 				{
 					// Format: 0xHexDigits
 					text = text.Substring(2);
-					ulong hexValue;
-					if (ulong.TryParse(text, NumberStyles.HexNumber, NumberFormatInfo.CurrentInfo, out hexValue))
+					if (ulong.TryParse(text, NumberStyles.HexNumber, NumberFormatInfo.CurrentInfo, out ulong hexValue))
 					{
 						value = new BinaryValue(hexValue);
 						result = true;
@@ -121,8 +120,7 @@ namespace Menees.RpnCalc
 				else
 				{
 					// See if it's just decimal digits.
-					ulong decimalValue;
-					if (ulong.TryParse(text, out decimalValue))
+					if (ulong.TryParse(text, out ulong decimalValue))
 					{
 						value = new BinaryValue(decimalValue);
 						result = true;
@@ -135,65 +133,65 @@ namespace Menees.RpnCalc
 
 		public override double ToDouble()
 		{
-			return (double)this.m_value;
+			return (double)this.value;
 		}
 
 		public override BigInteger ToInteger()
 		{
-			return (BigInteger)this.m_value;
+			return (BigInteger)this.value;
 		}
 
 		public static BinaryValue And(BinaryValue x, BinaryValue y)
 		{
-			return new BinaryValue(x.m_value & y.m_value);
+			return new BinaryValue(x.value & y.value);
 		}
 
 		public static BinaryValue Not(BinaryValue x, Calculator calc)
 		{
-			return new BinaryValue(GetMaskedWordSizeValue(calc, ~x.m_value));
+			return new BinaryValue(GetMaskedWordSizeValue(calc, ~x.value));
 		}
 
 		public static BinaryValue Or(BinaryValue x, BinaryValue y)
 		{
-			return new BinaryValue(x.m_value | y.m_value);
+			return new BinaryValue(x.value | y.value);
 		}
 
 		public static BinaryValue ShiftLeft(BinaryValue x, int numBits, Calculator calc)
 		{
-			ulong value = GetMaskedWordSizeValue(calc, x.m_value << numBits);
+			ulong value = GetMaskedWordSizeValue(calc, x.value << numBits);
 			return new BinaryValue(value);
 		}
 
 		public static BinaryValue ShiftRight(BinaryValue x, int numBits, Calculator calc)
 		{
-			ulong value = GetMaskedWordSizeValue(calc, x.m_value >> numBits);
+			ulong value = GetMaskedWordSizeValue(calc, x.value >> numBits);
 			return new BinaryValue(value);
 		}
 
 		public static BinaryValue RotateLeft(BinaryValue x, int numBits, Calculator calc)
 		{
-			ulong mostSignificantBits = x.m_value >> (calc.BinaryWordSize - numBits);
-			ulong leastSignificantBits = x.m_value << numBits;
+			ulong mostSignificantBits = x.value >> (calc.BinaryWordSize - numBits);
+			ulong leastSignificantBits = x.value << numBits;
 			ulong result = GetMaskedWordSizeValue(calc, unchecked(leastSignificantBits + mostSignificantBits));
 			return new BinaryValue(result);
 		}
 
 		public static BinaryValue RotateRight(BinaryValue x, int numBits, Calculator calc)
 		{
-			ulong leastSignificantBits = x.m_value << (calc.BinaryWordSize - numBits);
-			ulong mostSignificantBits = x.m_value >> numBits;
+			ulong leastSignificantBits = x.value << (calc.BinaryWordSize - numBits);
+			ulong mostSignificantBits = x.value >> numBits;
 			ulong result = GetMaskedWordSizeValue(calc, unchecked(leastSignificantBits + mostSignificantBits));
 			return new BinaryValue(result);
 		}
 
 		public static BinaryValue Xor(BinaryValue x, BinaryValue y)
 		{
-			return new BinaryValue(x.m_value ^ y.m_value);
+			return new BinaryValue(x.value ^ y.value);
 		}
 
 		public static BinaryValue Add(BinaryValue x, BinaryValue y, Calculator calc)
 		{
-			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.m_value + y.m_value)));
+			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.value + y.value)));
 		}
 
 		public static BinaryValue Subtract(BinaryValue x, BinaryValue y, Calculator calc)
@@ -205,12 +203,12 @@ namespace Menees.RpnCalc
 
 		public static BinaryValue Multiply(BinaryValue x, BinaryValue y, Calculator calc)
 		{
-			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.m_value * y.m_value)));
+			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.value * y.value)));
 		}
 
 		public static BinaryValue Divide(BinaryValue x, BinaryValue y, Calculator calc)
 		{
-			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.m_value / y.m_value)));
+			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.value / y.value)));
 		}
 
 		public static BinaryValue Negate(BinaryValue x, Calculator calc)
@@ -218,12 +216,12 @@ namespace Menees.RpnCalc
 			// Do two's complement with the current word size
 			// (flip all the bits (one's complement), then add 1).
 			BinaryValue onesComplement = Not(x, calc);
-			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(onesComplement.m_value + 1)));
+			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(onesComplement.value + 1)));
 		}
 
 		public static NumericValue Power(BinaryValue x, BinaryValue exponent)
 		{
-			NumericValue result = IntegerValue.Power(new IntegerValue(x.m_value), new IntegerValue(exponent.m_value));
+			NumericValue result = IntegerValue.Power(new IntegerValue(x.value), new IntegerValue(exponent.value));
 
 			// If we got an integer result in ulong's range, then convert it to binary.
 			IntegerValue intResult = result as IntegerValue;
@@ -237,18 +235,18 @@ namespace Menees.RpnCalc
 
 		public static FractionValue Invert(BinaryValue x)
 		{
-			return new FractionValue(BigInteger.One, x.m_value);
+			return new FractionValue(BigInteger.One, x.value);
 		}
 
 		public static BinaryValue Modulus(BinaryValue x, BinaryValue y, Calculator calc)
 		{
-			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.m_value % y.m_value)));
+			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.value % y.value)));
 		}
 
 		public int Sign(Calculator calc)
 		{
 			int result = 0;
-			if (this.m_value != 0)
+			if (this.value != 0)
 			{
 				// Negate does two's complement, so we'll say we're negative if the
 				// most significant bit is set.  However, this is inconsistent with the
@@ -259,7 +257,7 @@ namespace Menees.RpnCalc
 				// a binary value using two's complement, but it's other commands
 				// always treat a binary value as non-negative.  And it doesn't
 				// support the SIGN command for binary values.
-				bool msbSet = (this.m_value & unchecked((ulong)(1L << (calc.BinaryWordSize - 1)))) != 0;
+				bool msbSet = (this.value & unchecked((ulong)(1L << (calc.BinaryWordSize - 1)))) != 0;
 				result = msbSet ? -1 : 1;
 			}
 
@@ -274,15 +272,14 @@ namespace Menees.RpnCalc
 
 		public override int GetHashCode()
 		{
-			return this.m_value.GetHashCode();
+			return this.value.GetHashCode();
 		}
 
 		public static int Compare(BinaryValue x, BinaryValue y)
 		{
-			int result;
-			if (!CompareWithNulls(x, y, out result))
+			if (!CompareWithNulls(x, y, out int result))
 			{
-				result = x.m_value.CompareTo(y.m_value);
+				result = x.value.CompareTo(y.value);
 			}
 
 			return result;
@@ -343,7 +340,7 @@ namespace Menees.RpnCalc
 
 		private ulong GetMaskedWordSizeValue(Calculator calc)
 		{
-			return GetMaskedWordSizeValue(calc, this.m_value);
+			return GetMaskedWordSizeValue(calc, this.value);
 		}
 
 		private static ulong GetMaskedWordSizeValue(Calculator calc, ulong value)
@@ -442,8 +439,7 @@ namespace Menees.RpnCalc
 				// Remove the suffix character if necessary.
 				text = text.Substring(0, length);
 
-				BigInteger bigIntValue;
-				if (Utility.TryParseDigits(text, (int)format, out bigIntValue) &&
+				if (Utility.TryParseDigits(text, (int)format, out BigInteger bigIntValue) &&
 					bigIntValue <= ulong.MaxValue && bigIntValue >= ulong.MinValue)
 				{
 					ulong ulongValue = (ulong)bigIntValue;
@@ -459,7 +455,7 @@ namespace Menees.RpnCalc
 
 		#region Private Data Members
 
-		private ulong m_value;
+		private ulong value;
 
 		private const int c_maxWordSize = 8 * sizeof(ulong); // 64
 

@@ -11,7 +11,7 @@ namespace Menees.RpnCalc
 	public enum AngleMode
 	{
 		Radians,
-		Degrees
+		Degrees,
 	}
 
 	#endregion
@@ -26,7 +26,7 @@ namespace Menees.RpnCalc
 		Binary = 2,
 		Octal = 8,
 		Decimal = 10,
-		Hexadecimal = 16
+		Hexadecimal = 16,
 	}
 
 	#endregion
@@ -36,7 +36,7 @@ namespace Menees.RpnCalc
 	public enum ComplexFormat
 	{
 		Rectangular,
-		Polar
+		Polar,
 	}
 
 	#endregion
@@ -47,7 +47,7 @@ namespace Menees.RpnCalc
 	{
 		Standard,
 		Fixed,
-		Scientific
+		Scientific,
 	}
 
 	#endregion
@@ -60,7 +60,7 @@ namespace Menees.RpnCalc
 		// http://en.wikipedia.org/wiki/Vulgar_fraction#Vulgar.2C_proper.2C_and_improper_fractions
 		Common,
 		Mixed,
-		Decimal
+		Decimal,
 	}
 
 	#endregion
