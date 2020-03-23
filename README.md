@@ -1,3 +1,5 @@
+![windows build](https://github.com/bmenees/RpnCalc/workflows/windows%20build/badge.svg)
+
 # ![Icon](http://www.menees.com/Images/RpnCalc3.png) RPN Calc
 This is an [RPN](https://en.wikipedia.org/wiki/Reverse_Polish_notation) calculator for Windows desktop similar to an old [HP48](https://en.wikipedia.org/wiki/HP_48_series) calculator. It supports binary/octal/decimal/hexadecimal values, large integers, fractions, doubles, complex numbers, DateTimes, and TimeSpans.
 
