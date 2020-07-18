@@ -153,7 +153,7 @@
 
 		private void About_Click(object sender, RoutedEventArgs e)
 		{
-			WindowsUtility.ShowAboutBox(this, Assembly.GetExecutingAssembly());
+			WindowsUtility.ShowAboutBox(this, Assembly.GetExecutingAssembly(), nameof(RpnCalc));
 		}
 
 		private void EntryLineUndo_Click(object sender, RoutedEventArgs e)
