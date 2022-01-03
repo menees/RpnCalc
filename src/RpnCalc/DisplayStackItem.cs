@@ -24,16 +24,16 @@
 	{
 		#region Private Data Members
 
-		private readonly Calculator calc;
-		private readonly Value value;
+		private readonly Calculator? calc;
+		private readonly Value? value;
 		private int position;
-		private List<DisplayFormat> displayFormats;
+		private List<DisplayFormat>? displayFormats;
 
 		#endregion
 
 		#region Constructors
 
-		internal DisplayStackItem(Calculator calc, Value value, int position)
+		internal DisplayStackItem(Calculator? calc, Value? value, int position)
 		{
 			this.calc = calc;
 			this.value = value;
@@ -44,7 +44,7 @@
 
 		#region INotifyPropertyChanged Members
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler? PropertyChanged;
 
 		#endregion
 
@@ -59,12 +59,12 @@
 			}
 		}
 
-		public string ValueText
+		public string? ValueText
 		{
 			get
 			{
-				string result = null;
-				if (this.value != null)
+				string? result = null;
+				if (this.value != null && this.calc != null)
 				{
 					result = this.value.ToString(this.calc);
 				}
@@ -84,7 +84,7 @@
 					const int c_requiredDisplayFormatCount = 4;
 					this.displayFormats = new List<DisplayFormat>(c_requiredDisplayFormatCount);
 
-					if (this.value != null)
+					if (this.value != null && this.calc != null)
 					{
 						// Get rid of duplicate formats (e.g., formatting "123" with and without
 						// commas produces the same result).  It's easiest to just eliminate them
@@ -178,9 +178,9 @@
 		{
 			#region Public Methods
 
-			public bool Equals(DisplayFormat x, DisplayFormat y)
+			public bool Equals(DisplayFormat? x, DisplayFormat? y)
 			{
-				bool result = object.Equals(x.DisplayValue, y.DisplayValue);
+				bool result = Equals(x?.DisplayValue, y?.DisplayValue);
 				return result;
 			}
 

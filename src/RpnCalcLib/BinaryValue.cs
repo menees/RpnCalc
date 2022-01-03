@@ -5,6 +5,7 @@
 	using System;
 	using System.Collections.Generic;
 	using System.Diagnostics;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using System.Numerics;
 	using System.Text;
@@ -96,12 +97,12 @@
 
 		#region Public Methods
 
-		public static bool TryParse(string text, out BinaryValue value)
+		public static bool TryParse(string text, [MaybeNullWhen(false)] out BinaryValue value)
 		{
 			return TryParse(text, null, out value);
 		}
 
-		public static bool TryParse(string text, Calculator calc, out BinaryValue value)
+		public static bool TryParse(string text, Calculator? calc, [MaybeNullWhen(false)] out BinaryValue value)
 		{
 			bool result = false;
 			value = null;
@@ -222,8 +223,7 @@
 			NumericValue result = IntegerValue.Power(new IntegerValue(x.value), new IntegerValue(exponent.value));
 
 			// If we got an integer result in ulong's range, then convert it to binary.
-			IntegerValue intResult = result as IntegerValue;
-			if (intResult != null && intResult.AsInteger >= ulong.MinValue && intResult.AsInteger <= ulong.MaxValue)
+			if (result is IntegerValue intResult && intResult.AsInteger >= ulong.MinValue && intResult.AsInteger <= ulong.MaxValue)
 			{
 				result = new BinaryValue((ulong)intResult.AsInteger);
 			}
@@ -241,7 +241,7 @@
 			return new BinaryValue(GetMaskedWordSizeValue(calc, unchecked(x.value % y.value)));
 		}
 
-		public static int Compare(BinaryValue x, BinaryValue y)
+		public static int Compare(BinaryValue? x, BinaryValue? y)
 		{
 			if (!CompareWithNulls(x, y, out int result))
 			{
@@ -283,7 +283,7 @@
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
 		{
-			List<DisplayFormat> result = new List<DisplayFormat>(4);
+			List<DisplayFormat> result = new(4);
 
 			ulong maskedValue = this.GetMaskedWordSizeValue(calc);
 
@@ -326,9 +326,9 @@
 			return result;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			BinaryValue value = obj as BinaryValue;
+			BinaryValue? value = obj as BinaryValue;
 			return Compare(this, value) == 0;
 		}
 
@@ -337,7 +337,7 @@
 			return this.value.GetHashCode();
 		}
 
-		public int CompareTo(BinaryValue other)
+		public int CompareTo(BinaryValue? other)
 		{
 			return Compare(this, other);
 		}
@@ -381,7 +381,7 @@
 
 		private static string GetFormat(ulong value, BinaryFormat toBase, char suffix)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 			sb.Append(Prefix).Append(' ');
 
 			string digits;
@@ -402,7 +402,7 @@
 			return sb.ToString();
 		}
 
-		private static bool TryParseSuffixedText(string text, Calculator calc, out BinaryValue value)
+		private static bool TryParseSuffixedText(string text, Calculator? calc, [MaybeNullWhen(false)] out BinaryValue value)
 		{
 			bool result = false;
 			value = null;

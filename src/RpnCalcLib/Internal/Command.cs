@@ -18,7 +18,7 @@
 
 		private readonly Calculator calc;
 		private int topValuesUsedCount;
-		private IList<Value> lastArgs;
+		private IList<Value>? lastArgs;
 		private CommandState state;
 
 		#endregion
@@ -143,7 +143,7 @@
 				// I'm going to keep this logic in spite of the oddities though
 				// because numeric value types will be implicitly converted up
 				// (i.e., widened) whenever necessary in operations.
-				List<Value> values = new List<Value>(numValuesToPush);
+				List<Value> values = new(numValuesToPush);
 				foreach (Value value in valuesToPush)
 				{
 					switch (value.ValueType)
@@ -199,7 +199,7 @@
 			}
 		}
 
-		private static NumericValue Reduce(double rawValue, DoubleValue existingDoubleValueInstance)
+		private static NumericValue Reduce(double rawValue, DoubleValue? existingDoubleValueInstance)
 		{
 			NumericValue result;
 
@@ -207,7 +207,7 @@
 			{
 				result = new IntegerValue(integerValue);
 			}
-			else if (existingDoubleValueInstance != null)
+			else if (existingDoubleValueInstance is not null)
 			{
 				result = existingDoubleValueInstance;
 			}
@@ -219,7 +219,7 @@
 			return result;
 		}
 
-		private static NumericValue Reduce(Complex rawValue, ComplexValue existingComplexValueInstance)
+		private static NumericValue Reduce(Complex rawValue, ComplexValue? existingComplexValueInstance)
 		{
 			NumericValue result;
 
@@ -248,7 +248,7 @@
 			{
 				result = Reduce(rawValue.Real, null);
 			}
-			else if (existingComplexValueInstance != null)
+			else if (existingComplexValueInstance is not null)
 			{
 				result = existingComplexValueInstance;
 			}

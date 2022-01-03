@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using Menees.RpnCalc.Internal;
 
@@ -97,7 +98,7 @@
 
 		#region Public Methods
 
-		public static bool TryParse(string text, out DateTimeValue dateTimeValue)
+		public static bool TryParse(string text, [MaybeNullWhen(false)] out DateTimeValue dateTimeValue)
 		{
 			bool result = false;
 			dateTimeValue = null;
@@ -136,7 +137,7 @@
 			return new DateTimeValue(x.AsDateTime - y.AsTimeSpan);
 		}
 
-		public static int Compare(DateTimeValue x, DateTimeValue y)
+		public static int Compare(DateTimeValue? x, DateTimeValue? y)
 		{
 			if (!CompareWithNulls(x, y, out int result))
 			{
@@ -176,7 +177,7 @@
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
 		{
-			List<DisplayFormat> result = new List<DisplayFormat>(3);
+			List<DisplayFormat> result = new(3);
 
 			result.Add(new DisplayFormat(this.ToString(calc)));
 			result.Add(new DisplayFormat(Resources.DisplayFormat_LongDateTime, this.AsDateTime.ToString("F", CultureInfo.CurrentCulture)));
@@ -185,9 +186,9 @@
 			return result;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			DateTimeValue value = obj as DateTimeValue;
+			DateTimeValue? value = obj as DateTimeValue;
 			return Compare(this, value) == 0;
 		}
 
@@ -196,7 +197,7 @@
 			return this.AsDateTime.GetHashCode();
 		}
 
-		public int CompareTo(DateTimeValue other)
+		public int CompareTo(DateTimeValue? other)
 		{
 			return Compare(this, other);
 		}

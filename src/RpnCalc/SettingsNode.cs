@@ -34,6 +34,11 @@ namespace Menees.RpnCalc
 			return this.node.GetValue(name, defaultValue);
 		}
 
+		public string? GetValueN(string name, string? defaultValue)
+		{
+			return this.node.GetValueN(name, defaultValue);
+		}
+
 		public int GetValue(string name, int defaultValue)
 		{
 			return this.node.GetValue(name, defaultValue);
@@ -45,7 +50,7 @@ namespace Menees.RpnCalc
 			return this.node.GetValue(name, defaultValue);
 		}
 
-		public void SetValue(string name, string value)
+		public void SetValue(string name, string? value)
 		{
 			this.node.SetValue(name, value);
 		}
@@ -61,11 +66,18 @@ namespace Menees.RpnCalc
 			this.node.SetValue(name, value);
 		}
 
-		public INode GetNode(string name, bool createIfNotFound)
+		public INode GetNode(string name)
 		{
-			ISettingsNode child = this.node.GetSubNode(name, createIfNotFound);
+			ISettingsNode child = this.node.GetSubNode(name);
+			INode result = new SettingsNode(child);
+			return result;
+		}
 
-			INode result = null;
+		public INode? TryGetNode(string name)
+		{
+			ISettingsNode? child = this.node.TryGetSubNode(name);
+
+			INode? result = null;
 			if (child != null)
 			{
 				result = new SettingsNode(child);
@@ -78,7 +90,7 @@ namespace Menees.RpnCalc
 		{
 			foreach (string nodeName in this.node.GetSubNodeNames())
 			{
-				yield return this.GetNode(nodeName, true);
+				yield return this.GetNode(nodeName);
 			}
 		}
 

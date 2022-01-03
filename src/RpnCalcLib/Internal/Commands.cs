@@ -56,15 +56,15 @@
 
 		#region Public Methods
 
-		public Func<Command, object> FindCommand(string commandName)
+		public Func<Command, object?>? FindCommand(string commandName)
 		{
-			Func<Command, object> result = this.FindCommand(commandName, CommandType, null);
+			Func<Command, object?>? result = this.FindCommand(commandName, CommandType, null);
 			return result;
 		}
 
-		public Func<Command, object> FindCommand(string commandName, int commandParameter)
+		public Func<Command, object?>? FindCommand(string commandName, int commandParameter)
 		{
-			Func<Command, object> result = this.FindCommand(commandName, CommandAndIntTypes, commandParameter);
+			Func<Command, object?>? result = this.FindCommand(commandName, CommandAndIntTypes, commandParameter);
 			return result;
 		}
 
@@ -194,12 +194,12 @@
 			return new InvalidOperationException(message);
 		}
 
-		private Func<Command, object> FindCommand(string commandName, Type[] commandArgTypes, object commandParameter)
+		private Func<Command, object?>? FindCommand(string commandName, Type[] commandArgTypes, object? commandParameter)
 		{
-			Func<Command, object> result = null;
+			Func<Command, object?>? result = null;
 
 			Type thisType = this.GetType();
-			MethodInfo method = thisType.GetMethod(commandName, commandArgTypes);
+			MethodInfo? method = thisType.GetMethod(commandName, commandArgTypes);
 			if (method != null)
 			{
 				result = cmd =>
@@ -214,8 +214,8 @@
 						commandArgs = new object[] { cmd };
 					}
 
-					object target = method.IsStatic ? null : this;
-					object methodResult = method.Invoke(target, commandArgs);
+					object? target = method.IsStatic ? null : this;
+					object? methodResult = method.Invoke(target, commandArgs);
 					return methodResult;
 				};
 			}

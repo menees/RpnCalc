@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using System.Numerics;
 	using Menees.RpnCalc.Internal;
@@ -106,7 +107,7 @@
 
 		#region Public Methods
 
-		public static bool TryParse(string text, out IntegerValue integerValue)
+		public static bool TryParse(string text, [MaybeNullWhen(false)] out IntegerValue integerValue)
 		{
 			bool result = false;
 			integerValue = null;
@@ -137,7 +138,7 @@
 
 		public static NumericValue Divide(IntegerValue x, IntegerValue y)
 		{
-			FractionValue fraction = new FractionValue(x.AsInteger, y.AsInteger);
+			FractionValue fraction = new(x.AsInteger, y.AsInteger);
 			NumericValue result;
 			if (fraction.Denominator == 1)
 			{
@@ -202,7 +203,7 @@
 			return result;
 		}
 
-		public static int Compare(IntegerValue x, IntegerValue y)
+		public static int Compare(IntegerValue? x, IntegerValue? y)
 		{
 			if (!CompareWithNulls(x, y, out int result))
 			{
@@ -220,7 +221,7 @@
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
 		{
-			List<DisplayFormat> result = new List<DisplayFormat>(3);
+			List<DisplayFormat> result = new(3);
 
 			result.Add(new DisplayFormat(this.ToString(calc)));
 
@@ -245,9 +246,9 @@
 			return this.AsInteger;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			IntegerValue value = obj as IntegerValue;
+			IntegerValue? value = obj as IntegerValue;
 			return Compare(this, value) == 0;
 		}
 
@@ -256,7 +257,7 @@
 			return this.AsInteger.GetHashCode();
 		}
 
-		public int CompareTo(IntegerValue other)
+		public int CompareTo(IntegerValue? other)
 		{
 			return Compare(this, other);
 		}

@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using System.Linq;
 	using System.Numerics;
@@ -33,12 +34,12 @@
 
 		#region Public Methods
 
-		public static bool TryParse(RpnValueType type, string text, out Value value)
+		public static bool TryParse(RpnValueType type, string text, out Value? value)
 		{
 			return TryParse(type, text, null, out value);
 		}
 
-		public static bool TryParse(RpnValueType type, string text, Calculator calc, out Value value)
+		public static bool TryParse(RpnValueType type, string text, Calculator? calc, [MaybeNullWhen(false)] out Value value)
 		{
 			// NOTE: calc can be null.
 			bool result;
@@ -46,37 +47,37 @@
 			switch (type)
 			{
 				case RpnValueType.Binary:
-					BinaryValue binaryValue;
+					BinaryValue? binaryValue;
 					result = BinaryValue.TryParse(text, calc, out binaryValue);
 					value = binaryValue;
 					break;
 				case RpnValueType.Complex:
-					ComplexValue complexValue;
+					ComplexValue? complexValue;
 					result = ComplexValue.TryParse(text, calc, out complexValue);
 					value = complexValue;
 					break;
 				case RpnValueType.DateTime:
-					DateTimeValue dateTimeValue;
+					DateTimeValue? dateTimeValue;
 					result = DateTimeValue.TryParse(text, out dateTimeValue);
 					value = dateTimeValue;
 					break;
 				case RpnValueType.Double:
-					DoubleValue doubleValue;
+					DoubleValue? doubleValue;
 					result = DoubleValue.TryParse(text, out doubleValue);
 					value = doubleValue;
 					break;
 				case RpnValueType.Fraction:
-					FractionValue fractionValue;
+					FractionValue? fractionValue;
 					result = FractionValue.TryParse(text, out fractionValue);
 					value = fractionValue;
 					break;
 				case RpnValueType.Integer:
-					IntegerValue integerValue;
+					IntegerValue? integerValue;
 					result = IntegerValue.TryParse(text, out integerValue);
 					value = integerValue;
 					break;
 				case RpnValueType.TimeSpan:
-					TimeSpanValue timeSpanValue;
+					TimeSpanValue? timeSpanValue;
 					result = TimeSpanValue.TryParse(text, out timeSpanValue);
 					value = timeSpanValue;
 					break;
@@ -137,7 +138,7 @@
 
 		public static Value Add(Value x, Value y, Calculator calc)
 		{
-			Value result = null;
+			Value? result = null;
 
 			if (HandleImplicitTypeConversion(ref x, ref y))
 			{
@@ -186,7 +187,7 @@
 
 		public static Value Subtract(Value x, Value y, Calculator calc)
 		{
-			Value result = null;
+			Value? result = null;
 
 			if (HandleImplicitTypeConversion(ref x, ref y))
 			{
@@ -234,7 +235,7 @@
 
 		public static Value Multiply(Value x, Value y, Calculator calc)
 		{
-			Value result = null;
+			Value? result = null;
 
 			if (HandleImplicitTypeConversion(ref x, ref y))
 			{
@@ -282,7 +283,7 @@
 
 		public static Value Divide(Value x, Value y, Calculator calc)
 		{
-			Value result = null;
+			Value? result = null;
 
 			if (HandleImplicitTypeConversion(ref x, ref y))
 			{
@@ -378,7 +379,7 @@
 						// complex number with magnitude 1 pointing in the same
 						// direction (i.e., with the same phase) as the current value.
 						double magnitude = complex.Magnitude;
-						Complex unitVector = new Complex(complex.Real / magnitude, complex.Imaginary / magnitude);
+						Complex unitVector = new(complex.Real / magnitude, complex.Imaginary / magnitude);
 						result = new ComplexValue(unitVector);
 					}
 
@@ -404,7 +405,7 @@
 
 		public virtual string ToString(Calculator calc)
 		{
-			return this.ToString();
+			return this.ToString() ?? string.Empty;
 		}
 
 		public virtual string GetEntryValue(Calculator calc)
@@ -489,7 +490,7 @@
 			throw new ArithmeticException(message);
 		}
 
-		internal static bool CompareWithNulls(Value x, Value y, out int nullComparisonResult)
+		internal static bool CompareWithNulls([NotNullWhen(false)] Value? x, [NotNullWhen(false)] Value? y, out int nullComparisonResult)
 		{
 			nullComparisonResult = 0;
 			bool atLeastOneNull = false;
@@ -518,14 +519,14 @@
 			return atLeastOneNull;
 		}
 
-		internal static Value Load(INode valueNode, Calculator calc)
+		internal static Value? Load(INode valueNode, Calculator calc)
 		{
-			Value result = null;
+			Value? result = null;
 
 			if (valueNode != null)
 			{
-				string typeText = valueNode.GetValue(nameof(ValueType), null);
-				string valueText = valueNode.GetValue("EntryValue", null);
+				string? typeText = valueNode.GetValueN(nameof(ValueType), null);
+				string? valueText = valueNode.GetValueN("EntryValue", null);
 
 				if (typeText != null && valueText != null)
 				{

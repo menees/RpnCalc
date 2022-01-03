@@ -38,7 +38,7 @@
 			// If the calc's entry line isn't equal to the currently selected position,
 			// then we'll re-use the currently selected position.
 			bool atCurrentPosition = false;
-			string currentCalcEntryLine = this.calc.EntryLine;
+			string? currentCalcEntryLine = this.calc.EntryLine;
 			if (this.position >= 0 && this.position < this.Count)
 			{
 				string currentPositionEntryLine = this.Items[this.position];
@@ -105,7 +105,7 @@
 			this.RemoveOldItems();
 		}
 
-		internal void Load(INode historyNode)
+		internal void Load(INode? historyNode)
 		{
 			this.Clear();
 
@@ -113,8 +113,8 @@
 			{
 				foreach (INode entryLineNode in historyNode.GetNodes())
 				{
-					string entryLine = entryLineNode.GetValue("Text", null);
-					if (!string.IsNullOrEmpty(entryLine))
+					string? entryLine = entryLineNode.GetValueN("Text", null);
+					if (entryLine.IsNotEmpty())
 					{
 						this.Items.Add(entryLine);
 					}
@@ -130,7 +130,7 @@
 			int index = 1;
 			foreach (string entryLine in this.Items)
 			{
-				INode entryLineNode = historyNode.GetNode("EntryLine" + index++, true);
+				INode entryLineNode = historyNode.GetNode("EntryLine" + index++);
 				entryLineNode.SetValue("Text", entryLine);
 			}
 		}

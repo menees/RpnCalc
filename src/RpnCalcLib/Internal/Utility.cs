@@ -51,7 +51,7 @@
 		{
 			T result = defaultValue;
 
-			XAttribute attr = element.Attribute(attributeName);
+			XAttribute? attr = element.Attribute(attributeName);
 			if (attr != null)
 			{
 				string value = attr.Value;
@@ -383,7 +383,7 @@
 			double localDouble = local.ToDouble();
 
 			// Use FractionValue's algorithm.
-			FractionValue fraction = new FractionValue((decimal)value);
+			FractionValue fraction = new((decimal)value);
 			double fractionDouble = fraction.ToDouble();
 
 			// See how far both are off from the original value.

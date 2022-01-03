@@ -50,7 +50,7 @@
 			// and the new value will be parsed and pushed correctly.
 			string valueText = value.GetEntryValue(this.Calc);
 
-			string entryLine = this.Calc.EntryLine;
+			string? entryLine = this.Calc.EntryLine;
 			if (string.IsNullOrEmpty(entryLine))
 			{
 				this.Calc.EntryLine = valueText;
@@ -66,7 +66,7 @@
 
 		public void Edit(Command cmd)
 		{
-			string entryLine = this.Calc.EntryLine;
+			string? entryLine = this.Calc.EntryLine;
 			if (string.IsNullOrEmpty(entryLine))
 			{
 				this.RequireArgs(1);
@@ -83,12 +83,12 @@
 			}
 		}
 
-		public EntryLineParser Enter(Command cmd)
+		public EntryLineParser? Enter(Command cmd)
 		{
-			EntryLineParser parser = null;
+			EntryLineParser? parser = null;
 
-			string entryLine = this.Calc.EntryLine;
-			if (string.IsNullOrEmpty(entryLine))
+			string? entryLine = this.Calc.EntryLine;
+			if (entryLine.IsEmpty())
 			{
 				// If they hit Enter with an empty entry line, then duplicate the top item.
 				this.stackCommands.Dup(cmd);

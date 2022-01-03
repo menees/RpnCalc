@@ -70,7 +70,7 @@ namespace Numerics
 		private const int DecimalScaleMask = 0x00FF0000;
 		private const int DecimalSignMask = unchecked((int)0x80000000);
 		private const int DecimalMaxScale = 28;
-		private const string Solidus = @"/";
+		private const char Solidus = '/';
 
 		private static readonly BigInteger DoublePrecision = BigInteger.Pow(10, DoubleMaxScale);
 		private static readonly BigInteger DoubleMaxValue = (BigInteger)double.MaxValue;
@@ -224,17 +224,15 @@ namespace Numerics
 			this.Simplify();
 		}
 
-#pragma warning disable CA1801 // Unused parameter. The context parameter is required for .NET deserialization.
 		private BigRational(SerializationInfo info, StreamingContext context)
-#pragma warning restore CA1801 // Unused parameter
 		{
 			if (info == null)
 			{
 				throw new ArgumentNullException(nameof(info));
 			}
 
-			this.Numerator = (BigInteger)info.GetValue(nameof(this.Numerator), typeof(BigInteger));
-			this.Denominator = (BigInteger)info.GetValue(nameof(this.Denominator), typeof(BigInteger));
+			this.Numerator = (BigInteger?)info.GetValue(nameof(this.Numerator), typeof(BigInteger)) ?? BigInteger.Zero;
+			this.Denominator = (BigInteger?)info.GetValue(nameof(this.Denominator), typeof(BigInteger)) ?? BigInteger.Zero;
 		}
 
 		#endregion Constructors
@@ -688,14 +686,14 @@ namespace Numerics
 			return new BigRational(BigInteger.Remainder(this.Numerator, this.Denominator), this.Denominator);
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj == null)
 			{
 				return false;
 			}
 
-			if (!(obj is BigRational))
+			if (obj is not BigRational)
 			{
 				return false;
 			}
@@ -709,14 +707,14 @@ namespace Numerics
 		}
 
 		// IComparable
-		int IComparable.CompareTo(object obj)
+		int IComparable.CompareTo(object? obj)
 		{
 			if (obj == null)
 			{
 				return 1;
 			}
 
-			if (!(obj is BigRational))
+			if (obj is not BigRational)
 			{
 				throw new ArgumentException("Argument must be of type BigRational", nameof(obj));
 			}
@@ -733,7 +731,7 @@ namespace Numerics
 		// Object.ToString
 		public override string ToString()
 		{
-			StringBuilder ret = new StringBuilder();
+			StringBuilder ret = new();
 			ret.Append(this.Numerator.ToString("R", CultureInfo.InvariantCulture));
 			ret.Append(Solidus);
 			ret.Append(this.Denominator.ToString("R", CultureInfo.InvariantCulture));
@@ -759,7 +757,7 @@ namespace Numerics
 		#endregion Public Instance Methods
 
 		#region Serialization
-		void IDeserializationCallback.OnDeserialization(object sender)
+		void IDeserializationCallback.OnDeserialization(object? sender)
 		{
 			try
 			{
@@ -785,7 +783,9 @@ namespace Numerics
 			}
 		}
 
+#if NETFRAMEWORK
 		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#endif
 		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			if (info == null)
@@ -797,9 +797,9 @@ namespace Numerics
 			info.AddValue(nameof(this.Denominator), this.Denominator);
 		}
 
-		#endregion Serialization
+#endregion Serialization
 
-		#region Private Static helper methods
+#region Private Static helper methods
 		private static bool SafeCastToDouble(BigInteger value)
 		{
 			return value >= DoubleMinValue && value <= DoubleMaxValue;
@@ -842,9 +842,9 @@ namespace Numerics
 			}
 		}
 
-		#endregion Private static helper methods
+#endregion Private static helper methods
 
-		#region Private Instance helper methods
+#region Private Instance helper methods
 		private void Simplify()
 		{
 			// * if the numerator is {0, +1, -1} then the fraction is already reduced
@@ -861,9 +861,9 @@ namespace Numerics
 				this.Denominator /= gcd;
 			}
 		}
-		#endregion Private instance helper methods
+#endregion Private instance helper methods
 
-		#region Private Types
+#region Private Types
 
 		[StructLayout(LayoutKind.Explicit)]
 		internal struct DoubleUlong
@@ -883,7 +883,7 @@ namespace Numerics
 			public int Flags;
 		}
 
-		#endregion
+#endregion
 	} // BigRational
 #pragma warning restore MEN007 // Use a single return
 } // namespace Numerics

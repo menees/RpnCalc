@@ -26,42 +26,42 @@
 		public void FromHr(Command cmd)
 		{
 			double value = this.UseTopDouble(cmd);
-			TimeSpanValue result = new TimeSpanValue(TimeSpan.FromHours(value));
+			TimeSpanValue result = new(TimeSpan.FromHours(value));
 			cmd.Commit(result);
 		}
 
 		public void ToHr(Command cmd)
 		{
 			TimeSpan value = this.UseTopTimeSpan(cmd);
-			DoubleValue result = new DoubleValue(value.TotalHours);
+			DoubleValue result = new(value.TotalHours);
 			cmd.Commit(result);
 		}
 
 		public void FromMin(Command cmd)
 		{
 			double value = this.UseTopDouble(cmd);
-			TimeSpanValue result = new TimeSpanValue(TimeSpan.FromMinutes(value));
+			TimeSpanValue result = new(TimeSpan.FromMinutes(value));
 			cmd.Commit(result);
 		}
 
 		public void ToMin(Command cmd)
 		{
 			TimeSpan value = this.UseTopTimeSpan(cmd);
-			DoubleValue result = new DoubleValue(value.TotalMinutes);
+			DoubleValue result = new(value.TotalMinutes);
 			cmd.Commit(result);
 		}
 
 		public void FromSec(Command cmd)
 		{
 			double value = this.UseTopDouble(cmd);
-			TimeSpanValue result = new TimeSpanValue(TimeSpan.FromSeconds(value));
+			TimeSpanValue result = new(TimeSpan.FromSeconds(value));
 			cmd.Commit(result);
 		}
 
 		public void ToSec(Command cmd)
 		{
 			TimeSpan value = this.UseTopTimeSpan(cmd);
-			DoubleValue result = new DoubleValue(value.TotalSeconds);
+			DoubleValue result = new(value.TotalSeconds);
 			cmd.Commit(result);
 		}
 

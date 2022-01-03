@@ -56,8 +56,8 @@
 				e.SettingsNode.DeleteSubNode(CalcNodeName);
 			}
 
-			ISettingsNode calcNode = e.SettingsNode.GetSubNode(CalcNodeName, true);
-			SettingsNode result = new SettingsNode(calcNode);
+			ISettingsNode calcNode = e.SettingsNode.GetSubNode(CalcNodeName);
+			SettingsNode result = new(calcNode);
 			return result;
 		}
 
@@ -124,7 +124,7 @@
 
 		#region Private Event Handlers
 
-		private void Saver_LoadSettings(object sender, SettingsEventArgs e)
+		private void Saver_LoadSettings(object? sender, SettingsEventArgs e)
 		{
 			INode calcNode = GetCalcNode(e, false);
 			this.calc.Load(calcNode);
@@ -135,7 +135,7 @@
 			this.FinishCommandUI();
 		}
 
-		private void Saver_SaveSettings(object sender, SettingsEventArgs e)
+		private void Saver_SaveSettings(object? sender, SettingsEventArgs e)
 		{
 			// Ensure the current entry line value is pushed into the calculator before we save the state.
 			// Unfortunately, clicking the app's Close button won't update the source automatically.
@@ -151,19 +151,19 @@
 			this.calc.Save(calcNode);
 		}
 
-		private void About_Click(object sender, RoutedEventArgs e)
+		private void About_Click(object? sender, RoutedEventArgs e)
 		{
 			WindowsUtility.ShowAboutBox(this, Assembly.GetExecutingAssembly(), nameof(RpnCalc));
 		}
 
-		private void EntryLineUndo_Click(object sender, RoutedEventArgs e)
+		private void EntryLineUndo_Click(object? sender, RoutedEventArgs e)
 		{
 			this.GetEntryLineTextBox().Undo();
 		}
 
-		private void Window_Loaded(object sender, RoutedEventArgs e)
+		private void Window_Loaded(object? sender, RoutedEventArgs e)
 		{
-			CommandLine parser = new CommandLine(false);
+			CommandLine parser = new(false);
 			parser.AddHeader(CommandLine.ExecutableFileName + " [/BringToFront]");
 			bool bringToFront = false;
 			parser.AddSwitch("BringToFront", "Makes the app attempt to force its way to the foreground when launched.", value => bringToFront = value);
@@ -188,7 +188,7 @@
 			}
 		}
 
-		private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+		private void Window_PreviewKeyDown(object? sender, KeyEventArgs e)
 		{
 			// WPF's TextBox eats the KeyDown event for the backspace key, so we have to handle it here.
 			// This makes the backspace key work in the entry line TextBox just like it will when other controls

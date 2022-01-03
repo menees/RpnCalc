@@ -85,10 +85,10 @@
 		private static readonly bool ExceptionMessageResourcesAreAvailable = new DivideByZeroException().Message == Resources.Calculator_DivideByZeroException;
 #endif
 
-		private readonly ValueStack stack = new ValueStack();
+		private readonly ValueStack stack = new();
 		private readonly Commands[] commands;
 		private readonly EntryLineHistoryCollection history;
-		private Command lastCommand;
+		private Command? lastCommand;
 
 		#endregion
 
@@ -119,7 +119,7 @@
 
 		#region Public Events
 
-		public event DependencyPropertyChangedEventHandler DisplayFormatChanged;
+		public event DependencyPropertyChangedEventHandler? DisplayFormatChanged;
 
 		#endregion
 
@@ -195,7 +195,7 @@
 			}
 		}
 
-		public string EntryLine
+		public string? EntryLine
 		{
 			get
 			{
@@ -279,7 +279,7 @@
 			this.AngleMode = root.GetValue(nameof(this.AngleMode), this.AngleMode);
 			this.BinaryFormat = root.GetValue(nameof(this.BinaryFormat), this.BinaryFormat);
 			this.BinaryWordSize = root.GetValue(nameof(this.BinaryWordSize), this.BinaryWordSize);
-			this.EntryLine = root.GetValue(nameof(this.EntryLine), this.EntryLine);
+			this.EntryLine = root.GetValueN(nameof(this.EntryLine), this.EntryLine);
 			this.ComplexFormat = root.GetValue(nameof(this.ComplexFormat), this.ComplexFormat);
 			this.DecimalFormat = root.GetValue(nameof(this.DecimalFormat), this.DecimalFormat);
 			this.FixedDecimalDigits = root.GetValue(nameof(this.FixedDecimalDigits), this.FixedDecimalDigits);
@@ -291,10 +291,10 @@
 			// We need the settings first, so we can parse the inputs the same
 			// way we saved them.  This matters in some cases (e.g., if a complex
 			// number is saved out with modes Polar & Degrees).
-			INode stackNode = root.GetNode(nameof(this.Stack), false);
+			INode? stackNode = root.TryGetNode(nameof(this.Stack));
 			this.Stack.Load(stackNode, this);
 
-			INode historyNode = root.GetNode(nameof(this.EntryLineHistory), false);
+			INode? historyNode = root.TryGetNode(nameof(this.EntryLineHistory));
 			this.EntryLineHistory.Load(historyNode);
 		}
 
@@ -310,10 +310,10 @@
 			root.SetValue(nameof(this.FractionFormat), this.FractionFormat);
 
 			// I'm intentionally not saving the error message.
-			INode stackNode = root.GetNode(nameof(this.Stack), true);
+			INode stackNode = root.GetNode(nameof(this.Stack));
 			this.Stack.Save(stackNode, this);
 
-			INode historyNode = root.GetNode(nameof(this.EntryLineHistory), true);
+			INode historyNode = root.GetNode(nameof(this.EntryLineHistory));
 			this.EntryLineHistory.Save(historyNode);
 		}
 
@@ -322,15 +322,15 @@
 			this.ErrorMessage = string.Empty;
 		}
 
-		public object ExecuteCommand(string commandName)
+		public object? ExecuteCommand(string commandName)
 		{
-			object result = this.TryExecuteCommand(commandName, (cmds, name) => cmds.FindCommand(name));
+			object? result = this.TryExecuteCommand(commandName, (cmds, name) => cmds.FindCommand(name));
 			return result;
 		}
 
-		public object ExecuteCommand(string commandName, int commandParameter)
+		public object? ExecuteCommand(string commandName, int commandParameter)
 		{
-			object result = this.TryExecuteCommand(commandName, (cmds, name) => cmds.FindCommand(name, commandParameter));
+			object? result = this.TryExecuteCommand(commandName, (cmds, name) => cmds.FindCommand(name, commandParameter));
 			return result;
 		}
 
@@ -461,7 +461,7 @@
 			}
 
 			// Add a space after any upper-case letter in the original type name.
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 			foreach (char ch in originalTypeName)
 			{
 				if (char.IsUpper(ch) && sb.Length > 0)
@@ -481,11 +481,11 @@
 			return result;
 		}
 
-		private object TryExecuteCommand(
+		private object? TryExecuteCommand(
 			string commandName,
-			Func<Commands, string, Func<Command, object>> findCommand)
+			Func<Commands, string, Func<Command, object?>?> findCommand)
 		{
-			Func<Command, object> command = null;
+			Func<Command, object?>? command = null;
 
 			foreach (Commands cmds in this.commands)
 			{
@@ -496,7 +496,7 @@
 				}
 			}
 
-			object result = null;
+			object? result = null;
 			if (command == null)
 			{
 				// Include the command name because this is an internal error that I need to know about.
@@ -510,17 +510,17 @@
 			return result;
 		}
 
-		private object Execute(string commandName, Func<Command, object> executeCommand)
+		private object? Execute(string commandName, Func<Command, object?> executeCommand)
 		{
-			Debug.Assert(!string.IsNullOrEmpty(commandName), "A command name must be supplied.");
-			Debug.Assert(executeCommand != null, "A command function must be supplied.");
+			Conditions.RequireString(commandName, nameof(commandName));
+			Conditions.RequireReference(executeCommand, nameof(executeCommand));
 
 			this.ClearError();
 
-			Exception reportException = null;
+			Exception? reportException = null;
 
-			object result = null;
-			Command cmd = new Command(this);
+			object? result = null;
+			Command cmd = new(this);
 			try
 			{
 				result = executeCommand(cmd);

@@ -13,7 +13,7 @@
 	{
 		#region Private Data Members
 
-		private static readonly FractionValue Half = new FractionValue(BigInteger.One, 2);
+		private static readonly FractionValue Half = new(BigInteger.One, 2);
 
 		#endregion
 
@@ -29,7 +29,7 @@
 
 		public static NumericValue Power(NumericValue x, NumericValue y)
 		{
-			NumericValue result = null;
+			NumericValue? result = null;
 
 			if (HandleImplicitTypeConversion(ref x, ref y))
 			{
@@ -90,7 +90,7 @@
 
 		public static NumericValue Modulus(NumericValue x, NumericValue y, Calculator calc)
 		{
-			NumericValue result = null;
+			NumericValue? result = null;
 
 			if (HandleImplicitTypeConversion(ref x, ref y))
 			{
@@ -127,7 +127,7 @@
 
 		public static NumericValue Gcd(NumericValue x, NumericValue y)
 		{
-			NumericValue result = null;
+			NumericValue? result = null;
 
 			if (HandleImplicitTypeConversion(ref x, ref y))
 			{

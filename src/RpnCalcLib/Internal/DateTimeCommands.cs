@@ -103,7 +103,7 @@
 			// So I didn't like TimePart seemingly returning a date.  I ultimately decided to do
 			// what .NET's DateTime.TimeOfDay property does and just return a TimeSpan.
 			// You lose the AM/PM formatting, but a time without a date really is a TimeSpan.
-			TimeSpanValue result = new TimeSpanValue(value.TimeOfDay);
+			TimeSpanValue result = new(value.TimeOfDay);
 			return result;
 		}
 

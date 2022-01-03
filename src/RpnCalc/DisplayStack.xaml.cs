@@ -46,7 +46,7 @@
 
 		#region Private Event Handlers
 
-		private void ListBox_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+		private void ListBox_MouseRightButtonDown(object? sender, MouseButtonEventArgs e)
 		{
 			HitTestResult result = VisualTreeHelper.HitTest(this.listBox, e.GetPosition(null));
 			if (result.VisualHit is ListBoxItem item)

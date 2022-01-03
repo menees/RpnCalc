@@ -42,7 +42,7 @@
 			// Silverlight doesn't support the x:Static tag, so we can't pass a converter parameter
 			// like {x:Static rpn:AngleMode.Degrees}.  Instead, we have to pass the string "Degrees"
 			// and parse that into the appropriate enum value at run-time.
-			object parameterValue = Enum.Parse(enumType, parameter.ToString(), false);
+			object parameterValue = Enum.Parse(enumType, parameter.ToString() ?? string.Empty, false);
 			return parameterValue;
 		}
 

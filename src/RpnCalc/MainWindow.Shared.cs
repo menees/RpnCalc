@@ -85,60 +85,60 @@
 
 		#region Private Event Handlers
 
-		private void ErrorInfoButton_Click(object sender, RoutedEventArgs e)
+		private void ErrorInfoButton_Click(object? sender, RoutedEventArgs e)
 		{
 			this.ClearError();
 			this.entryLine.Focus();
 		}
 
-		private void Command_Click(object sender, RoutedEventArgs e)
+		private void Command_Click(object? sender, RoutedEventArgs e)
 		{
 			// Most commands come to this event handler.
 			if (sender is Control control)
 			{
-				string commandName = control.Tag as string;
-				if (!string.IsNullOrEmpty(commandName))
+				string? commandName = control.Tag as string;
+				if (commandName.IsNotEmpty())
 				{
 					this.ExecuteCommand(commandName);
 				}
 			}
 		}
 
-		private void Enter_Click(object sender, RoutedEventArgs e)
+		private void Enter_Click(object? sender, RoutedEventArgs e)
 		{
 			// This is special because the Enter key never needs an implicit enter,
 			// and if Enter gets an error we need to highlight the error.
 			this.HandleEnter();
 		}
 
-		private void Back_Click(object sender, RoutedEventArgs e)
+		private void Back_Click(object? sender, RoutedEventArgs e)
 		{
 			// This is special because the Back "command" actually
 			// operates on the entry line TextBox not the bound value.
 			this.HandleBack();
 		}
 
-		private void Negate_Click(object sender, RoutedEventArgs e)
+		private void Negate_Click(object? sender, RoutedEventArgs e)
 		{
 			// This is special because sometimes we need to negate
 			// a value on the entry line as text without "entering" it.
 			this.HandleNegate();
 		}
 
-		private void Subtract_Click(object sender, RoutedEventArgs e)
+		private void Subtract_Click(object? sender, RoutedEventArgs e)
 		{
 			// This is special because in some modes we need to allow
 			// the '-' key to be treated as text and not an operator.
 			this.HandleSubtract();
 		}
 
-		private void DisplayChar_Click(object sender, RoutedEventArgs e)
+		private void DisplayChar_Click(object? sender, RoutedEventArgs e)
 		{
 			this.ClearError();
 
 			if (sender is ContentControl control)
 			{
-				string text = control.Content as string;
+				string? text = control.Content as string;
 				if (string.IsNullOrEmpty(text))
 				{
 					// If the content wasn't text, then try the Tag.
@@ -147,14 +147,14 @@
 					text = control.Tag as string;
 				}
 
-				if (!string.IsNullOrEmpty(text))
+				if (text.IsNotEmpty())
 				{
 					this.InsertInEntryLine(text);
 				}
 			}
 		}
 
-		private void Window_KeyDown(object sender, KeyEventArgs e)
+		private void Window_KeyDown(object? sender, KeyEventArgs e)
 		{
 			// Pressing any key should clear the error (like on the HP48).
 			this.ClearError();
@@ -210,7 +210,7 @@
 			e.Handled = shortcutKey != ShortcutKey.None;
 		}
 
-		private void Window_KeyUp(object sender, KeyEventArgs e)
+		private void Window_KeyUp(object? sender, KeyEventArgs e)
 		{
 			// Pressing any key should clear the error (like on the HP48).
 			// However, the TextBox eats the KeyDown event for some
@@ -236,7 +236,7 @@
 			}
 		}
 
-		private void EntryLineCut_Click(object sender, RoutedEventArgs e)
+		private void EntryLineCut_Click(object? sender, RoutedEventArgs e)
 		{
 			string selectedText = this.GetEntryLineTextBox().SelectedText;
 			if (!string.IsNullOrEmpty(selectedText))
@@ -255,7 +255,7 @@
 			}
 		}
 
-		private void EntryLineCopy_Click(object sender, RoutedEventArgs e)
+		private void EntryLineCopy_Click(object? sender, RoutedEventArgs e)
 		{
 			string selectedText = this.GetEntryLineTextBox().SelectedText;
 			if (!string.IsNullOrEmpty(selectedText))
@@ -273,7 +273,7 @@
 			}
 		}
 
-		private void EntryLinePaste_Click(object sender, RoutedEventArgs e)
+		private void EntryLinePaste_Click(object? sender, RoutedEventArgs e)
 		{
 			if (Clipboard.ContainsText())
 			{
@@ -301,18 +301,18 @@
 			}
 		}
 
-		private void EntryLineSelectAll_Click(object sender, RoutedEventArgs e)
+		private void EntryLineSelectAll_Click(object? sender, RoutedEventArgs e)
 		{
 			this.GetEntryLineTextBox().SelectAll();
 		}
 
-		private void ClearHistory_Click(object sender, RoutedEventArgs e)
+		private void ClearHistory_Click(object? sender, RoutedEventArgs e)
 		{
 			this.calc.EntryLineHistory.Clear();
 		}
 
 #pragma warning disable CC0068 // Unused Method. Used by MainWindow.xaml to attach a DisplayStack.ExecutedCommand event handler.
-		private void DisplayStack_ExecutedCommand(object sender, EventArgs e)
+		private void DisplayStack_ExecutedCommand(object? sender, EventArgs e)
 		{
 			// When a right-click action from the display stack
 			// finishes we need to update the UI.
@@ -320,12 +320,12 @@
 		}
 #pragma warning restore CC0068 // Unused Method
 
-		private void EntryLineDelete_Click(object sender, RoutedEventArgs e)
+		private void EntryLineDelete_Click(object? sender, RoutedEventArgs e)
 		{
 			this.InsertInEntryLine(string.Empty);
 		}
 
-		private void ErrorCopy_Click(object sender, RoutedEventArgs e)
+		private void ErrorCopy_Click(object? sender, RoutedEventArgs e)
 		{
 			string message = this.calc.ErrorMessage;
 			if (!string.IsNullOrEmpty(message))
@@ -343,7 +343,7 @@
 			}
 		}
 
-		private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+		private void ContextMenu_Opened(object? sender, RoutedEventArgs e)
 		{
 			if (sender is ContextMenu menu)
 			{
@@ -351,7 +351,7 @@
 
 				foreach (MenuItem item in menu.Items.OfType<MenuItem>())
 				{
-					string header = Convert.ToString(item.Tag, CultureInfo.CurrentCulture);
+					string? header = Convert.ToString(item.Tag, CultureInfo.CurrentCulture);
 					switch (header)
 					{
 						case "Undo":
@@ -400,7 +400,7 @@
 			// the text that's currently in the entry line TextBox.
 			this.UpdateEntryLineBindingSource();
 
-			EntryLineParser parser = (EntryLineParser)this.ExecuteCommand("Enter", needsImplicitEnter: false);
+			EntryLineParser? parser = (EntryLineParser?)this.ExecuteCommand("Enter", needsImplicitEnter: false);
 			if (parser != null && parser.HasError)
 			{
 				result = false;
@@ -462,9 +462,9 @@
 			}
 		}
 
-		private object ExecuteCommand(string commandName, bool needsImplicitEnter = true)
+		private object? ExecuteCommand(string commandName, bool needsImplicitEnter = true)
 		{
-			object result = null;
+			object? result = null;
 
 			if (!needsImplicitEnter || this.HandleImplicitEnter())
 			{
@@ -509,7 +509,7 @@
 		{
 			TextBox textBox = this.GetEntryLineTextBox();
 			string entryLineToCaret = textBox.Text.Substring(0, this.GetEntryLineTextBox().SelectionStart);
-			EntryLineParser parser = new EntryLineParser(this.calc, entryLineToCaret);
+			EntryLineParser parser = new(this.calc, entryLineToCaret);
 			return parser;
 		}
 

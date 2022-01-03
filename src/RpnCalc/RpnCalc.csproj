@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<Description>RPN Calc Windows Desktop Application</Description>
 		<ApplicationIcon>Images\Icons\Logo.ico</ApplicationIcon>

@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using System.Numerics;
 	using System.Text;
@@ -23,7 +24,7 @@
 
 		#region Private Data Members
 
-		private Complex value;
+		private readonly Complex value;
 
 		#endregion
 
@@ -136,12 +137,12 @@
 
 		#region Public Methods
 
-		public static bool TryParse(string text, out ComplexValue complexValue)
+		public static bool TryParse(string text, [MaybeNullWhen(false)] out ComplexValue complexValue)
 		{
 			return TryParse(text, null, out complexValue);
 		}
 
-		public static bool TryParse(string text, Calculator calc, out ComplexValue complexValue)
+		public static bool TryParse(string text, Calculator? calc, [MaybeNullWhen(false)] out ComplexValue complexValue)
 		{
 			bool result = false;
 			complexValue = null;
@@ -286,7 +287,7 @@
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
 		{
-			List<DisplayFormat> result = new List<DisplayFormat>(3);
+			List<DisplayFormat> result = new(3);
 
 			result.Add(new DisplayFormat(Resources.DisplayFormat_Algebraic, GetAlgebraicFormat(this.value, calc)));
 			result.Add(new DisplayFormat(Resources.DisplayFormat_Rectangular, GetRectangularFormat(this.value, calc)));
@@ -295,10 +296,9 @@
 			return result;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			ComplexValue value = obj as ComplexValue;
-			return value != null && value.value == this.value;
+			return obj is ComplexValue value && value.value == this.value;
 		}
 
 		public override int GetHashCode()
@@ -312,12 +312,12 @@
 
 		private static string GetAlgebraicFormat(Complex value, Calculator calc)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
 			if (value.Real == 0 && value.Imaginary != 0)
 			{
 				sb.Append(DoubleValue.Format(value.Imaginary, calc));
-				sb.Append("i");
+				sb.Append('i');
 			}
 			else
 			{
@@ -326,7 +326,7 @@
 				{
 					sb.Append(Math.Sign(value.Imaginary) == -1 ? " - " : " + ");
 					sb.Append(DoubleValue.Format(Math.Abs(value.Imaginary), calc));
-					sb.Append("i");
+					sb.Append('i');
 				}
 			}
 

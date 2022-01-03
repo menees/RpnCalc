@@ -17,7 +17,7 @@
 	{
 		#region Private Data Members
 
-		private readonly ObservableCollection<Value> storage = new ObservableCollection<Value>();
+		private readonly ObservableCollection<Value> storage = new();
 		private int resetLevel;
 
 		#endregion
@@ -33,7 +33,7 @@
 
 		#region INotifyCollectionChanged Members
 
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
+		public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
 		#endregion
 
@@ -183,7 +183,7 @@
 
 		#region Internal Methods
 
-		internal void Load(INode stackNode, Calculator calc)
+		internal void Load(INode? stackNode, Calculator calc)
 		{
 			this.BeginReset();
 			try
@@ -201,7 +201,7 @@
 						// so that a previously saved value can no longer be parsed.
 						// Or a user could edit the saved file in isolated storage to
 						// put crapola in a value.
-						Value val = Value.Load(valueNode, calc);
+						Value? val = Value.Load(valueNode, calc);
 						if (val != null)
 						{
 							this.Push(val);
@@ -225,7 +225,7 @@
 			int index = this.Count;
 			foreach (Value val in values)
 			{
-				INode valueNode = stackNode.GetNode(nameof(Value) + index--, true);
+				INode valueNode = stackNode.GetNode(nameof(Value) + index--);
 				val.Save(valueNode, calc);
 			}
 		}
@@ -234,7 +234,7 @@
 
 		#region Private Methods
 
-		private void Storage_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void Storage_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
 		{
 			// Only send notifications if we're not in the middle of a reset operation.
 			if (this.resetLevel == 0)

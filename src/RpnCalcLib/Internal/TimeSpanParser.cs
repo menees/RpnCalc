@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using System.Linq;
 
@@ -13,7 +14,7 @@
 	{
 		#region Public Methods
 
-		public static bool TryParse(string text, DateTimeFormatInfo timeFmt, NumberFormatInfo numFmt, out TimeSpanValue value)
+		public static bool TryParse(string text, DateTimeFormatInfo timeFmt, NumberFormatInfo numFmt, [MaybeNullWhen(false)] out TimeSpanValue value)
 		{
 			value = null;
 			bool result = false;
@@ -22,14 +23,14 @@
 			// If another culture is using some other time format, then the caller
 			// should try to let the system parse it.
 			const char c_separator = ':';
-			if (!string.IsNullOrEmpty(text) && timeFmt.ShortTimePattern.IndexOf(c_separator) >= 0)
+			if (!string.IsNullOrEmpty(text) && timeFmt.ShortTimePattern.Contains(c_separator))
 			{
 				string[] tokens = text.Trim().Split(new char[] { c_separator }, StringSplitOptions.RemoveEmptyEntries);
 				int numTokens = tokens.Length;
 				if (numTokens >= 2 && numTokens <= 4)
 				{
 					string decimalSeparator = numFmt.NumberDecimalSeparator;
-					string[] dhmsTokens = GetDHMSTokens(tokens, decimalSeparator);
+					string[]? dhmsTokens = GetDHMSTokens(tokens, decimalSeparator);
 					if (dhmsTokens != null)
 					{
 						result = ParseDHMSTokens(dhmsTokens, decimalSeparator, numFmt.NegativeSign, out value);
@@ -44,10 +45,10 @@
 
 		#region Private Methods
 
-		private static string[] GetDHMSTokens(string[] originalTokens, string decimalSeparator)
+		private static string[]? GetDHMSTokens(string[] originalTokens, string decimalSeparator)
 		{
 			// This will contain the days, hours, minutes, and seconds tokens in order.
-			string[] dhmsTokens = new string[4];
+			string[]? dhmsTokens = new string[4];
 
 			// If the first token is in X.Y form, then assume D.H and require numTokens <= 3.
 			string firstToken = originalTokens[0];
@@ -96,7 +97,7 @@
 			return dhmsTokens;
 		}
 
-		private static bool ParseDHMSTokens(string[] dhmsTokens, string decimalSeparator, string negativeSign, out TimeSpanValue value)
+		private static bool ParseDHMSTokens(string[] dhmsTokens, string decimalSeparator, string negativeSign, [MaybeNullWhen(false)] out TimeSpanValue value)
 		{
 			value = null;
 			bool result = false;

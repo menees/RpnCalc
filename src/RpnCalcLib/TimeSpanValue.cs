@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using System.Linq;
 	using System.Text;
@@ -136,7 +137,7 @@
 
 		#region Public Methods
 
-		public static bool TryParse(string text, out TimeSpanValue timeSpanValue)
+		public static bool TryParse(string text, [MaybeNullWhen(false)] out TimeSpanValue timeSpanValue)
 		{
 			CultureInfo currentCulture = CultureInfo.CurrentCulture;
 			DateTimeFormatInfo timeFmt = currentCulture.DateTimeFormat;
@@ -200,7 +201,7 @@
 			return new TimeSpanValue(TimeSpan.FromTicks(x.AsTimeSpan.Ticks % y.AsTimeSpan.Ticks));
 		}
 
-		public static int Compare(TimeSpanValue x, TimeSpanValue y)
+		public static int Compare(TimeSpanValue? x, TimeSpanValue? y)
 		{
 			if (!CompareWithNulls(x, y, out int result))
 			{
@@ -217,14 +218,14 @@
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
 		{
-			List<DisplayFormat> result = new List<DisplayFormat>(2);
+			List<DisplayFormat> result = new(2);
 
 			result.Add(new DisplayFormat(this.ToString(calc)));
 
 			// For English, we'll also show: "- d days h hr m min s.fff sec"
 			if (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "en")
 			{
-				StringBuilder sb = new StringBuilder();
+				StringBuilder sb = new();
 
 				TimeSpan displayValue = this.AsTimeSpan;
 				if (displayValue.Ticks < 0)
@@ -268,9 +269,9 @@
 			return result;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			TimeSpanValue value = obj as TimeSpanValue;
+			TimeSpanValue? value = obj as TimeSpanValue;
 			return Compare(this, value) == 0;
 		}
 
@@ -279,7 +280,7 @@
 			return this.AsTimeSpan.GetHashCode();
 		}
 
-		public int CompareTo(TimeSpanValue other)
+		public int CompareTo(TimeSpanValue? other)
 		{
 			return Compare(this, other);
 		}
@@ -292,7 +293,7 @@
 			string text,
 			DateTimeFormatInfo timeFmt,
 			NumberFormatInfo numFmt,
-			out TimeSpanValue timeSpanValue)
+			[MaybeNullWhen(false)] out TimeSpanValue timeSpanValue)
 		{
 			// Give precedence to M:SS formats over H:MM because I enter
 			// a lot more minute:second values than hour:minute values.  A

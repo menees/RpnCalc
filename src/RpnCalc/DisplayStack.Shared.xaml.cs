@@ -24,21 +24,21 @@
 	{
 		#region Private Data Members
 
-		private readonly ObservableCollection<DisplayStackItem> displayItems = new ObservableCollection<DisplayStackItem>();
-		private Calculator calc;
+		private readonly ObservableCollection<DisplayStackItem> displayItems = new();
+		private Calculator? calc;
 		private int numberOfDisplayableItems;
 
 		#endregion
 
 		#region Public Events
 
-		public event EventHandler ExecutedCommand;
+		public event EventHandler? ExecutedCommand;
 
 		#endregion
 
 		#region Public Properties
 
-		public Calculator Calculator
+		public Calculator? Calculator
 		{
 			get
 			{
@@ -89,12 +89,12 @@
 
 		#region Private Event Handlers
 
-		private void DisplayStack_Loaded(object sender, RoutedEventArgs e)
+		private void DisplayStack_Loaded(object? sender, RoutedEventArgs e)
 		{
 			this.UpdateDummyItems();
 		}
 
-		private void DisplayStack_SizeChanged(object sender, SizeChangedEventArgs e)
+		private void DisplayStack_SizeChanged(object? sender, SizeChangedEventArgs e)
 		{
 			// Force this to be recalculated using the current size.
 			this.numberOfDisplayableItems = 0;
@@ -102,7 +102,7 @@
 			this.UpdateDummyItems();
 		}
 
-		private void Calc_DisplayFormatChanged(object sender, DependencyPropertyChangedEventArgs e)
+		private void Calc_DisplayFormatChanged(object? sender, DependencyPropertyChangedEventArgs e)
 		{
 			foreach (DisplayStackItem item in this.displayItems)
 			{
@@ -110,12 +110,12 @@
 			}
 		}
 
-		private void Calc_StackChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void Calc_StackChanged(object? sender, NotifyCollectionChangedEventArgs e)
 		{
 			switch (e.Action)
 			{
 				case NotifyCollectionChangedAction.Add:
-					DisplayStackItem item = new DisplayStackItem(this.calc, (Value)e.NewItems[0], 0);
+					DisplayStackItem item = new(this.calc, (Value?)e.NewItems?[0], 0);
 					this.displayItems.Add(item);
 					this.ResetStackPositions();
 					break;
@@ -134,7 +134,7 @@
 			this.EnsureTopOfStackIsVisible();
 		}
 
-		private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+		private void ContextMenu_Opened(object? sender, RoutedEventArgs e)
 		{
 			if (sender is ContextMenu menu)
 			{
@@ -165,7 +165,7 @@
 				// the same bug, so MenuItemIsEnabledWorkaround is still needed.
 				foreach (MenuItem item in menu.Items.OfType<MenuItem>())
 				{
-					string tag = Convert.ToString(item.Tag, CultureInfo.CurrentCulture);
+					string? tag = Convert.ToString(item.Tag, CultureInfo.CurrentCulture);
 					if (!string.IsNullOrEmpty(tag))
 					{
 						if (tag.StartsWith("Roll", StringComparison.CurrentCulture))
@@ -181,21 +181,21 @@
 			}
 		}
 
-		private void IndexCommand_Click(object sender, RoutedEventArgs e)
+		private void IndexCommand_Click(object? sender, RoutedEventArgs e)
 		{
 			// Commands using this event handler expect to pass an offset
 			// from StackTop, which is DisplayStackItem.Position.
 			this.ExecuteCommandForSelectedPosition(sender as MenuItem, 0);
 		}
 
-		private void CountCommand_Click(object sender, RoutedEventArgs e)
+		private void CountCommand_Click(object? sender, RoutedEventArgs e)
 		{
 			// Commands using this event handler expect to pass a Count
 			// of items in a range, which is DisplayStackItem.Position+1.
 			this.ExecuteCommandForSelectedPosition(sender as MenuItem, 1);
 		}
 
-		private void ListBox_KeyDown(object sender, KeyEventArgs e)
+		private void ListBox_KeyDown(object? sender, KeyEventArgs e)
 		{
 			if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.C)
 			{
@@ -313,13 +313,16 @@
 			// The stack gives us its items from StackTop to StackBottom,
 			// which visually is from down to up, so we'll add them in reverse
 			// order and number them by their stack index.
-			ValueStack stack = this.calc.Stack;
-			var values = stack.PeekRange(stack.Count);
-			for (int i = values.Count - 1; i >= 0; i--)
+			if (this.calc != null)
 			{
-				Value value = values[i];
-				var item = new DisplayStackItem(this.calc, value, i);
-				this.displayItems.Add(item);
+				ValueStack stack = this.calc.Stack;
+				var values = stack.PeekRange(stack.Count);
+				for (int i = values.Count - 1; i >= 0; i--)
+				{
+					Value value = values[i];
+					var item = new DisplayStackItem(this.calc, value, i);
+					this.displayItems.Add(item);
+				}
 			}
 		}
 
@@ -335,11 +338,11 @@
 			}
 		}
 
-		private void ExecuteCommandForSelectedPosition(MenuItem menuItem, int positionAdjustment)
+		private void ExecuteCommandForSelectedPosition(MenuItem? menuItem, int positionAdjustment)
 		{
 			if (menuItem != null && menuItem.Tag != null)
 			{
-				string command = menuItem.Tag.ToString();
+				string command = menuItem.Tag.ToString()!;
 				this.ExecuteCommandForSelectedPosition(command, positionAdjustment);
 			}
 		}
@@ -353,7 +356,7 @@
 				if (!displayItem.IsDummyItem)
 				{
 					int commandParameter = displayItem.Position + positionAdjustment;
-					this.calc.ExecuteCommand(command, commandParameter);
+					this.calc?.ExecuteCommand(command, commandParameter);
 
 					this.ExecutedCommand?.Invoke(this, EventArgs.Empty);
 				}

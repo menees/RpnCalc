@@ -16,9 +16,9 @@
 		#region Private Data Members
 
 		private const double RadianToDegreeMultiplier = 180.0 / Math.PI;
-		private static readonly IntegerValue OneHundred = new IntegerValue(100);
+		private static readonly IntegerValue OneHundred = new(100);
 
-		private Random randomizer;
+		private Random? randomizer;
 
 		#endregion
 
@@ -135,7 +135,7 @@
 		{
 			this.RequireArgs(2);
 			var values = cmd.UseTopValues(2);
-			Value result = Value.Divide(values[1], values[0], this.Calc);
+			Value? result = Value.Divide(values[1], values[0], this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -210,9 +210,9 @@
 		public void Hyp(Command cmd)
 		{
 			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
-			Value xSq = Value.Multiply(x, x, this.Calc);
-			Value ySq = Value.Multiply(y, y, this.Calc);
-			Value sum = Value.Add(xSq, ySq, this.Calc);
+			Value? xSq = Value.Multiply(x, x, this.Calc);
+			Value? ySq = Value.Multiply(y, y, this.Calc);
+			Value? sum = Value.Add(xSq, ySq, this.Calc);
 			NumericValue result = NumericValue.Sqrt((NumericValue)sum);
 			cmd.Commit(result);
 		}
@@ -279,7 +279,7 @@
 		{
 			this.RequireArgs(2);
 			var values = cmd.UseTopValues(2);
-			Value result = Value.Multiply(values[1], values[0], this.Calc);
+			Value? result = Value.Multiply(values[1], values[0], this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -296,7 +296,7 @@
 			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return y% of x => xy/100
-			Value result = Value.Divide(Value.Multiply(x, y, this.Calc), OneHundred, this.Calc);
+			Value? result = Value.Divide(Value.Multiply(x, y, this.Calc), OneHundred, this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -305,7 +305,7 @@
 			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return % change from y to x as a percentage of y => 100(x-y)/y
-			Value result = Value.Divide(Value.Multiply(OneHundred, Value.Subtract(x, y, this.Calc), this.Calc), y, this.Calc);
+			Value? result = Value.Divide(Value.Multiply(OneHundred, Value.Subtract(x, y, this.Calc), this.Calc), y, this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -314,7 +314,7 @@
 			this.UseTopTwoNumericValues(cmd, out NumericValue x, out NumericValue y);
 
 			// Return % of the total y represented by x => 100x/y
-			Value result = Value.Divide(Value.Multiply(OneHundred, x, this.Calc), y, this.Calc);
+			Value? result = Value.Divide(Value.Multiply(OneHundred, x, this.Calc), y, this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -406,7 +406,7 @@
 		public void Square(Command cmd)
 		{
 			var value = this.UseTopNumericValue(cmd);
-			Value result = Value.Multiply(value, value, this.Calc);
+			Value? result = Value.Multiply(value, value, this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -414,7 +414,7 @@
 		{
 			this.RequireArgs(2);
 			var values = cmd.UseTopValues(2);
-			Value result = Value.Subtract(values[1], values[0], this.Calc);
+			Value? result = Value.Subtract(values[1], values[0], this.Calc);
 			cmd.Commit(result);
 		}
 
@@ -519,7 +519,7 @@
 			BigInteger n = RequireInteger(second);
 			if (n < r)
 			{
-				throw new ArgumentOutOfRangeException("r must be <= n", (Exception)null);
+				throw new ArgumentOutOfRangeException(string.Empty, "r must be <= n");
 			}
 
 			BigInteger nFact = IntegerValue.Factorial(n);
@@ -658,7 +658,7 @@
 
 			public Func<double, double> DoubleOperation { get; private set; }
 
-			public Func<BigInteger, double> IntegerOperation { get; private set; }
+			public Func<BigInteger, double>? IntegerOperation { get; private set; }
 
 			#endregion
 

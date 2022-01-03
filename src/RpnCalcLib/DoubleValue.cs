@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using System.Numerics;
 
@@ -125,7 +126,7 @@
 			return result;
 		}
 
-		public static bool TryParse(string text, out DoubleValue doubleValue)
+		public static bool TryParse(string text, [MaybeNullWhen(false)] out DoubleValue doubleValue)
 		{
 			bool result = false;
 			doubleValue = null;
@@ -208,7 +209,7 @@
 			return new DoubleValue(x.AsDouble % y.AsDouble);
 		}
 
-		public static int Compare(DoubleValue x, DoubleValue y)
+		public static int Compare(DoubleValue? x, DoubleValue? y)
 		{
 			if (!CompareWithNulls(x, y, out int result))
 			{
@@ -243,7 +244,7 @@
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
 		{
-			List<DisplayFormat> result = new List<DisplayFormat>(4);
+			List<DisplayFormat> result = new(4);
 
 			result.Add(new DisplayFormat(GetStandardFormat(this.AsDouble)));
 			result.Add(new DisplayFormat(Resources.DisplayFormat_Formatted, GetFormat(this.AsDouble, "N")));
@@ -263,9 +264,9 @@
 			return (BigInteger)this.AsDouble;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			DoubleValue value = obj as DoubleValue;
+			DoubleValue? value = obj as DoubleValue;
 			return Compare(this, value) == 0;
 		}
 
@@ -274,7 +275,7 @@
 			return this.AsDouble.GetHashCode();
 		}
 
-		public int CompareTo(DoubleValue other)
+		public int CompareTo(DoubleValue? other)
 		{
 			return Compare(this, other);
 		}

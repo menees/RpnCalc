@@ -4,6 +4,7 @@
 
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Globalization;
 	using System.Numerics;
 	using System.Text;
@@ -194,7 +195,7 @@
 
 		#region Public Methods
 
-		public static bool TryParse(string text, out FractionValue fractionValue)
+		public static bool TryParse(string text, [MaybeNullWhen(false)] out FractionValue fractionValue)
 		{
 			bool result = false;
 			fractionValue = null;
@@ -370,7 +371,7 @@
 			return new FractionValue(result);
 		}
 
-		public static int Compare(FractionValue x, FractionValue y)
+		public static int Compare(FractionValue? x, FractionValue? y)
 		{
 			if (!CompareWithNulls(x, y, out int result))
 			{
@@ -430,7 +431,7 @@
 
 		public override IEnumerable<DisplayFormat> GetAllDisplayFormats(Calculator calc)
 		{
-			List<DisplayFormat> result = new List<DisplayFormat>(3);
+			List<DisplayFormat> result = new(3);
 
 			// The mixed and common formats are identical unless the whole part is non-zero.
 			if (!this.value.GetWholePart().IsZero)
@@ -471,9 +472,9 @@
 			return new FractionValue(this.value.GetFractionPart());
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			FractionValue value = obj as FractionValue;
+			FractionValue? value = obj as FractionValue;
 			return Compare(this, value) == 0;
 		}
 
@@ -482,7 +483,7 @@
 			return this.value.GetHashCode();
 		}
 
-		public int CompareTo(FractionValue other)
+		public int CompareTo(FractionValue? other)
 		{
 			return Compare(this, other);
 		}
@@ -493,7 +494,7 @@
 
 		private static string GetMixedFormat(BigRational value, char separator)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
 			BigInteger whole = value.GetWholePart();
 			BigRational fractionPart = value.GetFractionPart();
@@ -526,7 +527,7 @@
 
 		private static string GetCommonFormat(BigRational value, char separator)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
 			AppendCommonFormat(sb, value, separator);
 

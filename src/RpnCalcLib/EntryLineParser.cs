@@ -37,13 +37,13 @@
 		private readonly Calculator calc;
 
 		// If you add a member here, add it to the Reset() method too.
-		private readonly List<Token> tokens = new List<Token>();
-		private readonly List<Value> values = new List<Value>();
+		private readonly List<Token> tokens = new();
+		private readonly List<Value> values = new();
 		private int position;
 		private ParseStates states;
-		private string errorMessage;
+		private string? errorMessage;
 
-		private string entryLine;
+		private string entryLine = string.Empty;
 		private int entryLineLength;
 
 		#endregion
@@ -220,8 +220,8 @@
 			// However, we have to be a little careful to avoid ambiguities with
 			// dates, which also use '/'.  But everywhere in this class, I've made
 			// sure to look for dates before dealing with fractions.
-			bool result = text.IndexOf(FractionValue.EntrySeparator) >= 0
-				|| text.IndexOf(FractionValue.DisplaySeparator) >= 0;
+			bool result = text.Contains(FractionValue.EntrySeparator)
+				|| text.Contains(FractionValue.DisplaySeparator);
 			return result;
 		}
 
@@ -318,7 +318,7 @@
 
 		private string ReadToEndDelimiter(char ch, char endDelimiter)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 			sb.Append(ch);
 			while ((ch = this.GetChar()) != NULL && ch != endDelimiter)
 			{
@@ -335,7 +335,7 @@
 
 		private string ReadToWhitespace(char ch)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 			sb.Append(ch);
 			while ((ch = this.GetChar()) != NULL && !char.IsWhiteSpace(ch))
 			{
@@ -356,7 +356,7 @@
 				if (token.ValueType.HasValue)
 				{
 					// Handles: Complex, DateTime, Binary
-					if (Value.TryParse(token.ValueType.Value, text, this.calc, out Value value))
+					if (Value.TryParse(token.ValueType.Value, text, this.calc, out Value? value))
 					{
 						this.values.Add(value);
 					}
@@ -364,7 +364,7 @@
 				else if (ContainsFractionValueSeparator(text))
 				{
 					// Handles: Fraction
-					if (FractionValue.TryParse(text, out FractionValue value))
+					if (FractionValue.TryParse(text, out FractionValue? value))
 					{
 						this.values.Add(value);
 					}
@@ -374,7 +374,7 @@
 					// Handles: TimeSpan, Integer, Double
 					foreach (RpnValueType type in AmbiguousValueTypes)
 					{
-						if (Value.TryParse(type, text, this.calc, out Value value))
+						if (Value.TryParse(type, text, this.calc, out Value? value))
 						{
 							this.values.Add(value);
 							break; // Quit the inner c_ambiguousValueTypes loop.
@@ -445,7 +445,7 @@
 						// of a double value that currently can't be parsed, so we
 						// just won't return this state in that case.
 						if (ContainsFractionValueSeparator(text) ||
-							text.IndexOf(TimeSpanValue.FieldSeparator) >= 0)
+							text.Contains(TimeSpanValue.FieldSeparator))
 						{
 							this.states |= ParseStates.InNegatableScalarValue;
 						}
