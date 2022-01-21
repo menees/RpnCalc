@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Menees.Windows.Presentation" Version="5.0.0" />
+		<PackageReference Include="Menees.Windows.Presentation" Version="5.0.2" />
 		<PackageReference Include="Nullable" Version="1.3.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
